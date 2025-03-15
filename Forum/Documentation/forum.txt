@@ -22,3 +22,7 @@
 -> A refresh will happen every 5 minutes or on user request.
 -> A manual refresh resets the 5 minute timer, and the user may turn on or off automatic refreshes.
 -> The forum will handle at most 100 connections to the database.
+
+Dependencies from other teams:
+-"Games" database table from Store team
+-"Users" database table from Profile team
