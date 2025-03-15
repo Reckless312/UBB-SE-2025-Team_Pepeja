@@ -1,0 +1,30 @@
+COMMUNITY
+	- dms
+		-> 2 users who talk between themselves
+	- forum
+		-> a public page on which each user that has a steam account can look through and also post a topic and/or comment
+		-> posts and comments are ordered by date of upload
+		-> it will have a topic  about which more users can talk about
+		-> each topic will be determined by the post's title
+		-> each user will have their profile icon and username displayed
+		-> developers will have a special icon next to their username (developers to that specific game)
+		-> each user will be able to contribute to each post through a comment
+		-> users can react to posts and comments (like in reviews)
+		-> at most 10 people can access a certain post at any time
+		-> each post has a limit of 400 characters and you can't post a picture
+		-> comment limit is 200 per post
+		-> comment has a limit of 200 characters and can't post a picture
+		-> each comment is parented by a post
+	- reviews 
+		-> reactions 
+		-> awards 
+	- news 
+		->
+	- friend requests
+	
+	TABLES 
+		- users(borrowed ?)
+		- games (borrowed?)
+		- forums 
+		- reviews 
+		- 
