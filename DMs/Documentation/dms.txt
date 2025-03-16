@@ -1,0 +1,20 @@
+--DMs--
+
+-> The user will be provided with a search bar to find other people who use the platform, using their username.
+-> The search will be an exact match
+-> At most 20 concurent users can search for an username.
+-> The user shall receive a list of usernames ordered alphabetically. 
+-> The list will contain at most 10 users.
+-> A message will appear if no users are found.
+-> Option to start a DM with the selected user.
+-> A DM consists of a new window that will have the title set to the username of the receiver.
+-> Windows are independent pop-ups.
+-> The application shall allow the user to type messages into an input box.
+-> The application shall also provide the user with a button to send his message.
+-> A message cannot be empty.
+-> Messages are encoded in ascii.
+-> The window shall not keep track of previous messages.
+-> Messages will be preceded by the username of the sender.
+-> A message shall have at most 500 characters.
+-> Messages are sent within 1 seconds on an internet connection with at least 1 Mbps.
+-> Numbers of windows opened are limited by the users hardware configuration.
