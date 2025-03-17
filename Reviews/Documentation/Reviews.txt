@@ -1,0 +1,102 @@
+Add Reviews ----> 
+Users can submit reviews for games.
+  . Each review must contain:
+  . Title (max 100 characters) - brief summary of the review.
+  . Textual content (max 4000 UTF-8 characters).
+  . Recommendation status ("Recommended" / "Not Recommended").
+  . Numeric rating (out of 10, with optional decimals) (decimals allowed).
+  . Media Attachments: (Optional)
+       Media Attachments: (Optional)
+       Images (PNG, JPG, JPEG) (Max 2 per review).
+ 
+  .Tags (Users can add up to 5 relevant tags like "Multiplayer", "Horror", "Buggy", etc.).
+   Users can select up to 5 tags per review.
+   Max tag length = 50 characters.
+   4 must be from a predefined list.
+   1 can be a user-added custom tag.
+   If a user doesn’t add a custom tag, they just select from the predefined list.
+
+  . Visibility Setting (Public / Friends Only / Private).
+
+
+View Reviews ---->
+Reviews will be visible on each game page, showing:
+  . Username & Profile Picture of reviewer.
+  . Upload Date & Last Edited Date.
+  . Review Score (Upvotes - Downvotes).
+
+  . Sorting options:
+       Newest / Oldest.
+       Highest Rated.
+       Most Upvoted.
+
+  . Pagination:
+      Only 10 reviews load at first.
+      Users click "Load More" to fetch 10 more reviews at a time.
+
+
+
+
+
+Edit/Delete Reviews ---> 
+Editing is allowed but:
+  . Users can edit within the first 24 hours after posting.
+  . After 24 hours, editing is locked, but users can delete their review anytime.
+  . Edit History is NOT stored
+  . Users can delete their own reviews at any time.
+
+
+
+Helpful Votes System ---> 
+Users can mark reviews as:
+  . "Helpful" (Upvote) 👍   
+  . "Unhelpful" (Downvote) 👎.
+  . "Funny" (Adds a "😂" label to the review).
+  . (Users can remove their vote if they change their mind).
+
+Review scores will be calculated as:
+  . Score = Upvotes - Downvotes.
+Users CANNOT change their vote after submitting it.
+
+
+
+Review Moderation ---> 
+Admins / Moderators can:
+  . Delete spam & fake reviews.
+  . Delete reviews violating community rules (spam & fake reviews)
+  . Ban users from posting reviews if they abuse the system.
+
+User Reporting ---> 
+Users can report reviews for:
+  . Harassment / Hate Speech.
+  . Spam / Advertisement.
+  . Fake Review / Misleading Information.
+
+Auto-moderation:
+  . If 10+ users flag a review, it gets hidden until an admin reviews it.
+
+
+
+Summary Statistics ----> 
+Game Review Overview:
+  . Total number of reviews.
+  . Percentage of positive vs. negative reviews.
+  . Average rating (weighted based on total votes).
+  . Most frequently used tags.
+
+User Review Statistics:
+  . Shows a summary of a user's total reviews, votes received, and most common tags.
+
+
+
+Review Filtering & Search ---> 
+Users can filter reviews by:
+  . Recommendation (Recommended / Not Recommended).
+  . Playtime of the reviewer ((Filter Reviews from Users with 10+ hours)).
+  . Keyword Search (Matches review title and body).
+
+Search System: (optional) 
+   Users search by keyword (Title & Content).
+   Results sorted by relevance.
+   Users refine searches easily.
+
