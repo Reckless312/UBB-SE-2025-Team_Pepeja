@@ -1,13 +1,13 @@
 --DMs--
 
 -> The user will be provided with a search bar to find other people who use the platform, using their username.
--> The search will be dynamic, matched results shall contain the prompt.
--> At most 20 concurent users can search for an username.
+-> The search will be dynamic, matched results shall contain the prompt, using regex.
+-> At most 20 concurrent users can search for an username.
 -> The user shall receive a list of usernames ordered alphabetically.
 -> The user will be allowed to change between ascending or descending results from the search using a button.
 -> The list will contain at most 10 users.
 -> A message will appear if no users are found.
--> A user can block / unblock another use, making them disappear / reappear in the search results.
+-> A user can block / unblock another user, making them disappear / reappear in the search results.
 -> A user can invite a person from the search results to a dm.
 -> A received invitation can be accepted or declined.
 -> After an invite has been sent, a new window will open representing the chat box.
@@ -20,6 +20,7 @@
 -> Initially, the server allows 20 clients, but can be changed by the founder to a lower value.
 -> An admin can make a user an admin.
 -> An admin can kick / mute a user who is not an admin.
+-> Admins can invite more people to chat.
 -> The founder can remove any admins, kick / mute all users.
 -> Initial constraints still apply once the number of users reaches 1.
 -> Founder closes all connections and the chat box on leave, after announcing the other users with a message.
