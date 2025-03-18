@@ -1,14 +1,28 @@
 --DMs--
 
 -> The user will be provided with a search bar to find other people who use the platform, using their username.
--> The search will be an exact match
+-> The search will be dynamic, matched results shall contain the prompt.
 -> At most 20 concurent users can search for an username.
--> The user shall receive a list of usernames ordered alphabetically. 
+-> The user shall receive a list of usernames ordered alphabetically.
+-> The user will be allowed to change between ascending or descending result for the search using a button.
 -> The list will contain at most 10 users.
 -> A message will appear if no users are found.
--> Option to start a DM with the selected user.
--> A DM consists of a new window that will have the title set to the username of the receiver.
--> Windows are independent pop-ups.
+-> A user can block a person, they will not appear anymore in the search results.
+-> A user can unblock a person, allowing them to reappear in the search results.
+-> A user can invite a person from the search results to a dm.
+-> A user that received the invitation will be able to accept or decline the connection.
+-> After an invite has been sent, a new window will open representing the chat box.
+-> A user can host at most 5 chat boxes.
+-> A server is automatically configured with the IP address of the person who initiated the invite, alongside a port.
+-> The server will store the name of the founder.
+-> The server will make the founder an initial admin.
+-> The server will wait 3 minutes for a second client to join, otherwise will close itself and the chat box window.
+-> Initially, the server allows 20 clients, but can be changed by the founder to a lower value.
+-> An admin can make a user an admin.
+-> An admin can kick a user who is not an admin.
+-> An admin can mute a user who is not an admin.
+-> The founder can remove the admin status / kick / mute from users / admins.
+-> The chat box will close when the founder closes the connection, after the other users are notified.
 -> The application shall allow the user to type messages into an input box.
 -> The application shall also provide the user with a button to send his message.
 -> A message cannot be empty.
@@ -16,5 +30,4 @@
 -> The window shall not keep track of previous messages.
 -> Messages will be preceded by the username of the sender.
 -> A message shall have at most 500 characters.
--> Messages are sent within 1 seconds on an internet connection with at least 1 Mbps.
--> Numbers of windows opened are limited by the users hardware configuration.
+-> Messages are sent within 1 seconds on an internet connection with at least 5 Mbps.
