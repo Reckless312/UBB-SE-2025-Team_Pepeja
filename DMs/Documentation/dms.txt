@@ -1,34 +1,14 @@
---DMs--
-
--> The user will be provided with a search bar to find other people who use the platform, using their username.
--> The search will be dynamic, matched results shall contain the prompt, using regex.
--> At most 20 concurrent users can search for an username.
--> The user shall receive a list of usernames ordered alphabetically.
--> The user will be allowed to change between ascending or descending results from the search using a button.
--> The list will contain at most 10 users.
--> A message will appear if no users are found.
--> A user can block / unblock another user, making them disappear / reappear in the search results.
--> A user can invite a person from the search results to a dm.
--> A received invitation can be accepted or declined.
--> After an invite has been sent, a new window will open representing the chat box.
--> A user can host at most 5 chat boxes.
--> A server is automatically configured with the IP address of the person who initiated the invite, alongside a port.
--> The server will store the name of the founder.
--> The server will make the founder an initial admin.
--> Communications will use TCP.
--> The server will wait 3 minutes for a second client to join, otherwise will close itself and the chat box window.
--> Initially, the server allows 20 clients, but can be changed by the founder to a lower value.
--> An admin can make a user an admin.
--> An admin can kick / mute a user who is not an admin.
--> Admins can invite more people to chat.
--> The founder can remove any admins, kick / mute all users.
--> Initial constraints still apply once the number of users reaches 1.
--> Founder closes all connections and the chat box on leave, after announcing the other users with a message.
--> The application shall allow the user to type messages into an input box.
--> The application shall also provide the user with a button to send his message.
--> A message cannot be empty.
--> Messages are encoded in ascii.
--> The window shall not keep track of previous messages.
--> Messages will be preceded by the username of the sender.
--> A message shall have at most 500 characters.
--> Messages are sent within 1 seconds on an internet connection with at least 5 Mbps.
+--DMs (Chat)--
+-> If a user initiates the chat, a server will be created with them as its host; they will also be added as a client.
+-> The host will be able to make any users in the chat an admin, kick them (closing their connection), or mute them (removing their ability to send messages).
+-> Admins can kick/mute a user who is not an admin/host.
+-> Admins and the host can invite more people from the Search application.
+-> Communication shall be done under TCP.
+-> Any time the server notices that there are fewer than two people, a countdown of 3 minutes is started. Once the countdown reaches zero, the connections and chat are closed.
+-> The server will allow at most 20 active connections from users.
+-> If the host closes connections, all other active users are notified and their connections are closed.
+-> An input box for users to type messages into.
+-> Messages cannot be empty; they are encoded in ASCII and tracked only during the current session (from server creation to its closure).
+-> Messages will be preceded by the username of the sender and have at most 500 characters.
+-> The server will keep track of at most 100 messages, after which they will be forgotten, allowing a new batch of messages.
+-> Users will be able to clear the messages from their screens.
