@@ -2,10 +2,10 @@
 
 1. Sending Friend Requests:
    -> Users can send a friend request to another user from their profile page or search results.
-   -> A user cannot send multiple friend requests to the same person if one is already pending. - Service 
+   -> A user cannot send multiple friend requests to the same person if one is already pending.
 
 2. Searching and Adding Friends:
-   -> Users can search for other users by username or email. - Service
+   -> Users can search for other users by username or email.
 
 3. Receiving and Managing Friend Requests:
    -> Users will receive a notification when they receive a friend request.
@@ -15,12 +15,12 @@
 
 4. Friends List:
    -> Accepted friend requests will add both users to each other’s friends list.
-   -> Users can see their full friends list under the "Friends" section. - View
+   -> Users can see their full friends list under the "Friends" section.
    -> Users can remove friends at any time, which will remove them from both friends lists.
 
 5. Privacy and Restrictions:
    -> Users can set privacy settings to allow only friends, friends of friends, or no one to send friend requests.
-   -> Blocked users cannot send friend requests. - Block
+   -> Blocked users cannot send friend requests.
 
 
 
