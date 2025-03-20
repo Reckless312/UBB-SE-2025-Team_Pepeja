@@ -20,8 +20,6 @@
 
 5. Privacy and Restrictions:
    -> Users can set privacy settings to allow only friends, friends of friends, or no one to send friend requests.
-   -> Blocked users cannot send friend requests.
-
 
 
 
