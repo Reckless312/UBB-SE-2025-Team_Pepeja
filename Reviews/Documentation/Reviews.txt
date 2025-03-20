@@ -17,7 +17,7 @@ Date posted (newest first or oldest first)
 Rating (highest to lowest)
 Helpfulness (most helpful first)
 Each review display shall include:
-User name and avatar
+User name 
 Date posted (shown as relative time, e.g., "2 days ago")
 Hours played
 Review title and content
@@ -27,9 +27,7 @@ Helpful vote count
 
 
 3. Review Management
-Users shall be able to edit their own reviews with the following constraints:
-All original fields can be modified
-Edit history will be preserved and timestamped
+Users shall be able to edit their own reviews
 Users shall be able to delete their own reviews
 Deleted reviews shall be removed from all statistics calculations
 
@@ -62,8 +60,4 @@ The system shall support up to 1,000 reviews per game without performance degrad
 
 
 
-8. Security Requirements
-Only authenticated users can submit, edit, or delete reviews
-Users can only edit or delete their own reviews
-Admin users shall have the ability to remove reviews that violate content guidelines
 
