@@ -1,0 +1,211 @@
+-----------------------------------------------Direct Messages (dms)---------------------------------------------
+
+--Search--
+-> A search bar for the user to find other people who use the platform using their username.
+-> Input will be checked if it is a substring of a particular username; in that case, the username will be shown.
+-> The list of users received will be sorted by their username alphabetically in ascending order. The user will be able to switch to descending or back to the original state via a button.
+-> The number of displayed users shall be limited to 10.
+-> If no users are found, a simple "No users found." message will be displayed.
+-> Alongside the username, an option to invite the user to chat will appear.
+-> The page will also contain a list of incoming invites to chat, sorted by the date sent (earliest to latest).
+-> Each invite can be accepted or rejected.
+-> The number of displayed invites shall be limited to 10.
+-> Accepting an invitation will open the DM application.
+-> The search will handle at most 100 connections to the database.
+
+--DMs (Chat)--
+-> If a user initiates the chat, a server will be created with them as its host; they will also be added as a client.
+-> The host will be able to make any users in the chat an admin, kick them (closing their connection), or mute them (removing their ability to send messages).
+-> Admins can kick/mute a user who is not an admin/host.
+-> Admins and the host can invite more people from the Search application.
+-> Communication shall be done under TCP.
+-> Any time the server notices that there are fewer than two people, a countdown of 3 minutes is started. Once the countdown reaches zero, the connections and chat are closed.
+-> The server will allow at most 20 active connections from users.
+-> If the host closes connections, all other active users are notified and their connections are closed.
+-> An input box for users to type messages into.
+-> Messages cannot be empty; they are encoded in ASCII and tracked only during the current session (from server creation to its closure).
+-> Messages will be preceded by the username of the sender and have at most 500 characters.
+-> The server will keep track of at most 100 messages, after which they will be forgotten, allowing a new batch of messages.
+-> Users will be able to clear the messages from their screens.
+
+
+-----------------------------------------------FORUM---------------------------------------------
+
+-> The forum shall allow registered users to publish, browse and interact with public posts. 
+-> A post will contain only UTF-8 characters with a maximum total length of 500 characters. 
+-> A post shall display the username and profile picture of the author, time of publication and will be comprised of a title with a maximum length of 100 characters and a body with a maximum length of 400 characters. 
+-> Users can attach one or several comments to a post. 
+-> A post may have at most 500 comments.
+-> When a post is deleted all attached comments will also be deleted.
+-> Comments shall also display the username and profile picture of the comment's author and the time of publication. 
+-> A comment will only have a body that will contain only UTF-8 characters with a maximum length of 200 characters. 
+-> Posts and comments will have a voting system where users can give a positive or negative vote("upvotes" and "downvotes") to express their opinion on the post or comment. 
+-> A post's or comment's score will be displayed on the post or comment and will be equal to the number of downvotes subtracted from the number of upvotes and it may be negative.
+-> Users can only vote once per post or comment and can change or retract their vote at any time. 
+-> The comments under a post will be displayed in descending order of score. 
+-> When publishing a post the user can optionally choose a game that is available to purchase in the store as the topic of discussion.
+-> If a topic of discussion is seleced it will also be displayed on the post.
+-> A post or comment can be deleted any time by the author but can not be edited. 
+-> By default users browsing the forum will be shown posts in chronological order where the most recent posts will be at the top.
+-> Users can filter posts shown based on: topic, having a score above 0, absence or presence of certain words in the post's title.
+-> Users can also choose to browse the posts with the highest score that have been published in the past day, week, month or year. In this case at most 20 posts will be shown and they will be ordered in descending order based on score.
+-> The forum will display new posts or comments and will update the posts and comments already displayed only on refresh.
+-> A refresh will happen every 5 minutes or on user request.
+-> A manual refresh resets the 5 minute timer, and the user may turn on or off automatic refreshes.
+-> The forum will handle at most 100 connections to the database.
+
+Dependencies from other teams:
+-"Games" database table from Store team
+-"Users" database table from Profile team
+
+
+-----------------------------------------------FRIEND REQUESTS---------------------------------------------
+
+1. Sending Friend Requests:
+   -> Users can send a friend request to another user from their profile page or search results.
+   -> A user cannot send multiple friend requests to the same person if one is already pending.
+
+2. Searching and Adding Friends:
+   -> Users can search for other users by username or email.
+
+3. Receiving and Managing Friend Requests:
+   -> Users will receive a notification when they receive a friend request.
+   -> Friend requests can be accepted or declined.
+   -> A request will remain pending until it is either accepted or declined.
+   -> Declined friend requests will not notify the sender but will be removed from both users' lists.
+
+4. Friends List:
+   -> Accepted friend requests will add both users to each other’s friends list.
+   -> Users can see their full friends list under the "Friends" section.
+   -> Users can remove friends at any time, which will remove them from both friends lists.
+
+5. Privacy and Restrictions:
+   -> Users can set privacy settings to allow only friends, friends of friends, or no one to send friend requests.
+
+
+-----------------------------------------------NEWS----------------------------------------------------
+
+-> Nomenclature
+	- Users = Registered individuals
+	- Developers = Users that develop games
+	- Non-Developers = Users that are not Developers
+-> Will be unique to each game: every game will have its own dedicated 'news' section
+-> Each 'news' section will be accessible only through its respective game's page (Should discuss this with the 'games' team)
+
+-> Will contain posts, ordered from newest to oldest with the following features:
+	-> Upload Date
+	-> Profile picture of the author
+	-> Username of the author
+	-> Title:
+		- Between 1 and 200 UTF-16 characters
+	-> Body: 
+		- Between 1 and 5.000 UTF-16 characters. This includes: plain text, mark-ups, embedded links (Youtube only), and hyperlinks.
+		- At most 10MB in size. This includes: text from the post (2 bytes per character) and images (only GIF, PNG, JPG, and JPEG formats are supported). The images will be provided by the uploader, from their own device.
+	-> Community awards:
+		- Between 0 and 50 community awards, given by non-developer users only (Should discuss this with the 'profiles' team)
+	-> Comments section: 
+		- Between 0 and 500 comments
+		- Can be used by both developers and users alike
+	-> Ratings:
+		- Between 0 and 30.000 total ratings
+		- Each rating can be either a like or a dislike
+		- Each user may only submit one rating, which they can later change or remove
+		- Ratings cannot be given by any developers
+	-> Notes:
+		- A post can be edited or removed only within 24 hours of being uploaded. After that, they will stay up for 1 year, before being automatically removed.
+		- Only one post can be uploaded per day.
+		- Only the developers of the game associated with the news page may create posts
+		- Each poster will have the option to format their text (excluding the title) using html mark-ups. Formatting would enable the following: bold text, italic text, strikethrough text, superscript and subscript text, headings (h1, h2, and h3), and spoiler text.
+
+-> Comments will be ordered from best to most controversial (based on the difference between the number of likes and dislikes they've received) and will contain the following features:
+	-> Profile picture of the author
+	-> Username of the author
+	-> Body:
+		- Between 1 and 3.000 UTF-16 characters. This includes: plain text and mark-ups
+	-> Ratings:
+		- Between 0 and 30.000 total ratings
+		- Each rating can be either a like or a dislike
+		- Each user may only submit one rating, which they can later change or remove
+
+	-> Answers / Responses:
+		- These are comments that reply to another comment, we can consider these 'nested comments'
+		- Responses can be nested up to 10 levels deep (where one reply to a comment under a post is considered a 1 level deep nested response) 
+	
+	-> Notes:
+		- Each comment can be edited or removed indefinitely by its author
+		- Each commenter will have the option to format their text using html mark-ups. Formatting would enable the following: bold text, italic text, strikethrough text, superscript and subscript text, headings (h1, h2, and h3), and spoiler text.
+
+-> Initially, only the 9 most recent posts will be loaded on the front page. After the user scrolls through them all, the next 9 will load along with the previous ones, continuing until a total of 90 posts have been rendered on the user's device.
+-> A similar mechanic will be applied to the loading of comments of each post: 20 will be loaded first, then the next 20 and so on until the user scrolls through every comment of a post.
+-> Paging of this sort would require the user to have a stable internet connection with a download speed of at least 100 Mbps if they expect data to arrive in under a second
+-> The database must be able to handle at least 100 connections and must be able to perform queries asynchronously
+
+-> A search bar will be included to enable the user to search posts
+-> The input the user can enter into the search bar must be between 0 and 200 UTF-16 characters long
+-> If the user performs a search using an empty string, they'll be taken to the default page described above
+-> A search query is split into tokens, each separated by one or more whitespaces. These tokens are matched against the titles of all posts to find the best matches. The posts that match are then displayed in the same manner as the default page, described above, except they're now ordered in descending order based on how well they match the query.
+-> To determine if a token matches a word in a post, it is checked if the token is a substring of the word, in which case it matches that word. (Maybe allow regex later on)
+
+
+-----------------------------------------------REVIEWS----------------------------------------------------
+
+1. Review Submission
+Users shall be able to submit a review for any game in the catalog
+Each review must include:
+A descriptive title (3-20 characters)
+Detailed review content (30-100 characters)
+A clear recommendation status (Recommended/Not Recommended)
+A numeric rating on a scale of 1.0 to 5.0 (with increments of 0.1)
+The system shall automatically record:
+Date and time of submission
+User's play time for the reviewed game
+
+
+2. Review Display
+The system shall display a chronological list of user reviews for each game
+Users shall be able to sort reviews by:
+Date posted (newest first or oldest first)
+Rating (highest to lowest)
+Helpfulness (most helpful first)
+Each review display shall include:
+User name 
+Date posted (shown as relative time, e.g., "2 days ago")
+Hours played
+Review title and content
+Recommendation status (prominently displayed)
+Rating value
+Helpful vote count
+
+
+3. Review Management
+Users shall be able to edit their own reviews
+Users shall be able to delete their own reviews
+Deleted reviews shall be removed from all statistics calculations
+
+
+4. Review Voting System
+Users shall be able to mark any review as "Helpful" or "Funny"
+Users shall not be able to vote on their own reviews
+Vote counts shall be displayed prominently on each review
+A user can cast one "Helpful" vote and one "Funny" vote per review
+
+
+5. Review Statistics
+The system shall calculate and display the following aggregate statistics for each game:
+Total number of reviews
+Percentage of positive reviews (recommended)
+Average rating (1.0-5.0 scale)
+Statistics shall update immediately when reviews are added, edited, or deleted
+
+
+6. Review Filtering
+Users shall be able to filter reviews based on:
+Recommendation status (All, Positive Only, Negative Only)
+Time period (All Time, Recent)
+Filter controls shall be clearly labeled and accessible above the review list
+
+
+7. Performance Requirements
+Review submission and display shall respond within 2 seconds under normal load
+The system shall support up to 1,000 reviews per game without performance degradation
+
