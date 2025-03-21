@@ -1,0 +1,23 @@
+*DMs & Friend Requests:* You will share one tab where the user may search for others based on the provided username. Each entry in the result should allow for the options to start a direct message and to send a friend request. Note that these should update accordingly, aka if you already sent a request to that user, instead of having the option to send another friend request, there'll be a 'cancel friend request' option instead.
+
+*DMs:* You'll work on another tab, perhaps a pop-up, that will represent the chatbox for your functionality. This chatbox should also allow the sender to send a friend request to the recipient and vice-versa, as described above.
+
+*Friend Requests:* You'll work on integrating your functionality with the profile page, which will be represented by another tab or something of that sort.
+
+*Reviews:* You'll work on integrating your functionality with the page of each game. What is to be expected of you is to allow the viewing of statistics and the top 5 reviews on a game's page.
+
+*Reviews:* You'll also work on an 'expanded reviews' tab which is to be accessed only from a game's page. This tab will allow the viewing of all reviews and enable filtering capabilities, as described in your requirements file. This tab will also allow the user to navigate to the news tab for that game.
+
+*Forum:* You'll work on a tab that will allow any user to create posts, access posts, comment, and rate them. This tab should enable the viewing of all posts (or a limited number of posts) within that one tab. This also includes filtering, searching etc. Ideally when accessing a post, the post should load as a pop-up on the user's screen instead of taking you to another page that's dedicated just for that post. This is a bridge point with the news tab.
+
+*News:* I'll work on a tab that's specific to each game. It should be accessed from the 'expanded reviews' tab. It will allow for the viewing of up to 90 posts within that one tab. The tab will also include filtering, searching etc. Basically, everything described in my document will be within that one tab and that tab alone.
+
+**N.B. FOR Reviews, News, Forum:** these pages should allow the user to click on a reviewer's / commenter's / poster's username / profile picture to reveal two options: 'send friend request' and 'direct message.' The 'send friend request' option will work as described above, that is, if the user already sent a friend request to that reviewer / commenter / poster already and it's pending, it should enable the option to 'cancel friend request' instead.
+
+
+**Work for the retake frog:** He'll take care of all of our UI layouts. So, when implementing your work, consider working with a mock-up design that is to be later replaced by the retake frog's work. I'll brief him myself on how the UI's should look, by considering our work at the last seminar and each of your requirements, but I expect you to also dm me if you've got any other additions or suggestions.
+
+
+If any issues arise or you've got objections to what's been described above, feel free to dm me about it unless it pertains to the whole app, in which case you message here.
+
+Have fun reading you guys! 😄
