@@ -2,7 +2,6 @@
 	- Users = Registered individuals
 	- Developers = Users that develop games
 	- Non-Developers = Users that are not Developers
-	- Anons = Non-registered individuals
 -> Will be unique to each game: every game will have its own dedicated 'news' section
 -> Each 'news' section will be accessible only through its respective game's page (Should discuss this with the 'games' team)
 
@@ -49,8 +48,6 @@
 		- Each comment can be edited or removed indefinitely by its author
 		- Each commenter will have the option to format their text using html mark-ups. Formatting would enable the following: bold text, italic text, strikethrough text, superscript and subscript text, headings (h1, h2, and h3), and spoiler text.
 
--> Anons cannot interact with posts nor comments. They may only view and peruse them.
-
 -> Initially, only the 9 most recent posts will be loaded on the front page. After the user scrolls through them all, the next 9 will load along with the previous ones, continuing until a total of 90 posts have been rendered on the user's device.
 -> A similar mechanic will be applied to the loading of comments of each post: 20 will be loaded first, then the next 20 and so on until the user scrolls through every comment of a post.
 -> Paging of this sort would require the user to have a stable internet connection with a download speed of at least 100 Mbps if they expect data to arrive in under a second
@@ -61,5 +58,3 @@
 -> If the user performs a search using an empty string, they'll be taken to the default page described above
 -> A search query is split into tokens, each separated by one or more whitespaces. These tokens are matched against the titles of all posts to find the best matches. The posts that match are then displayed in the same manner as the default page, described above, except they're now ordered in descending order based on how well they match the query.
 -> To determine if a token matches a word in a post, it is checked if the token is a substring of the word, in which case it matches that word. (Maybe allow regex later on)
-
--> Anons can use the search bar as well in the same manner as users
