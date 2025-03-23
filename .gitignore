@@ -1,1 +1,10 @@
-.gitkeep
+bin/
+obj/
+Properties/PublishProfiles
+.vs/
+
+*.sln
+*.csproj
+*.user
+
+*.gitkeep
