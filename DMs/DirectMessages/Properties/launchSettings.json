@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "DirectMessages (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "DirectMessages (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
