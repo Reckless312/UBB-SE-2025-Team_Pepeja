@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Steam-Community (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "Steam-Community (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
