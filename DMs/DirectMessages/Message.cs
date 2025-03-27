@@ -24,14 +24,15 @@ namespace DirectMessages {
     static MessageReflection() {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
-            "Cg1tZXNzYWdlLnByb3RvEg5EaXJlY3RNZXNzYWdlcyJuCgdNZXNzYWdlEhYK",
-            "Dm1lc3NhZ2VDb250ZW50GAEgASgJEhcKD21lc3NhZ2VEYXRlVGltZRgCIAEo",
-            "CRIZChFtZXNzYWdlU2VuZGVyTmFtZRgDIAEoCRIXCg9tZXNzYWdlQWxpZ21l",
-            "bnQYBCABKAliBnByb3RvMw=="));
+            "Cg1tZXNzYWdlLnByb3RvEg5EaXJlY3RNZXNzYWdlcyKLAQoHTWVzc2FnZRIW",
+            "Cg5tZXNzYWdlQ29udGVudBgBIAEoCRIXCg9tZXNzYWdlRGF0ZVRpbWUYAiAB",
+            "KAkSGQoRbWVzc2FnZVNlbmRlck5hbWUYAyABKAkSFwoPbWVzc2FnZUFsaWdt",
+            "ZW50GAQgASgJEhsKE21lc3NhZ2VTZW5kZXJTdGF0dXMYBSABKAliBnByb3Rv",
+            "Mw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::DirectMessages.Message), global::DirectMessages.Message.Parser, new[]{ "MessageContent", "MessageDateTime", "MessageSenderName", "MessageAligment" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::DirectMessages.Message), global::DirectMessages.Message.Parser, new[]{ "MessageContent", "MessageDateTime", "MessageSenderName", "MessageAligment", "MessageSenderStatus" }, null, null, null, null)
           }));
     }
     #endregion
@@ -77,6 +78,7 @@ namespace DirectMessages {
       messageDateTime_ = other.messageDateTime_;
       messageSenderName_ = other.messageSenderName_;
       messageAligment_ = other.messageAligment_;
+      messageSenderStatus_ = other.messageSenderStatus_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -134,6 +136,18 @@ namespace DirectMessages {
       }
     }
 
+    /// <summary>Field number for the "messageSenderStatus" field.</summary>
+    public const int MessageSenderStatusFieldNumber = 5;
+    private string messageSenderStatus_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string MessageSenderStatus {
+      get { return messageSenderStatus_; }
+      set {
+        messageSenderStatus_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -153,6 +167,7 @@ namespace DirectMessages {
       if (MessageDateTime != other.MessageDateTime) return false;
       if (MessageSenderName != other.MessageSenderName) return false;
       if (MessageAligment != other.MessageAligment) return false;
+      if (MessageSenderStatus != other.MessageSenderStatus) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -164,6 +179,7 @@ namespace DirectMessages {
       if (MessageDateTime.Length != 0) hash ^= MessageDateTime.GetHashCode();
       if (MessageSenderName.Length != 0) hash ^= MessageSenderName.GetHashCode();
       if (MessageAligment.Length != 0) hash ^= MessageAligment.GetHashCode();
+      if (MessageSenderStatus.Length != 0) hash ^= MessageSenderStatus.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -198,6 +214,10 @@ namespace DirectMessages {
         output.WriteRawTag(34);
         output.WriteString(MessageAligment);
       }
+      if (MessageSenderStatus.Length != 0) {
+        output.WriteRawTag(42);
+        output.WriteString(MessageSenderStatus);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -224,6 +244,10 @@ namespace DirectMessages {
         output.WriteRawTag(34);
         output.WriteString(MessageAligment);
       }
+      if (MessageSenderStatus.Length != 0) {
+        output.WriteRawTag(42);
+        output.WriteString(MessageSenderStatus);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -245,6 +269,9 @@ namespace DirectMessages {
       }
       if (MessageAligment.Length != 0) {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(MessageAligment);
+      }
+      if (MessageSenderStatus.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(MessageSenderStatus);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -269,6 +296,9 @@ namespace DirectMessages {
       }
       if (other.MessageAligment.Length != 0) {
         MessageAligment = other.MessageAligment;
+      }
+      if (other.MessageSenderStatus.Length != 0) {
+        MessageSenderStatus = other.MessageSenderStatus;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -305,6 +335,10 @@ namespace DirectMessages {
             MessageAligment = input.ReadString();
             break;
           }
+          case 42: {
+            MessageSenderStatus = input.ReadString();
+            break;
+          }
         }
       }
     #endif
@@ -338,6 +372,10 @@ namespace DirectMessages {
           }
           case 34: {
             MessageAligment = input.ReadString();
+            break;
+          }
+          case 42: {
+            MessageSenderStatus = input.ReadString();
             break;
           }
         }

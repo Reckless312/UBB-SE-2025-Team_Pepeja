@@ -1,12 +1,9 @@
 ﻿using Microsoft.UI.Dispatching;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
-using Windows.Media.Protection.PlayReady;
 
 namespace DirectMessages
 {
@@ -14,42 +11,48 @@ namespace DirectMessages
     {
         private IPEndPoint serverEndPoint;
         private Socket clientSocket;
-        private DispatcherQueue dispatch;
+        private DispatcherQueue uiThread;
 
-        public event EventHandler<MessageEventArgs> NewMessage;
+        public event EventHandler<MessageEventArgs> NewMessageReceivedEvent;
 
         private String userName;
+        private bool isConnected;
+        private bool isAdmin;
+        private bool isMuted;
+        private bool isHost;
 
         const int PORT_NUMBER = 6000;
+        const int MESSAGE_MAXIMUM_SIZE = 4112;
 
-        public Client(String hostIpAddress, String userName, DispatcherQueue dispatch)
+        public Client(String hostIpAddress, String userName, DispatcherQueue uiThread)
         {
             this.userName = userName;
-            this.dispatch = dispatch;
+            this.uiThread = uiThread;
+
             try
             {
                 this.serverEndPoint = new IPEndPoint(IPAddress.Parse(hostIpAddress), PORT_NUMBER);
                 this.clientSocket = new(serverEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-
-                _ = this.ConnectToServer();
             }
             catch(Exception exception)
             {
-                Console.WriteLine($"Client create error: {exception.Message}");
+                throw new Exception(exception.Message);
             }
         }
 
-        private async Task ConnectToServer()
+        public async Task ConnectToServer()
         {
             try
             {
                 await clientSocket.ConnectAsync(serverEndPoint);
 
-                byte[] messageBytes = Encoding.ASCII.GetBytes(userName);
+                byte[] userNameToBytes = Encoding.UTF8.GetBytes(userName);
 
-                _ = await clientSocket.SendAsync(messageBytes, SocketFlags.None);
+                _ = await clientSocket.SendAsync(userNameToBytes, SocketFlags.None);
 
                 _ = Task.Run(() => ReceiveMessage());
+
+                this.isConnected = true;
             }
             catch(Exception exception)
             {
@@ -61,13 +64,26 @@ namespace DirectMessages
         {
             try
             {
-                byte[] messageBytes = Encoding.ASCII.GetBytes(message);
+                byte[] messageToBytes = Encoding.UTF8.GetBytes(message);
 
-                _ = await clientSocket.SendAsync(messageBytes, SocketFlags.None);
+                _ = await clientSocket.SendAsync(messageToBytes, SocketFlags.None);
             }
-            catch (Exception exception)
+            catch (Exception)
             {
-                throw new Exception(exception.Message);
+                throw new Exception("Couldn't send message to server, quiting...");
+            }
+        }
+
+        public async Task Disconnect()
+        {
+            try
+            {
+                _ = await clientSocket.SendAsync(new byte[0], SocketFlags.None);
+                this.CloseConnection();
+            }
+            catch (Exception)
+            {
+                // Exception could be: already disconnected, server disconnected beforehand...
             }
         }
 
@@ -77,25 +93,37 @@ namespace DirectMessages
             {
                 while (true)
                 {
-                    byte[] messageBuffer = new byte[1024];
+                    byte[] messageBuffer = new byte[MESSAGE_MAXIMUM_SIZE];
                     int messageLength = await clientSocket.ReceiveAsync(messageBuffer, SocketFlags.None);
+
                     if (messageLength == 0)
                     {
                         break;
                     }
+
                     Message message = Message.Parser.ParseFrom(messageBuffer, 0, messageLength);
-                    this.dispatch.TryEnqueue(() => NewMessage?.Invoke(this, new MessageEventArgs(message)));
+                    this.uiThread.TryEnqueue(() => NewMessageReceivedEvent?.Invoke(this, new MessageEventArgs(message)));
                 }
             }
-            catch (Exception exception)
+            catch (Exception)
             {
-                throw new Exception(exception.Message);
+                // Can't send exception up since we are in a task
             }
             finally
             {
-                clientSocket.Shutdown(SocketShutdown.Both);
-                clientSocket.Close();
+                this.CloseConnection();
             }
+        }
+        public bool IsConnected()
+        {
+            return this.isConnected;
+        }
+
+        private void CloseConnection()
+        {
+            this.isConnected = false;
+            clientSocket.Shutdown(SocketShutdown.Both);
+            clientSocket.Close();
         }
     }
 }
