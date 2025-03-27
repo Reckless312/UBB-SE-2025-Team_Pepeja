@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Forum (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "Forum (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
