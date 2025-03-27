@@ -2,9 +2,11 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Google.Protobuf;
 
@@ -22,7 +24,15 @@ namespace DirectMessages
         private ConcurrentBag<String> adminUsers;
         private ConcurrentBag<String> mutedUsers;
 
+        private Regex muteRegex;
+        private Regex adminRegex;
+        private Regex kickRegex;
+
         private String hostName;
+        private String muteCommandPattern;
+        private String adminCommandPattern;
+        private String kickCommandPattern;
+
         private bool isRunning;
 
         const int PORT_NUMBER = 6000;
@@ -31,10 +41,19 @@ namespace DirectMessages
         const int STARTING_INDEX = 0;
         const int DISCONNECT_CODE = 0;
         const int SERVER_TIMEOUT_COUNTDOWN = 180000;
+        const int MINIMUM_CONNECTIONS = 2;
         const char ADDRESS_SEPARATOR = ':';
 
         public Server(String hostAddress, String hostName)
         {
+            this.muteCommandPattern = @"^<.*>\|Mute\|<.*>$";
+            this.adminCommandPattern = @"^<.*>\|Admin\|<.*>$";
+            this.kickCommandPattern = @"^<.*>\|Kick\|<.*>$";
+
+            this.muteRegex = new Regex(this.muteCommandPattern);
+            this.adminRegex = new Regex(this.adminCommandPattern);
+            this.kickRegex = new Regex(this.kickCommandPattern);
+
             this.addressesAndUserNames = new ConcurrentDictionary<string, string>();
             this.connectedClients = new ConcurrentDictionary<Socket, string>();
 
@@ -112,12 +131,12 @@ namespace DirectMessages
                         {
                             case true:
                                 messageContentReceived = "Host disconnected";
-                                this.SendMessageToClients(CreateMessage(messageContentReceived, ipAddress));
+                                this.SendMessageToClients(CreateMessage(messageContentReceived, userName));
                                 this.ShutDownServer();
                                 break;
                             case false:
                                 messageContentReceived = "Disconnected";
-                                this.SendMessageToClients(CreateMessage(messageContentReceived, ipAddress));
+                                this.SendMessageToClients(CreateMessage(messageContentReceived, userName));
                                 this.CheckForMinimumConnections();
                                 break;
                         }
@@ -127,7 +146,17 @@ namespace DirectMessages
                         break;
                     }
 
-                    this.SendMessageToClients(CreateMessage(messageContentReceived, ipAddress));
+                    if(this.CheckRegexMatch(this.muteRegex, this.mutedUsers, messageContentReceived, userName, "has been muted"))
+                    {
+                        continue;
+                    }
+
+                    if(this.CheckRegexMatch(this.adminRegex, this.adminUsers, messageContentReceived, userName, "has been promoted to admin"))
+                    {
+                        continue;
+                    }
+
+                    this.SendMessageToClients(CreateMessage(messageContentReceived, userName));
                 }
             }
             catch (Exception exception)
@@ -141,14 +170,15 @@ namespace DirectMessages
             }
         }
 
-        private Message CreateMessage(String contentMessage, String ipAddress)
+        private Message CreateMessage(String contentMessage, String userName)
         {
             Message message = new Message
             {
                 MessageContent = contentMessage,
                 MessageDateTime = DateTime.Now.ToString(),
-                MessageSenderName = this.addressesAndUserNames.GetValueOrDefault(ipAddress),
+                MessageSenderName = userName,
                 MessageAligment = "Left",
+                MessageSenderStatus = this.GetHighestStatus(userName),
             };
 
             return message;
@@ -175,7 +205,7 @@ namespace DirectMessages
                 this.serverTimeout?.Dispose();
                 this.serverTimeout = new System.Threading.Timer((_) =>
                 {
-                    if (connectedClients.Count < 2)
+                    if (connectedClients.Count < MINIMUM_CONNECTIONS)
                     {
                         this.ShutDownServer();
                     }
@@ -195,7 +225,7 @@ namespace DirectMessages
 
         private void CheckForMinimumConnections()
         {
-            if (this.connectedClients.Count < 2)
+            if (this.connectedClients.Count < MINIMUM_CONNECTIONS)
             {
                 this.InitializeServerTimeout();
             }
@@ -204,6 +234,52 @@ namespace DirectMessages
         public bool IsServerRunning()
         {
             return this.isRunning;
+        }
+
+        private String GetHighestStatus(String userName)
+        {
+            switch (true)
+            {
+                case true when this.hostName == userName:
+                    return "Host";
+                case true when this.adminUsers.Contains(userName):
+                    return "Admin";
+                default:
+                    return "User";
+            }
+        }
+
+        private bool IsHighetStatus(String firstUserStatus, String secondUserStatus)
+        {
+            return (firstUserStatus == "Host" && secondUserStatus != "Host") || (firstUserStatus == "Admin" && secondUserStatus == "User");
+        }
+        
+        private String FindTargetedUserNameFromCommand(String Command)
+        {
+            int CommandTargetIndex = 2;
+            String commandTarget = Command.Split('|')[CommandTargetIndex];
+
+            int NameStartIndex = 1, NameEndIndex = commandTarget.Length - 2;
+            String targetedUserName = commandTarget.Substring(NameStartIndex, NameEndIndex);
+
+            return targetedUserName;
+        }
+
+        private bool CheckRegexMatch(Regex regex, ConcurrentBag<String> statusHolder, String message, String userName, String serverMessage)
+        {
+            if (regex.IsMatch(message))
+            {
+                String targetedUserName = this.FindTargetedUserNameFromCommand(message);
+
+                if (this.IsHighetStatus(this.GetHighestStatus(userName), this.GetHighestStatus(targetedUserName)))
+                {
+                    statusHolder.Add(targetedUserName);
+                    this.SendMessageToClients(CreateMessage($"{targetedUserName} " + serverMessage, hostName));
+                }
+
+                return true;
+            }
+            return false;
         }
     }
 }
