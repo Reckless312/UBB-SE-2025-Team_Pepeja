@@ -8,6 +8,7 @@ namespace DirectMessages
         public event EventHandler<MessageEventArgs> NewMessageEvent;
         public Task ConnectUserToServer();
         public Task SendMessage(String message);
+        public Task DisconnectClient();
 
     }
 }

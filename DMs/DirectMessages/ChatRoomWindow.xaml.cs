@@ -4,13 +4,14 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System.Threading.Tasks;
 
-
 namespace DirectMessages
 {
     public sealed partial class ChatRoomWindow : Window
     {
         private IService service;
         private ObservableCollection<Message> messages;
+
+        private String userName;
 
         /// <summary>
         /// Property used by the UI to display messages.
@@ -31,6 +32,8 @@ namespace DirectMessages
         {
             this.InitializeComponent();
 
+            this.userName = userName;
+
             Microsoft.UI.Dispatching.DispatcherQueue uiThread = Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread();
 
             this.messages = new ObservableCollection<Message>();
@@ -39,6 +42,11 @@ namespace DirectMessages
             this.service.NewMessageEvent += HandleNewMessage;
             WaitOnConnectionToServer();
 
+        }
+
+        public async Task OnDisconnectService()
+        {
+            await this.service.DisconnectClient();
         }
 
         private async void WaitOnConnectionToServer()
@@ -64,16 +72,24 @@ namespace DirectMessages
         private void HandleNewMessage(object? sender, MessageEventArgs messageEventArgs)
         {
             this.messages.Add(messageEventArgs.Message);
+
+            while (this.messages.Count > 100)
+            {
+                this.messages.RemoveAt(0);
+            }
         }
 
         public void Clear_Button_Click(object sender, RoutedEventArgs e)
         {
-            System.Diagnostics.Debug.WriteLine("Clear Button Clicked");
+            this.messages.Clear();
         }
 
         public void Admin_Button_Click(object sender, RoutedEventArgs e)
         {
-            System.Diagnostics.Debug.WriteLine("Admin Button Clicked");
+            if (this.InvertedListView.SelectedItem is Message selectedMessage)
+            {
+                
+            }
         }
 
         public void Mute_Button_Click(object sender, RoutedEventArgs e)
@@ -84,6 +100,11 @@ namespace DirectMessages
         public void Kick_Button_Click(object sender, RoutedEventArgs e)
         {
             System.Diagnostics.Debug.WriteLine("Kick Button Clicked");
+        }
+
+        public void Friend_Request_Click(object sender, RoutedEventArgs e)
+        {
+            System.Diagnostics.Debug.WriteLine("Friend Request Button Clicked");
         }
 
         /// <summary>

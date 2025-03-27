@@ -6,9 +6,9 @@ namespace DirectMessages
 {
     internal class Service: IService
     {
-        private Server? server;
         private Client client;
         private DispatcherQueue uiThread;
+        private Server? server;
 
         public event EventHandler<MessageEventArgs> NewMessageEvent;
 
@@ -30,13 +30,20 @@ namespace DirectMessages
         {
             if(serverInviteIp == HOST_IP_FINDER)
             {
+                this.serverInviteIp = this.userIpAddress;
                 this.server = new Server(this.userIpAddress, this.userName);
                 this.server.Start();
-                this.serverInviteIp = this.userIpAddress;
             }
 
             this.client = new Client(serverInviteIp, userName, this.uiThread);
+
             await this.client.ConnectToServer();
+
+            if (!this.client.IsConnected())
+            {
+                throw new Exception("Couldn't connect to server");
+            }
+
             this.client.NewMessageReceivedEvent += UpdateNewMessage;
         }
 
@@ -53,7 +60,30 @@ namespace DirectMessages
             {
                 throw new Exception("Message content can't be empty");
             }
-            await this.client.SendMessageToServer(message);
+
+            if (!this.client.IsConnected())
+            {
+                throw new Exception("Client is not connected to server");
+            }
+
+            try
+            {
+                await this.client.SendMessageToServer(message);
+            }
+            catch (Exception exception)
+            {
+                throw new Exception(exception.Message);
+            }
+
+            if(this.server?.IsServerRunning() == false)
+            {
+                throw new Exception("Server timeout has been reached!");
+            }
+        }
+
+        public async Task DisconnectClient()
+        {
+            await this.client.Disconnect();
         }
     }
 }

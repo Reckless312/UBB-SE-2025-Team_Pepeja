@@ -14,23 +14,31 @@ namespace DirectMessages
     {
         private Socket serverSocket;
         private IPEndPoint ipEndPoint;
+        private System.Threading.Timer? serverTimeout;
+        private readonly object lockTimer;
 
         private ConcurrentDictionary<String, String> addressesAndUserNames;
         private ConcurrentDictionary<Socket, String> connectedClients;
+        private ConcurrentBag<String> adminUsers;
+        private ConcurrentBag<String> mutedUsers;
 
         private String hostName;
+        private bool isRunning;
 
         const int PORT_NUMBER = 6000;
-        const int MESSAGE_SIZE = 512;
+        const int MESSAGE_MAXIMUM_SIZE = 4112;
         const int NUMBER_OF_QUEUED_CONNECTIONS = 10;
         const int STARTING_INDEX = 0;
         const int DISCONNECT_CODE = 0;
+        const int SERVER_TIMEOUT_COUNTDOWN = 180000;
         const char ADDRESS_SEPARATOR = ':';
 
         public Server(String hostAddress, String hostName)
         {
             this.addressesAndUserNames = new ConcurrentDictionary<string, string>();
             this.connectedClients = new ConcurrentDictionary<Socket, string>();
+
+            this.lockTimer = new object();
 
             this.hostName = hostName;
 
@@ -41,29 +49,34 @@ namespace DirectMessages
                 this.serverSocket.Bind(this.ipEndPoint);
                 this.serverSocket.Listen(NUMBER_OF_QUEUED_CONNECTIONS);
             }
-            catch(Exception exception)
+            catch (Exception exception)
             {
                 throw new ServerException($"Server create error: {exception.Message}");
             }
+
+            this.isRunning = true;
         }
 
         public async void Start()
         {
-            while (true)
+            while (this.isRunning)
             {
                 try
                 {
                     Socket clientSocket = await this.serverSocket.AcceptAsync();
-                    
+
                     String socketNullResult = "Disconnected";
                     String ipAddressAndPort = clientSocket.RemoteEndPoint?.ToString() ?? socketNullResult;
- 
+
                     String ipAddress = ipAddressAndPort.Substring(STARTING_INDEX, ipAddressAndPort.IndexOf(ADDRESS_SEPARATOR));
+                    Debug.Write(ipAddress);
                     this.connectedClients.TryAdd(clientSocket, ipAddress);
+
+                    this.CheckForMinimumConnections();
 
                     _ = Task.Run(() => HandleClient(clientSocket));
                 }
-                catch(Exception exception)
+                catch (Exception exception)
                 {
                     Debug.WriteLine($"Client couldn't connect: {exception.Message}");
                 }
@@ -74,32 +87,38 @@ namespace DirectMessages
         {
             try
             {
-                byte[] userNameBuffer = new byte[MESSAGE_SIZE];
+                byte[] userNameBuffer = new byte[MESSAGE_MAXIMUM_SIZE];
                 int userNameLength = await clientSocket.ReceiveAsync(userNameBuffer, SocketFlags.None);
 
-                String userName = Encoding.ASCII.GetString(userNameBuffer, STARTING_INDEX, userNameLength);
+                String userName = Encoding.UTF8.GetString(userNameBuffer, STARTING_INDEX, userNameLength);
                 String ipAddress = this.connectedClients.GetValueOrDefault(clientSocket) ?? "";
                 this.addressesAndUserNames.TryAdd(ipAddress, userName);
 
-                while (true)
+                while (this.isRunning)
                 {
-                    byte[] messageBuffer = new byte[MESSAGE_SIZE];
+                    byte[] messageBuffer = new byte[MESSAGE_MAXIMUM_SIZE];
                     int charactersReceivedCount = await clientSocket.ReceiveAsync(messageBuffer, SocketFlags.None);
 
-                    String messageContentReceived = Encoding.ASCII.GetString(messageBuffer, STARTING_INDEX, charactersReceivedCount);
+                    if(!this.isRunning)
+                    {
+                        break;
+                    }
+
+                    String messageContentReceived = Encoding.UTF8.GetString(messageBuffer, STARTING_INDEX, charactersReceivedCount);
 
                     if (charactersReceivedCount == DISCONNECT_CODE)
                     {
-                        switch(this.IsHost(ipAddress)){
+                        switch (this.IsHost(ipAddress))
+                        {
                             case true:
                                 messageContentReceived = "Host disconnected";
                                 this.SendMessageToClients(CreateMessage(messageContentReceived, ipAddress));
-                                this.serverSocket.Shutdown(SocketShutdown.Both);
-                                this.serverSocket.Close();
+                                this.ShutDownServer();
                                 break;
                             case false:
                                 messageContentReceived = "Disconnected";
                                 this.SendMessageToClients(CreateMessage(messageContentReceived, ipAddress));
+                                this.CheckForMinimumConnections();
                                 break;
                         }
 
@@ -146,7 +165,45 @@ namespace DirectMessages
 
         private bool IsHost(String ipAddress)
         {
-            return IPAddress.Parse(ipAddress) == ipEndPoint.Address;
+            return ipAddress == ipEndPoint.Address.ToString();
+        }
+
+        private void InitializeServerTimeout()
+        {
+            lock (this.lockTimer)
+            {
+                this.serverTimeout?.Dispose();
+                this.serverTimeout = new System.Threading.Timer((_) =>
+                {
+                    if (connectedClients.Count < 2)
+                    {
+                        this.ShutDownServer();
+                    }
+                }, null, SERVER_TIMEOUT_COUNTDOWN, System.Threading.Timeout.Infinite);
+            }
+        }
+
+        private void ShutDownServer()
+        {
+            if(this.serverSocket.Connected == true)
+            {
+                this.serverSocket.Shutdown(SocketShutdown.Both);
+            }
+            this.serverSocket.Close();
+            this.isRunning = false;
+        }
+
+        private void CheckForMinimumConnections()
+        {
+            if (this.connectedClients.Count < 2)
+            {
+                this.InitializeServerTimeout();
+            }
+        }
+
+        public bool IsServerRunning()
+        {
+            return this.isRunning;
         }
     }
 }
