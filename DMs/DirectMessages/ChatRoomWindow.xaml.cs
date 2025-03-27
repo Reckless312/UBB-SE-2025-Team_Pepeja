@@ -1,19 +1,8 @@
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Navigation;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
+using System.Threading.Tasks;
 
 
 namespace DirectMessages
@@ -22,23 +11,59 @@ namespace DirectMessages
     {
         private IService service;
         private ObservableCollection<Message> messages;
-        private ObservableCollection<Message> Messages
+
+        /// <summary>
+        /// Property used by the UI to display messages.
+        /// </summary>
+        public ObservableCollection<Message> Messages
         {
             get => this.messages;
         }
 
-        public ChatRoomWindow(String userName, String ipAddress, String serverIp)
+        /// <summary>
+        /// Constructor for the ChatRoomWindow class.
+        /// </summary>
+        /// <param name="userName">Current user name</param>
+        /// <param name="userIpAddress">Current user ip address</param>
+        /// <param name="serverInviteIp">The ip address of the server that invited the user
+        ///                              (can be "None" => the current user invited someone)</param>
+        public ChatRoomWindow(String userName, String userIpAddress, String serverInviteIp)
         {
             this.InitializeComponent();
 
-            this.service = new Service(userName, ipAddress, serverIp, DispatcherQueue);
+            Microsoft.UI.Dispatching.DispatcherQueue uiThread = Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread();
 
             this.messages = new ObservableCollection<Message>();
+            this.service = new Service(userName, userIpAddress, serverInviteIp, uiThread);
 
-            this.service.NewMessage += (message, eventArgs) =>
+            this.service.NewMessageEvent += HandleNewMessage;
+            WaitOnConnectionToServer();
+
+        }
+
+        private async void WaitOnConnectionToServer()
+        {
+            while (this.Content.XamlRoot == null)
             {
-                this.messages.Add(eventArgs.Message);
-            };
+                await Task.Delay(50);
+            }
+
+            try
+            {
+                await this.service.ConnectUserToServer();
+            }
+            catch(Exception exception)
+            {
+                await this.ShowError(exception);
+            }
+        }
+
+        /// <summary>
+        /// Listener for the NewMessageEvent.
+        /// </summary>
+        private void HandleNewMessage(object? sender, MessageEventArgs messageEventArgs)
+        {
+            this.messages.Add(messageEventArgs.Message);
         }
 
         public void Clear_Button_Click(object sender, RoutedEventArgs e)
@@ -59,12 +84,35 @@ namespace DirectMessages
         public void Kick_Button_Click(object sender, RoutedEventArgs e)
         {
             System.Diagnostics.Debug.WriteLine("Kick Button Clicked");
-        }   
+        }
 
-        public void Send_Button_Click(object sender, RoutedEventArgs e)
+        /// <summary>
+        /// Sends the message written in the MessageTextBox.
+        /// </summary>
+        public async void Send_Button_Click(object sender, RoutedEventArgs e)
         {
-            this.service.SendMessage(this.MessageTextBox.Text);
+            try
+            {
+                await this.service.SendMessage(this.MessageTextBox.Text);
+            }
+            catch (Exception exception)
+            {
+                await this.ShowError(exception);
+            }
             this.MessageTextBox.Text = "";
+        }
+
+        private async Task ShowError(Exception exception)
+        {
+            ContentDialog errorDialog = new ContentDialog()
+            {
+                Title = "An error has occured!",
+                Content = exception.Message,
+                CloseButtonText = "Ok",
+                XamlRoot = this.Content.XamlRoot,
+            };
+
+            await errorDialog.ShowAsync();
         }
     }
 }

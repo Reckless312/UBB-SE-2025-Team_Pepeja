@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using Google.Protobuf;
-using Windows.Services.Maps;
 
 namespace DirectMessages
 {
@@ -20,24 +19,18 @@ namespace DirectMessages
         private ConcurrentDictionary<Socket, String> connectedClients;
 
         private String hostName;
-        private ConcurrentBag<String> admins;
-        private ConcurrentBag<String> mutedUsers;
 
         const int PORT_NUMBER = 6000;
         const int MESSAGE_SIZE = 512;
         const int NUMBER_OF_QUEUED_CONNECTIONS = 10;
         const int STARTING_INDEX = 0;
+        const int DISCONNECT_CODE = 0;
         const char ADDRESS_SEPARATOR = ':';
-        public enum ServerEnum{
-            NumberOfCharactersRepresentingADisconnect = 0,
-        }
 
         public Server(String hostAddress, String hostName)
         {
             this.addressesAndUserNames = new ConcurrentDictionary<string, string>();
             this.connectedClients = new ConcurrentDictionary<Socket, string>();
-            this.admins = new ConcurrentBag<string>();
-            this.mutedUsers = new ConcurrentBag<string>();
 
             this.hostName = hostName;
 
@@ -52,11 +45,9 @@ namespace DirectMessages
             {
                 throw new ServerException($"Server create error: {exception.Message}");
             }
-
-            this.Start();
         }
 
-        private async void Start()
+        public async void Start()
         {
             while (true)
             {
@@ -74,7 +65,7 @@ namespace DirectMessages
                 }
                 catch(Exception exception)
                 {
-                    throw new ServerException($"Client join error: {exception.Message}");
+                    Debug.WriteLine($"Client couldn't connect: {exception.Message}");
                 }
             }
         }
@@ -97,7 +88,7 @@ namespace DirectMessages
 
                     String messageContentReceived = Encoding.ASCII.GetString(messageBuffer, STARTING_INDEX, charactersReceivedCount);
 
-                    if (charactersReceivedCount == (int)ServerEnum.NumberOfCharactersRepresentingADisconnect)
+                    if (charactersReceivedCount == DISCONNECT_CODE)
                     {
                         switch(this.IsHost(ipAddress)){
                             case true:
@@ -122,10 +113,11 @@ namespace DirectMessages
             }
             catch (Exception exception)
             {
-                throw new ServerException($"Client receive message error: {exception.Message}");
+                Debug.WriteLine($"Client had an error: {exception.Message}");
             }
             finally
             {
+                clientSocket.Shutdown(SocketShutdown.Both);
                 clientSocket.Close();
             }
         }

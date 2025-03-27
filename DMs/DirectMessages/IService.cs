@@ -1,14 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace DirectMessages
 {
     internal interface IService
     {
-        public event EventHandler<MessageEventArgs> NewMessage;
+        public event EventHandler<MessageEventArgs> NewMessageEvent;
+        public Task ConnectUserToServer();
         public Task SendMessage(String message);
+
     }
 }

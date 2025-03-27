@@ -43,8 +43,6 @@ namespace DirectMessages
         {
             m_window = new ChatRoomWindow("Cora", "192.168.1.136", "None");
             m_window.Activate();
-            /*ChatRoomWindow m_window_2 = new ChatRoomWindow("Justin", "192.168.0.2", "192.168.0.1");
-            m_window_2.Activate();*/
         }
 
         private Window? m_window;

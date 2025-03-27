@@ -67,6 +67,7 @@
                  IsSpellCheckEnabled="True"
                  MinWidth="400"
                  Height="100"
+                 MaxLength="500"
                  VerticalAlignment="Bottom"/>
 
         <Button Content="Send" 

@@ -1,66 +1,57 @@
 ﻿using Microsoft.UI.Dispatching;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using Windows.UI.Core;
 
 namespace DirectMessages
 {
     internal class Service: IService
     {
-        private String userName;
-        private String userIpAddress;
-        private String serverIp;
-
         private Server? server;
         private Client client;
-        private DispatcherQueue dispatch;
+        private DispatcherQueue uiThread;
+
+        public event EventHandler<MessageEventArgs> NewMessageEvent;
+
+        private String userName;
+        private String userIpAddress;
+        private String serverInviteIp;
 
         private const String HOST_IP_FINDER = "None";
 
-        public event EventHandler<MessageEventArgs> NewMessage;
-
-        public Service(String userName, String userIpAddress, String serverIp, DispatcherQueue dispatcher)
+        public Service(String userName, String userIpAddress, String serverInviteIp, DispatcherQueue uiThread)
         {
             this.userName = userName;
             this.userIpAddress = userIpAddress;
-            this.dispatch = dispatcher;
-
-            try
-            {
-                this.serverIp = serverIp;
-                ConnectUserToServer();
-            }
-            catch(Exception exception)
-            {
-                Console.WriteLine($"Error parsing server IP and port: {exception.Message}");
-            }
+            this.serverInviteIp = serverInviteIp;
+            this.uiThread = uiThread;
         }
 
-        private void ConnectUserToServer()
+        public async Task ConnectUserToServer()
         {
-            if(serverIp == HOST_IP_FINDER)
+            if(serverInviteIp == HOST_IP_FINDER)
             {
                 this.server = new Server(this.userIpAddress, this.userName);
-                this.serverIp = this.userIpAddress;
+                this.server.Start();
+                this.serverInviteIp = this.userIpAddress;
             }
-            this.client = new Client(serverIp , userName, this.dispatch);
 
-            this.client.NewMessage += (currentObject, eventArgs) =>
-            {
-                Message newMessage = eventArgs.Message;
-                newMessage.MessageAligment = newMessage.MessageSenderName == this.userName ? "Right" : "Left";
-                this.dispatch.TryEnqueue(() => this.NewMessage?.Invoke(this, new MessageEventArgs(newMessage)));
-            };
+            this.client = new Client(serverInviteIp, userName, this.uiThread);
+            await this.client.ConnectToServer();
+            this.client.NewMessageReceivedEvent += UpdateNewMessage;
+        }
+
+        private void UpdateNewMessage(object? sender, MessageEventArgs messageEventArgs)
+        {
+            Message newMessage = messageEventArgs.Message;
+            newMessage.MessageAligment = newMessage.MessageSenderName == this.userName ? "Right" : "Left";
+            this.uiThread.TryEnqueue(() => this.NewMessageEvent?.Invoke(this, new MessageEventArgs(newMessage)));
         }
 
         public async Task SendMessage(String message)
         {
             if(message.Length == 0)
             {
-                Console.WriteLine("Message is empty.");
+                throw new Exception("Message content can't be empty");
             }
             await this.client.SendMessageToServer(message);
         }

@@ -1,12 +1,9 @@
 ﻿using Microsoft.UI.Dispatching;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
-using Windows.Media.Protection.PlayReady;
 
 namespace DirectMessages
 {
@@ -14,40 +11,39 @@ namespace DirectMessages
     {
         private IPEndPoint serverEndPoint;
         private Socket clientSocket;
-        private DispatcherQueue dispatch;
+        private DispatcherQueue uiThread;
 
-        public event EventHandler<MessageEventArgs> NewMessage;
+        public event EventHandler<MessageEventArgs> NewMessageReceivedEvent;
 
         private String userName;
 
         const int PORT_NUMBER = 6000;
 
-        public Client(String hostIpAddress, String userName, DispatcherQueue dispatch)
+        public Client(String hostIpAddress, String userName, DispatcherQueue uiThread)
         {
             this.userName = userName;
-            this.dispatch = dispatch;
+            this.uiThread = uiThread;
+
             try
             {
                 this.serverEndPoint = new IPEndPoint(IPAddress.Parse(hostIpAddress), PORT_NUMBER);
                 this.clientSocket = new(serverEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-
-                _ = this.ConnectToServer();
             }
             catch(Exception exception)
             {
-                Console.WriteLine($"Client create error: {exception.Message}");
+                throw new Exception(exception.Message);
             }
         }
 
-        private async Task ConnectToServer()
+        public async Task ConnectToServer()
         {
             try
             {
                 await clientSocket.ConnectAsync(serverEndPoint);
 
-                byte[] messageBytes = Encoding.ASCII.GetBytes(userName);
+                byte[] userNameToBytes = Encoding.ASCII.GetBytes(userName);
 
-                _ = await clientSocket.SendAsync(messageBytes, SocketFlags.None);
+                _ = await clientSocket.SendAsync(userNameToBytes, SocketFlags.None);
 
                 _ = Task.Run(() => ReceiveMessage());
             }
@@ -61,9 +57,9 @@ namespace DirectMessages
         {
             try
             {
-                byte[] messageBytes = Encoding.ASCII.GetBytes(message);
+                byte[] messageToBytes = Encoding.ASCII.GetBytes(message);
 
-                _ = await clientSocket.SendAsync(messageBytes, SocketFlags.None);
+                _ = await clientSocket.SendAsync(messageToBytes, SocketFlags.None);
             }
             catch (Exception exception)
             {
@@ -79,12 +75,14 @@ namespace DirectMessages
                 {
                     byte[] messageBuffer = new byte[1024];
                     int messageLength = await clientSocket.ReceiveAsync(messageBuffer, SocketFlags.None);
+
                     if (messageLength == 0)
                     {
                         break;
                     }
+
                     Message message = Message.Parser.ParseFrom(messageBuffer, 0, messageLength);
-                    this.dispatch.TryEnqueue(() => NewMessage?.Invoke(this, new MessageEventArgs(message)));
+                    this.uiThread.TryEnqueue(() => NewMessageReceivedEvent?.Invoke(this, new MessageEventArgs(message)));
                 }
             }
             catch (Exception exception)
