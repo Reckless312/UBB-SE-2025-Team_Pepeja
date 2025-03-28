@@ -12,16 +12,18 @@
         public bool IsHost { get => isHost; set => isHost = value; }
         public bool IsConnected { get => isConnected; set => isConnected = value; }
 
-
-
-        public ClientStatus(bool isAdmin, bool isMuted, bool isHost, bool isConnected)
+        /// <summary>
+        /// Constructor for the Client Status class
+        /// </summary>
+        public ClientStatus()
         {
-            this.isAdmin = isAdmin;
-            this.isMuted = isMuted;
-            this.isHost = isHost;
-            this.isConnected = isConnected;
+            this.isAdmin = this.IsMuted = this.IsHost = this.IsConnected = false;
         }
 
+        /// <summary>
+        /// Check if the client is a regular user
+        /// </summary>
+        /// <returns>True or False</returns>
         public bool IsRegularUser()
         {
             return !(this.IsHost || this.IsAdmin);

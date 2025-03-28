@@ -22,7 +22,7 @@ namespace DirectMessages
         public const String CANCEL_FRIEND_REQUEST_CONTENT = "Cancel Friend Request";
 
         /// <summary>
-        /// Property used by the UI to display messages.
+        /// Property used by the UI to display messages
         /// </summary>
         public ObservableCollection<Message> Messages
         {
@@ -30,7 +30,7 @@ namespace DirectMessages
         }
 
         /// <summary>
-        /// Constructor for the ChatRoomWindow class.
+        /// Constructor for the ChatRoomWindow class
         /// </summary>
         /// <param name="userName">Current user name</param>
         /// <param name="userIpAddress">Current user ip address</param>
@@ -56,7 +56,7 @@ namespace DirectMessages
         }
 
         /// <summary>
-        /// Sends the message written in the MessageTextBox.
+        /// Sends the message written in the MessageTextBox
         /// </summary>
         public async void Send_Button_Click(object sender, RoutedEventArgs e)
         {
