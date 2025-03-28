@@ -47,7 +47,7 @@
 -> If a topic of discussion is seleced it will also be displayed on the post.
 -> A post or comment can be deleted any time by the author but can not be edited. 
 -> By default users browsing the forum will be shown posts in chronological order where the most recent posts will be at the top.
--> Users can filter posts shown based on: topic, having a score above 0, absence or presence of certain words in the post's title.
+-> Users can filter posts shown based on: topic, having a score above 0; and search posts based on title.
 -> Users can also choose to browse the posts with the highest score that have been published in the past day, week, month or year. In this case at most 20 posts will be shown and they will be ordered in descending order based on score.
 -> The forum will display new posts or comments and will update the posts and comments already displayed only on refresh.
 -> A refresh will happen every 5 minutes or on user request.

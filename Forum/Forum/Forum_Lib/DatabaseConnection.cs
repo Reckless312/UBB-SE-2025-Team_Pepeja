@@ -10,13 +10,14 @@ namespace Forum_Lib
 {
     internal class DatabaseConnection
     {
+        const string CONNECTION_STRING = "Data Source=DESKTOP-2OA983C;Initial Catalog=WarMuseum;Integrated Security=true;";
         public string ConnectionString { get; }
         public SqlConnection Connection { get; }
 
-        public DatabaseConnection(string connectionString)
+        public DatabaseConnection()
         {
-            ConnectionString = connectionString;
-            Connection = new SqlConnection(connectionString);
+            ConnectionString = CONNECTION_STRING;
+            Connection = new SqlConnection(CONNECTION_STRING);
         }
 
         public void Connect()
