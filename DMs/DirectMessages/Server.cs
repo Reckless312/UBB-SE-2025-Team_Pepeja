@@ -39,23 +39,23 @@ namespace DirectMessages
 
         private bool isRunning;
 
-        const int PORT_NUMBER = 6000;
-        const int MESSAGE_MAXIMUM_SIZE = 4112;
-        const int USER_NAME_MAXIMUM_SIZE = 512;
-        const int NUMBER_OF_QUEUED_CONNECTIONS = 10;
-        const int STARTING_INDEX = 0;
-        const int DISCONNECT_CODE = 0;
-        const int SERVER_TIMEOUT_COUNTDOWN = 180000;
-        const int MINIMUM_CONNECTIONS = 2;
-        const char ADDRESS_SEPARATOR = ':';
-        const String ADMIN_STATUS = "ADMIN";
-        const String MUTE_STATUS = "MUTE";
-        const String KICK_STATUS = "KICK";
-        const String HOST_STATUS = "HOST";
-        const String REGULAR_USER_STATUS = "USER";
-        const String INFO_CHANGE_MUTE_STATUS_COMMAND = "<INFO>|" + MUTE_STATUS + "|<INFO>";
-        const String INFO_CHANGE_ADMIN_STATUS_COMMAND = "<INFO>|" + ADMIN_STATUS + "|<INFO>";
-        const String INFO_CHANGE_KICK_STATUS_COMMAND = "<INFO>|" + KICK_STATUS + "|<INFO>";
+        public const int PORT_NUMBER = 6000;
+        public const int MESSAGE_MAXIMUM_SIZE = 4112;
+        private const int USER_NAME_MAXIMUM_SIZE = 512;
+        private const int NUMBER_OF_QUEUED_CONNECTIONS = 10;
+        private const int STARTING_INDEX = 0;
+        private const int DISCONNECT_CODE = 0;
+        private const int SERVER_TIMEOUT_COUNTDOWN = 180000;
+        private const int MINIMUM_CONNECTIONS = 2;
+        private const char ADDRESS_SEPARATOR = ':';
+        public const String ADMIN_STATUS = "ADMIN";
+        public const String MUTE_STATUS = "MUTE";
+        public const String KICK_STATUS = "KICK";
+        private const String HOST_STATUS = "HOST";
+        private const String REGULAR_USER_STATUS = "USER";
+        private const String INFO_CHANGE_MUTE_STATUS_COMMAND = "<INFO>|" + MUTE_STATUS + "|<INFO>";
+        private const String INFO_CHANGE_ADMIN_STATUS_COMMAND = "<INFO>|" + ADMIN_STATUS + "|<INFO>";
+        private const String INFO_CHANGE_KICK_STATUS_COMMAND = "<INFO>|" + KICK_STATUS + "|<INFO>";
 
         public Server(String hostAddress, String hostName)
         {

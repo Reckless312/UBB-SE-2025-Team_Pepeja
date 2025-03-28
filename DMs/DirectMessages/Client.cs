@@ -14,21 +14,13 @@ namespace DirectMessages
         private Socket clientSocket;
         private DispatcherQueue uiThread;
         private Regex infoChangeCommandRegex;
+        private ClientStatus clientStatus;
 
         public event EventHandler<MessageEventArgs> NewMessageReceivedEvent;
+        public event EventHandler<ClientStatusEventArgs> ClientStatusChangedEvent;
 
         private String userName;
         private String infoChangeCommandPattern;
-        private bool isConnected;
-        private bool isAdmin;
-        private bool isMuted;
-        private bool isHost;
-
-        const int PORT_NUMBER = 6000;
-        const int MESSAGE_MAXIMUM_SIZE = 4112;
-        const String ADMIN_STATUS = "ADMIN";
-        const String MUTE_STATUS = "MUTE";
-        const String KICK_STATUS = "KICK";
 
         public Client(String hostIpAddress, String userName, DispatcherQueue uiThread)
         {
@@ -36,11 +28,13 @@ namespace DirectMessages
             this.infoChangeCommandPattern = @"^<INFO>\|.*\|<INFO>$";
             this.uiThread = uiThread;
 
+            this.clientStatus = new ClientStatus(false, false, false, false);
+
             this.infoChangeCommandRegex = new Regex(this.infoChangeCommandPattern);
 
             try
             {
-                this.serverEndPoint = new IPEndPoint(IPAddress.Parse(hostIpAddress), PORT_NUMBER);
+                this.serverEndPoint = new IPEndPoint(IPAddress.Parse(hostIpAddress), Server.PORT_NUMBER);
                 this.clientSocket = new(serverEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
             }
             catch(Exception exception)
@@ -60,7 +54,9 @@ namespace DirectMessages
 
                 _ = Task.Run(() => ReceiveMessage());
 
-                this.isConnected = true;
+                this.clientStatus.IsConnected = true;
+
+                this.uiThread.TryEnqueue(() => this.ClientStatusChangedEvent?.Invoke(this, new ClientStatusEventArgs(clientStatus)));
             }
             catch(Exception exception)
             {
@@ -72,7 +68,7 @@ namespace DirectMessages
         {
             try
             {
-                if (this.isMuted)
+                if (this.clientStatus.IsMuted)
                 {
                     throw new Exception("You are muted, you can't send messages");
                 }
@@ -106,7 +102,7 @@ namespace DirectMessages
             {
                 while (true)
                 {
-                    byte[] messageBuffer = new byte[MESSAGE_MAXIMUM_SIZE];
+                    byte[] messageBuffer = new byte[Server.MESSAGE_MAXIMUM_SIZE];
                     int messageLength = await clientSocket.ReceiveAsync(messageBuffer, SocketFlags.None);
 
                     if (messageLength == 0)
@@ -140,12 +136,12 @@ namespace DirectMessages
         }
         public bool IsConnected()
         {
-            return this.isConnected;
+            return this.clientStatus.IsConnected;
         }
 
         private void CloseConnection()
         {
-            this.isConnected = false;
+            this.clientStatus.IsConnected = false;
             clientSocket.Shutdown(SocketShutdown.Both);
             clientSocket.Close();
         }
@@ -154,38 +150,25 @@ namespace DirectMessages
         {
             switch (newStatus)
             {
-                case ADMIN_STATUS:
-                    this.isAdmin = !this.isAdmin;
+                case Server.ADMIN_STATUS:
+                    this.clientStatus.IsAdmin = !this.clientStatus.IsAdmin;
                     break;
-                case MUTE_STATUS:
-                    this.isMuted = !this.isMuted;
+                case Server.MUTE_STATUS:
+                    this.clientStatus.IsMuted = !this.clientStatus.IsMuted;
                     break;
-                case KICK_STATUS:
-                    this.isConnected = false;
+                case Server.KICK_STATUS:
+                    this.clientStatus.IsConnected = false;
                     break;
                 default:
                     break;
             }
+
+            this.uiThread.TryEnqueue(() => this.ClientStatusChangedEvent?.Invoke(this, new ClientStatusEventArgs(clientStatus)));
         }
 
         public void SetIsHost()
         {
-            this.isHost = true;
-        }
-
-        public bool IsHost()
-        {
-            return this.isHost;
-        }
-
-        public bool IsAdmin()
-        {
-            return this.isAdmin;
-        }
-
-        public bool IsRegularUser()
-        {
-            return !(this.isHost || this.isAdmin);
+            this.clientStatus.IsHost = true;
         }
     }
 }
