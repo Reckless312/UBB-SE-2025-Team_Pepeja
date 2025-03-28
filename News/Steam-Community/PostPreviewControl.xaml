@@ -10,174 +10,158 @@
     d:DesignHeight="450"
     d:DesignWidth="400">
 
-	<Grid
+    <Grid
         BorderBrush="DarkBlue"
         BorderThickness="2"
         CornerRadius="8"
         Padding="16"
         Background="LightCyan"
         MinHeight="400">
-		<Grid.RowDefinitions>
-			<RowDefinition Height="Auto"/>
-			<RowDefinition Height="Auto"/>
-			<RowDefinition Height="Auto"/>
-		</Grid.RowDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
 
-		<!-- Header -->
-		<Grid
+        <!-- Header -->
+        <Grid
             Grid.Row="0"
             Margin="0,0,0,12"
             Background="LightYellow">
-			<Grid.ColumnDefinitions>
-				<ColumnDefinition Width="Auto"/>
-				<ColumnDefinition Width="*"/>
-			</Grid.ColumnDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
 
-			<!-- Profile Picture -->
-			<Ellipse
-                Grid.Column="0"
-                Width="40"
+            <!-- Profile Picture -->
+            <Grid Grid.Column="0" Width="52" Height="40" Margin="0,0,12,0">
+                <Ellipse 
+                Grid.Column="0" 
+                Width="40" 
                 Height="40"
-                Margin="0,0,12,0"
-                Fill="Red"/>
+                Margin="0,0,12,0">
+                    <Ellipse.Fill>
+                        <ImageBrush x:Name="ProfilePicture" Stretch="UniformToFill"/>
+                    </Ellipse.Fill>
+                </Ellipse>
+            </Grid>
 
-			<!-- Username and Date -->
-			<StackPanel Grid.Column="1">
-				<TextBlock
-                    Text="Username"
+            <!-- Username and Date -->
+            <StackPanel Grid.Column="1">
+                <TextBlock
+                    Name="Username"
                     FontWeight="SemiBold"
                     FontSize="16"
                     Foreground="Black"/>
-				<TextBlock
-                    Text="Jan 1, 2023"
+                <TextBlock
+                    Name="UploadDate"
                     FontSize="12"
                     Foreground="DarkGray"/>
-			</StackPanel>
-		</Grid>
+            </StackPanel>
+        </Grid>
 
-		<!-- Content Section -->
-		<Grid
+        <!-- Content Section -->
+        <Grid
             Grid.Row="1"
             Height="200"
             Background="LightGreen">
 
-			<!-- Content Text -->
-			<StackPanel Margin="0">
-				<TextBlock
-                    Text="Check out this new game!"
-                    FontSize="18"
-                    FontWeight="SemiBold"
-                    Margin="0,0,0,8"
-                    Foreground="DarkBlue"/>
-				<TextBlock
-                    Text="Just found this amazing game on Steam. It has incredible graphics and gameplay."
-                    TextWrapping="Wrap"
-                    Margin="0,0,0,8"
-                    Foreground="Black"/>
-				<TextBlock
-                    Text="The storyline is immersive and the characters are well developed. I've already spent 20 hours playing it!"
-                    TextWrapping="Wrap"
-                    Margin="0,0,0,8"
-                    Foreground="Black"/>
-				<TextBlock
-                    Text="What do you think? Is anyone else playing this? Let me know in the comments!"
-                    TextWrapping="Wrap"
-                    Foreground="Black"/>
-			</StackPanel>
+            <!-- WebView2 Content -->
+            <WebView2 x:Name="ContentWebView" Height="200"/>
 
-			<!-- Gradient Overlay -->
-			<Rectangle
+            <!-- Gradient Overlay -->
+            <Rectangle
                 Height="80"
                 VerticalAlignment="Bottom"
                 HorizontalAlignment="Stretch">
-				<Rectangle.Fill>
-					<LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
-						<GradientStop Color="Transparent" Offset="0"/>
-						<GradientStop Color="Black" Offset="1"/>
-					</LinearGradientBrush>
-				</Rectangle.Fill>
-			</Rectangle>
-		</Grid>
+                <Rectangle.Fill>
+                    <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                        <GradientStop Color="Transparent" Offset="0"/>
+                        <GradientStop Color="Black" Offset="1"/>
+                    </LinearGradientBrush>
+                </Rectangle.Fill>
+            </Rectangle>
+        </Grid>
 
-		<!-- Interaction Buttons -->
-		<Grid
+        <!-- Interaction Buttons -->
+        <Grid
             Grid.Row="3"
             Margin="0,12,0,0"
             Background="LightPink">
-			<Grid.ColumnDefinitions>
-				<ColumnDefinition Width="Auto"/>
-				<ColumnDefinition Width="Auto"/>
-				<ColumnDefinition Width="*"/>
-			</Grid.ColumnDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
 
-			<!-- Like Button -->
-			<StackPanel
+            <!-- Like Button -->
+            <StackPanel
                 Grid.Column="0"
                 Orientation="Horizontal">
-				<Button
+                <Button
                     BorderThickness="1"
                     Background="LightGray">
-					<StackPanel Orientation="Horizontal">
-						<FontIcon
+                    <StackPanel Orientation="Horizontal">
+                        <FontIcon
                             Glyph="&#xE8E1;"
                             FontSize="16"
                             Foreground="Blue"/>
-						<TextBlock
-                            Text="125"
+                        <TextBlock
+                            Name="LikesCount"
                             VerticalAlignment="Center"
                             Margin="4,0,0,0"
                             Foreground="Black"/>
-					</StackPanel>
-				</Button>
-			</StackPanel>
+                    </StackPanel>
+                </Button>
+            </StackPanel>
 
-			<!-- Dislike Button -->
-			<StackPanel
+            <!-- Dislike Button -->
+            <StackPanel
 	            Grid.Column="1"
 	            Orientation="Horizontal">
-				<Button
+                <Button
                     BorderThickness="1"
                     Background="LightGray">
-					<StackPanel Orientation="Horizontal">
-						<FontIcon
+                    <StackPanel Orientation="Horizontal">
+                        <FontIcon
                             Glyph="&#xE8E1;"
                             FontSize="16"
                             Foreground="Blue"
 							RenderTransformOrigin="0.5,0.5">
-							<FontIcon.RenderTransform>
-								<ScaleTransform ScaleY="-1" />
-							</FontIcon.RenderTransform>
-						</FontIcon>
-						<TextBlock
-                            Text="125"
+                            <FontIcon.RenderTransform>
+                                <ScaleTransform ScaleY="-1" />
+                            </FontIcon.RenderTransform>
+                        </FontIcon>
+                        <TextBlock
+                            Name="DislikesCount"
                             VerticalAlignment="Center"
                             Margin="4,0,0,0"
                             Foreground="Black"/>
-					    </StackPanel>
-				    </Button>
-			</StackPanel>
+                    </StackPanel>
+                </Button>
+            </StackPanel>
 
-			<!-- Comment Button -->
-			<StackPanel
+            <!-- Comment Button -->
+            <StackPanel
                 Grid.Column="2"
                 Orientation="Horizontal"
                 Margin="12,0,0,0">
-				<Button
+                <Button
                     BorderThickness="1"
                     Background="LightGray">
-					<StackPanel Orientation="Horizontal">
-						<FontIcon
+                    <StackPanel Orientation="Horizontal">
+                        <FontIcon
                             Glyph="&#xE8AF;"
                             FontSize="16"
                             Foreground="Blue"/>
-						<TextBlock
-                            Text="42"
+                        <TextBlock
+                            Name="CommentsCount"
                             VerticalAlignment="Center"
                             Margin="4,0,0,0"
                             Foreground="Black"/>
-					</StackPanel>
-				</Button>
-			</StackPanel>
-		</Grid>
-	</Grid>
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+        </Grid>
+    </Grid>
 </UserControl>

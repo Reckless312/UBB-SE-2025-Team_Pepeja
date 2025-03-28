@@ -16,22 +16,40 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Search Bar -->
+        <!-- Top Bar with Create Post Button and Search -->
         <Grid Grid.Row="0" Padding="16,8">
             <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
-            <TextBox Grid.Column="0"
-                     PlaceholderText="Search news..."
-                     Width="300"
-                     HorizontalAlignment="Right"
-                     Margin="0,0,8,0"/>
+            <!-- Create Post Button -->
+            <Button 
+                x:Name="CreatePostButton" 
+                Grid.Column="0" 
+                Content="Create Post"
+                Background="#0078D7"
+                Foreground="White"
+                Padding="12,8"
+                CornerRadius="4"
+                Visibility="Visible"
+                Click="CreatePostButton_Click">
+            </Button>
+
+            <!-- Search Bar -->
+            <TextBox 
+                Grid.Column="2"
+                PlaceholderText="Search news..."
+                Width="300"
+                HorizontalAlignment="Right"
+                Margin="0,0,8,0"/>
         </Grid>
 
         <!-- Posts Grid -->
-        <ScrollViewer Grid.Row="1" 
+        <ScrollViewer Grid.Row="1"
+                      Name="PostsScroller"
+                      ViewChanged="PostsScroller_ViewChanged"
                       VerticalScrollBarVisibility="Auto"
                       ZoomMode="Disabled">
             <Grid x:Name="PostsGrid" 
@@ -50,5 +68,37 @@
                 </Grid.RowDefinitions>
             </Grid>
         </ScrollViewer>
+        
+        <!-- Overlay for Post Control -->
+        <Grid x:Name="OverlayContainer" 
+              Grid.Row="0" 
+              Grid.RowSpan="2" 
+              Visibility="Collapsed">
+
+            <!-- Semi-transparent background -->
+            <Rectangle Fill="#80000000" 
+                       Stretch="Fill"/>
+
+            <!-- Post Control -->
+            <local:PostControl x:Name="PostControl" 
+                                   HorizontalAlignment="Stretch"
+                                   VerticalAlignment="Stretch"/>
+        </Grid>
+
+        <!-- Overlay for Post Editor Panel -->
+        <Grid x:Name="EditorOverlayContainer" 
+              Grid.Row="0" 
+              Grid.RowSpan="2" 
+              Visibility="Collapsed">
+
+            <!-- Semi-transparent background -->
+            <Rectangle Fill="#80000000" 
+                       Stretch="Fill"/>
+
+            <!-- Post Editor Panel -->
+            <local:PostEditorControl x:Name="PostEditorPanel" 
+                                    HorizontalAlignment="Stretch"
+                                    VerticalAlignment="Stretch"/>
+        </Grid>
     </Grid>
 </Window>
