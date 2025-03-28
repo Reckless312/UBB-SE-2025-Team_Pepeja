@@ -13,9 +13,62 @@ namespace Forum_Lib
     {
         private DatabaseConnection _dbConnection;
 
-        public ForumRepository(DatabaseConnection dbConnection)
+        private static ForumRepository _instance = new ForumRepository(new DatabaseConnection());
+
+        public static ForumRepository Instance {  get { return _instance; } }
+        private ForumRepository(DatabaseConnection dbConnection)
         {
             _dbConnection = dbConnection;
+        }
+
+        private string TimeSpanFilterToString(TimeSpanFilter filter)
+        {
+            switch (filter)
+            {
+                case TimeSpanFilter.Day:
+                    return "DAY";
+                case TimeSpanFilter.Week:
+                    return "WEEK";
+                case TimeSpanFilter.Month:
+                    return "MONTH";
+                case TimeSpanFilter.Year:
+                    return "YEAR";
+                default:
+                    return "";
+            }
+        }
+
+        public List<Post> GetTopPosts(TimeSpanFilter filter)
+        {
+            string query;
+            switch (filter)
+            {
+                case TimeSpanFilter.AllTime:
+                    query = "SELECT TOP 20 * FROM Posts ORDER BY score DESC";
+                    break;
+                default:
+                    query = $"SELECT TOP 20 * FROM Posts WHERE creation_date >= DATEADD({TimeSpanFilterToString(filter)}, -1, GETDATE()) ORDER BY score DESC";
+                    break;
+            }
+
+            DataSet dataSet = _dbConnection.ExecuteQuery(query, "Posts");
+            List<Post> posts = new();
+            foreach (DataRow row in dataSet.Tables[0].Rows)
+            {
+                Post post = new()
+                {
+                    Id = Convert.ToUInt32(row["post_id"]),
+                    Title = Convert.ToString(row["title"]),
+                    Body = Convert.ToString(row["body"]),
+                    Score = Convert.ToInt32(row["score"]),
+                    TimeStamp = Convert.ToString(row["creation_date"]),
+                    AuthorId = Convert.ToUInt32(row["author_id"]),
+                    GameId = row.IsNull("game_id") ? null : Convert.ToUInt32(row["game_id"]),
+                };
+
+                posts.Add(post);
+            }
+            return posts;
         }
 
         public void CreatePost(string title, string body, uint authorId, string date, uint? gameId)
@@ -58,7 +111,7 @@ namespace Forum_Lib
             DataSet dataSet = _dbConnection.ExecuteQuery(query, "Posts");
 
             var score = dataSet.Tables[0].Rows[0]["score"];
-            return (int)score;
+            return Convert.ToInt32(score);
         }
 
         private int getCommentScore(uint id)
@@ -84,22 +137,33 @@ namespace Forum_Lib
             _dbConnection.ExecuteUpdate("Comments", "score", "comment_id", newScore, commentId);
         }
 
-        public List<Post> GetPagedPosts(uint pageNumber, uint pageSize)
+#nullable enable
+        public List<Post> GetPagedPosts(uint pageNumber, uint pageSize, bool positiveScoreOnly = false, uint? gameId = null, string? filter = null)
         {
-            string query = $"SELECT * FROM Posts ORDER BY creation_date OFFSET {pageNumber * pageSize} ROWS FETCH NEXT {pageSize} ROWS ONLY";
+            string query = $"SELECT * FROM Posts ORDER BY creation_date OFFSET {pageNumber * pageSize} ROWS FETCH NEXT {pageSize} ROWS ONLY WHERE 1 = 1";
+
+            if (gameId != null)
+                query += $" AND game_id = {gameId}";
+
+            if (positiveScoreOnly)
+                query += " AND score >= 0";
+
+            if (!string.IsNullOrEmpty(filter))
+                query += $" AND title LIKE '%{filter}%'";
+
             DataSet dataSet = _dbConnection.ExecuteQuery(query, "Posts");
-            List<Post> posts = new(); // bcz of this
+            List<Post> posts = new();
             foreach (DataRow row in dataSet.Tables[0].Rows)
             {
                 Post post = new()
                 {
-                    Id = (uint)row["post_id"],
-                    Title = (string)row["title"],
-                    Body = (string)row["body"],
-                    Score = (int)row["score"],
-                    TimeStamp = (string)row["creation_date"],
-                    AuthorId = (uint)row["author_id"],
-                    GameId = row.IsNull("game_id") ? null : (uint)row["game_id"],
+                    Id = Convert.ToUInt32(row["post_id"]),
+                    Title = Convert.ToString(row["title"]),
+                    Body = Convert.ToString(row["body"]),
+                    Score = Convert.ToInt32(row["score"]),
+                    TimeStamp = Convert.ToString(row["creation_date"]),
+                    AuthorId = Convert.ToUInt32(row["author_id"]),
+                    GameId = row.IsNull("game_id") ? null : Convert.ToUInt32(row["game_id"]),
                 };
 
                 posts.Add(post);
@@ -116,11 +180,11 @@ namespace Forum_Lib
             {
                 Comment comment = new()
                 {
-                    Id = (uint)row["comment_id"],
-                    Body = (string)row["body"],
-                    Score = (int)row["score"],
-                    TimeStamp = (string)row["creation_date"],
-                    AuthorId = (uint)row["author_id"]
+                    Id = Convert.ToUInt32(row["comment_id"]),
+                    Body = Convert.ToString(row["body"]),
+                    Score = Convert.ToInt32(row["score"]),
+                    TimeStamp = Convert.ToString(row["creation_date"]),
+                    AuthorId = Convert.ToUInt32(row["author_id"])
                 };
                 comments.Add(comment);
             }
