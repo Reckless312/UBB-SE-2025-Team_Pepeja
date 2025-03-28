@@ -28,7 +28,7 @@ namespace DirectMessages
 
         public async Task ConnectUserToServer()
         {
-            if(serverInviteIp == HOST_IP_FINDER)
+            if (serverInviteIp == HOST_IP_FINDER)
             {
                 this.serverInviteIp = this.userIpAddress;
                 this.server = new Server(this.userIpAddress, this.userName);
@@ -36,6 +36,11 @@ namespace DirectMessages
             }
 
             this.client = new Client(serverInviteIp, userName, this.uiThread);
+
+            if (serverInviteIp == userIpAddress)
+            {
+                this.client.SetIsHost();
+            }
 
             await this.client.ConnectToServer();
 
