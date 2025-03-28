@@ -44,7 +44,8 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <ListView x:Name="InvertedListView" 
+        <ListView x:Name="InvertedListView"
+                 SelectionChanged="OnHighlightedMessageChange"
                  ItemTemplate="{StaticResource MessageViewTemplate}"
                  Grid.Column="0" Grid.Row="0"
                  Margin="10"
@@ -91,7 +92,7 @@
                     x:Name="MuteButton" Margin="0,5" Padding="10,5"/>
                 <Button Content="Kick" Click="Kick_Button_Click"
                     x:Name="KickButton" Margin="0,5" Padding="10,5"/>
-                <Button Content="FriendRequest" Click="Friend_Request_Click"
+                <Button Content="Send Friend Request" Click="Friend_Request_Click"
                     x:Name="FriendRequestButton" Margin="0,5" Padding="10,5"/>
         </StackPanel>
     </Grid>
