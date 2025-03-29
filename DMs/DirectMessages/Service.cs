@@ -19,13 +19,13 @@ namespace DirectMessages
         public event EventHandler<MessageEventArgs> NewMessageEvent;
         public event EventHandler<ClientStatusEventArgs> ClientStatusChangedEvent;
 
-        public List<String> sentFriendRequests = new List<String>();
+        private List<String> sentFriendRequests = new List<String>();
 
         private String userName;
         private String userIpAddress;
         private String serverInviteIp;
 
-        private const String HOST_IP_FINDER = "None";
+        public const String HOST_IP_FINDER = "None";
 
         /// <summary>
         /// Constructor for the Service class
@@ -150,7 +150,7 @@ namespace DirectMessages
         public async Task TryChangeMuteStatus(String targetedUser)
         {
             String command = "<" + this.userName + ">|" + Server.MUTE_STATUS + "|<" + targetedUser + ">";
-            await this.SendMessage(targetedUser);
+            await this.SendMessage(command);
         }
 
         /// <summary>
@@ -161,7 +161,7 @@ namespace DirectMessages
         public async Task TryChangeAdminStatus(String targetedUser)
         {
             String command = "<" + this.userName + ">|" + Server.ADMIN_STATUS + "|<" + targetedUser + ">";
-            await this.SendMessage(targetedUser);
+            await this.SendMessage(command);
         }
 
         /// <summary>
@@ -172,7 +172,7 @@ namespace DirectMessages
         public async Task TryKick(String targetedUser)
         {
             String command = "<" + this.userName + ">|" + Server.KICK_STATUS + "|<" + targetedUser + ">";
-            await this.SendMessage(targetedUser);
+            await this.SendMessage(command);
         }
 
         /// <summary>

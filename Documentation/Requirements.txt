@@ -23,9 +23,9 @@
 -> The server will allow at most 20 active connections from users.
 -> If the host closes connections, all other active users are notified and their connections are closed.
 -> An input box for users to type messages into.
--> Messages cannot be empty; they are encoded in ASCII and tracked only during the current session (from server creation to its closure).
+-> Messages cannot be empty; they are encoded in UTF-8 and tracked only during the current session (from server creation to its closure).
 -> Messages will be preceded by the username of the sender and have at most 500 characters.
--> The server will keep track of at most 100 messages, after which they will be forgotten, allowing a new batch of messages.
+-> The server will keep track of at most 100 messages, after which the oldest message will be deleted.
 -> Users will be able to clear the messages from their screens.
 
 

@@ -3,10 +3,11 @@ using System.Collections.ObjectModel;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System.Threading.Tasks;
+using System.ComponentModel;
 
 namespace DirectMessages
 {
-    public sealed partial class ChatRoomWindow : Window
+    public sealed partial class ChatRoomWindow : Window, INotifyPropertyChanged
     {
         // For mute/unmute, make/remove admin, kick user the server will done the final checkup
         // (if the user who initiated the request has a higher rank than the targeted user)
@@ -17,9 +18,17 @@ namespace DirectMessages
         private ObservableCollection<Message> messages;
 
         private String userName;
+        private String friendRequestButtonContent;
+
+        private bool isAdmin;
+        private bool isRegularUser;
+        private bool isHost;
+        private bool isMuted;
 
         public const String SEND_FRIEND_REQUEST_CONTENT = "Send Friend Request";
         public const String CANCEL_FRIEND_REQUEST_CONTENT = "Cancel Friend Request";
+
+        public event PropertyChangedEventHandler? PropertyChanged;
 
         /// <summary>
         /// Property used by the UI to display messages
@@ -27,6 +36,16 @@ namespace DirectMessages
         public ObservableCollection<Message> Messages
         {
             get => this.messages;
+        }
+
+        public String FriendRequestButtonContent
+        {
+            get => this.friendRequestButtonContent;
+            set
+            {
+                this.friendRequestButtonContent = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(FriendRequestButtonContent)));
+            }
         }
 
         /// <summary>
@@ -39,6 +58,10 @@ namespace DirectMessages
         public ChatRoomWindow(String userName, String userIpAddress, String serverInviteIp)
         {
             this.InitializeComponent();
+
+            this.FriendRequestButtonContent = ChatRoomWindow.SEND_FRIEND_REQUEST_CONTENT;
+            this.FriendRequestButton.Visibility = Visibility.Collapsed;
+
             this.HideExtraButtonsFromUser();
 
             // The UI thread is further used to invoke events and update states (messages received or current client states)
@@ -58,7 +81,7 @@ namespace DirectMessages
         /// <summary>
         /// Sends the message written in the MessageTextBox
         /// </summary>
-        public async void Send_Button_Click(object sender, RoutedEventArgs e)
+        public async void Send_Button_Click(object sender, RoutedEventArgs routedEventArgs)
         {
             try
             {
@@ -74,7 +97,7 @@ namespace DirectMessages
         /// <summary>
         /// Tries to mute/unmute a user
         /// </summary>
-        public void Mute_Button_Click(object sender, RoutedEventArgs e)
+        public void Mute_Button_Click(object sender, RoutedEventArgs routedEventArgs)
         {
             if (this.InvertedListView.SelectedItem is Message selectedMessage)
             {
@@ -85,7 +108,7 @@ namespace DirectMessages
         /// <summary>
         /// Tries to make a user an admin or remove the status if he already is an admin
         /// </summary>
-        public void Admin_Button_Click(object sender, RoutedEventArgs e)
+        public void Admin_Button_Click(object sender, RoutedEventArgs routedEventArgs)
         {
             if (this.InvertedListView.SelectedItem is Message selectedMessage)
             {
@@ -96,7 +119,7 @@ namespace DirectMessages
         /// <summary>
         /// Tries to kick the user from the chat
         /// </summary>
-        public void Kick_Button_Click(object sender, RoutedEventArgs e)
+        public void Kick_Button_Click(object sender, RoutedEventArgs routedEventArgs)
         {
             if (this.InvertedListView.SelectedItem is Message selectedMessage)
             {
@@ -107,17 +130,19 @@ namespace DirectMessages
         /// <summary>
         /// Sends a friend request to the selected user via message
         /// </summary>
-        public void Friend_Request_Click(object sender, RoutedEventArgs e)
+        public void Friend_Request_Button_Click(object sender, RoutedEventArgs routedEventArgs)
         {
             if (this.InvertedListView.SelectedItem is Message message)
             {
                 switch (true)
                 {
-                    case true when this.FriendRequestButton.Content.Equals(ChatRoomWindow.CANCEL_FRIEND_REQUEST_CONTENT):
+                    case true when this.FriendRequestButtonContent.Equals(ChatRoomWindow.CANCEL_FRIEND_REQUEST_CONTENT):
                         this.service.CancelFriendRequest(message.MessageSenderName);
+                        this.FriendRequestButtonContent = ChatRoomWindow.SEND_FRIEND_REQUEST_CONTENT;
                         break;
                     default:
                         this.service.SendFriendRequest(message.MessageSenderName);
+                        this.FriendRequestButtonContent = ChatRoomWindow.CANCEL_FRIEND_REQUEST_CONTENT;
                         break;
                 }
             }
@@ -126,7 +151,7 @@ namespace DirectMessages
         /// <summary>
         /// Clear Displayed messages
         /// </summary>
-        public void Clear_Button_Click(object sender, RoutedEventArgs e)
+        public void Clear_Button_Click(object sender, RoutedEventArgs routedEventArgs)
         {
             this.messages.Clear();
         }
@@ -143,14 +168,17 @@ namespace DirectMessages
                 {
                     case true when message.MessageSenderName == this.userName:
                         this.FriendRequestButton.Visibility = Visibility.Collapsed;
+                        this.HideExtraButtonsFromUser();
                         break;
                     case true when this.service.IsInFriendRequests(message.MessageSenderName):
                         this.FriendRequestButton.Visibility= Visibility.Visible;
-                        this.FriendRequestButton.Content = ChatRoomWindow.CANCEL_FRIEND_REQUEST_CONTENT;
+                        this.FriendRequestButtonContent = ChatRoomWindow.CANCEL_FRIEND_REQUEST_CONTENT;
+                        this.ShowAvailableButtons();
                         break;
                     default:
                         this.FriendRequestButton.Visibility = Visibility.Visible;
-                        this.FriendRequestButton.Content = ChatRoomWindow.SEND_FRIEND_REQUEST_CONTENT;
+                        this.FriendRequestButtonContent = ChatRoomWindow.SEND_FRIEND_REQUEST_CONTENT;
+                        this.ShowAvailableButtons();
                         break;
                 }
             }
@@ -165,18 +193,13 @@ namespace DirectMessages
         private void HandleUserStatusChange(object? sender, ClientStatusEventArgs clientStatusEventArgs)
         {
             ClientStatus clientStatus = clientStatusEventArgs.ClientStatus;
-            switch (true)
-            {
-                case true when clientStatus.IsHost:
-                    this.ShowHostButtons();
-                    break;
-                case true when clientStatus.IsAdmin:
-                    this.ShowAdminButtons();
-                    break;
-                default:
-                    this.HideExtraButtonsFromUser();
-                    break;
-            }
+
+            this.isHost = clientStatus.IsHost;
+            this.isAdmin = clientStatus.IsAdmin;
+            this.isRegularUser = clientStatus.IsRegularUser();
+            this.isMuted = clientStatus.IsMuted;
+
+            this.ShowAvailableButtons();
         }
 
         /// <summary>
@@ -221,7 +244,7 @@ namespace DirectMessages
         /// Disconnects clients on window close
         /// </summary>
         /// <returns></returns>
-        public async Task OnDisconnectService()
+        public async Task DisconnectService()
         {
             await this.service.DisconnectClient();
         }
@@ -235,7 +258,7 @@ namespace DirectMessages
         {
             ContentDialog errorDialog = new ContentDialog()
             {
-                Title = "An error has occured!",
+                Title = "Request rejected!",
                 Content = exception.Message,
                 CloseButtonText = "Ok",
                 XamlRoot = this.Content.XamlRoot,
@@ -270,6 +293,32 @@ namespace DirectMessages
         {
             this.AdminButton.Visibility = Visibility.Visible;
             this.ShowAdminButtons();
+        }
+
+        private void ShowAvailableButtons()
+        {
+            switch (true)
+            {
+                case true when this.isHost:
+                    this.ShowHostButtons();
+                    break;
+                case true when this.isAdmin:
+                    this.ShowAdminButtons();
+                    break;
+                default:
+                    this.HideExtraButtonsFromUser();
+                    break;
+            }
+
+            switch (this.isMuted)
+            {
+                case true:
+                    this.SendButton.Visibility = Visibility.Collapsed;
+                    break;
+                case false:
+                    this.SendButton.Visibility = Visibility.Visible;
+                    break;
+            }
         }
     }
 }
