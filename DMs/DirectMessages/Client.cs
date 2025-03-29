@@ -100,11 +100,6 @@ namespace DirectMessages
         {
             try
             {
-                if (this.clientStatus.IsMuted)
-                {
-                    throw new Exception("You are muted, you can't send messages");
-                }
-
                 byte[] messageToBytes = Encoding.UTF8.GetBytes(message);
 
                 _ = await clientSocket.SendAsync(messageToBytes, SocketFlags.None);
@@ -188,7 +183,7 @@ namespace DirectMessages
                     this.clientStatus.IsMuted = !this.clientStatus.IsMuted;
                     break;
                 case Server.KICK_STATUS:
-                    this.clientStatus.IsConnected = false;
+                    this.CloseConnection();
                     break;
                 default:
                     break;

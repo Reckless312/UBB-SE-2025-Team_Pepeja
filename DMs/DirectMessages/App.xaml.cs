@@ -35,7 +35,7 @@ namespace DirectMessages
         {
             if(m_window is ChatRoomWindow chatRoomWindow)
             {
-                await chatRoomWindow.OnDisconnectService();
+                await chatRoomWindow.DisconnectService();
             }
         }
 

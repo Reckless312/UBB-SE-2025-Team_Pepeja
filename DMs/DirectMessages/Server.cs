@@ -19,7 +19,8 @@ namespace DirectMessages
         private readonly object lockTimer;
 
         private ConcurrentDictionary<String, String> addressesAndUserNames;
-        private ConcurrentDictionary<Socket, String> connectedClients;
+        private ConcurrentDictionary<Socket, String> socketsAndAddresses;
+        private ConcurrentDictionary<String, Socket> userNamesAndSockets;
         private ConcurrentDictionary<String, bool> mutedUsers;
         private ConcurrentDictionary<String, bool> adminUsers;
 
@@ -55,6 +56,8 @@ namespace DirectMessages
         public const String INFO_CHANGE_MUTE_STATUS_COMMAND = "<INFO>|" + MUTE_STATUS + "|<INFO>";
         public const String INFO_CHANGE_ADMIN_STATUS_COMMAND = "<INFO>|" + ADMIN_STATUS + "|<INFO>";
         public const String INFO_CHANGE_KICK_STATUS_COMMAND = "<INFO>|" + KICK_STATUS + "|<INFO>";
+        public const String SERVER_REJECT_COMMAND = "Server rejected your command!\n You don't have the rights to that user!";
+        public const String SERVER_CAPACITY_REACHED = "Server capacity reached!\n Closing Connection!";
 
         /// <summary>
         /// Constructor for the server class
@@ -64,9 +67,9 @@ namespace DirectMessages
         /// <exception cref="Exception">Server Creation Error</exception>
         public Server(String hostAddress, String hostName)
         {
-            this.muteCommandPattern = @"^<.*>\|Mute\|<.*>$";
-            this.adminCommandPattern = @"^<.*>\|Admin\|<.*>$";
-            this.kickCommandPattern = @"^<.*>\|Kick\|<.*>$";
+            this.muteCommandPattern = @"^<.*>\|" + Server.MUTE_STATUS + @"\|<.*>$";
+            this.adminCommandPattern = @"^<.*>\|" + Server.ADMIN_STATUS + @"\|<.*>$";
+            this.kickCommandPattern = @"^<.*>\|" + Server.KICK_STATUS + @"\|<.*>$";
             this.infoCommandPattern = @"^<INFO>\|.*\|<INFO>$";
 
             this.muteCommandRegex = new Regex(this.muteCommandPattern);
@@ -75,7 +78,8 @@ namespace DirectMessages
             this.infoChangeCommandRegex = new Regex(this.infoCommandPattern);
 
             this.addressesAndUserNames = new ConcurrentDictionary<string, string>();
-            this.connectedClients = new ConcurrentDictionary<Socket, string>();
+            this.socketsAndAddresses = new ConcurrentDictionary<Socket, string>();
+            this.userNamesAndSockets = new ConcurrentDictionary<string, Socket>();
             this.mutedUsers = new ConcurrentDictionary<string, bool>();
             this.adminUsers = new ConcurrentDictionary<string, bool>();
 
@@ -85,10 +89,10 @@ namespace DirectMessages
 
             try
             {
-                this.ipEndPoint = new IPEndPoint(IPAddress.Parse(hostAddress), PORT_NUMBER);
+                this.ipEndPoint = new IPEndPoint(IPAddress.Parse(hostAddress), Server.PORT_NUMBER);
                 this.serverSocket = new(this.ipEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
                 this.serverSocket.Bind(this.ipEndPoint);
-                this.serverSocket.Listen(NUMBER_OF_QUEUED_CONNECTIONS);
+                this.serverSocket.Listen(Server.NUMBER_OF_QUEUED_CONNECTIONS);
             }
             catch (Exception exception)
             {
@@ -112,9 +116,17 @@ namespace DirectMessages
                     String socketNullResult = "Disconnected";
                     String ipAddressAndPort = clientSocket.RemoteEndPoint?.ToString() ?? socketNullResult;
 
-                    String ipAddress = ipAddressAndPort.Substring(STARTING_INDEX, ipAddressAndPort.IndexOf(ADDRESS_SEPARATOR));
+                    String ipAddress = ipAddressAndPort.Substring(Server.STARTING_INDEX, ipAddressAndPort.IndexOf(Server.ADDRESS_SEPARATOR));
 
-                    this.connectedClients.TryAdd(clientSocket, ipAddress);
+                    // Server has a limit of 20 active users
+                    if (this.socketsAndAddresses.Count >= 20)
+                    {
+                        this.SendMessageToOneClient(CreateMessage(Server.SERVER_CAPACITY_REACHED, this.hostName), clientSocket);
+                        this.SendMessageToOneClient(CreateMessage(Server.INFO_CHANGE_KICK_STATUS_COMMAND, this.hostName), clientSocket);
+                        continue;
+                    }
+
+                    this.socketsAndAddresses.TryAdd(clientSocket, ipAddress);
 
                     this.CheckForMinimumConnections();
 
@@ -138,28 +150,37 @@ namespace DirectMessages
         {
             try
             {
-                byte[] userNameBuffer = new byte[USER_NAME_MAXIMUM_SIZE];
+                byte[] userNameBuffer = new byte[Server.USER_NAME_MAXIMUM_SIZE];
                 int userNameLength = await clientSocket.ReceiveAsync(userNameBuffer, SocketFlags.None);
 
-                String userName = Encoding.UTF8.GetString(userNameBuffer, STARTING_INDEX, userNameLength);
-                String ipAddress = this.connectedClients.GetValueOrDefault(clientSocket) ?? "";
+                String userName = Encoding.UTF8.GetString(userNameBuffer, Server.STARTING_INDEX, userNameLength);
+                String ipAddress = this.socketsAndAddresses.GetValueOrDefault(clientSocket) ?? "";
 
                 this.addressesAndUserNames.TryAdd(ipAddress, userName);
+                this.userNamesAndSockets.TryAdd(userName, clientSocket);
                 this.adminUsers.TryAdd(userName, false);
                 this.mutedUsers.TryAdd(userName, false);
 
                 while (this.isRunning)
                 {
-                    byte[] messageBuffer = new byte[MESSAGE_MAXIMUM_SIZE];
+                    // Client force shutdown
+                    if (clientSocket == null)
+                    {
+                        this.userNamesAndSockets.TryRemove(userName, out _);
+                        this.addressesAndUserNames.TryRemove(ipAddress, out _);
+                        break;
+                    }
+
+                    byte[] messageBuffer = new byte[Server.MESSAGE_MAXIMUM_SIZE];
                     int charactersReceivedCount = await clientSocket.ReceiveAsync(messageBuffer, SocketFlags.None);
 
                     // In case of a timeout between waiting for messages
-                    if(!this.isRunning)
+                    if (!this.isRunning)
                     {
                         break;
                     }
 
-                    String messageContentReceived = Encoding.UTF8.GetString(messageBuffer, STARTING_INDEX, charactersReceivedCount);
+                    String messageContentReceived = Encoding.UTF8.GetString(messageBuffer, Server.STARTING_INDEX, charactersReceivedCount);
 
                     // Don't allow users to change info, the server does that
                     if (this.infoChangeCommandRegex.IsMatch(messageContentReceived))
@@ -167,7 +188,7 @@ namespace DirectMessages
                         continue;
                     }
 
-                    if (charactersReceivedCount == DISCONNECT_CODE)
+                    if (charactersReceivedCount == Server.DISCONNECT_CODE)
                     {
                         switch (this.IsHost(ipAddress))
                         {
@@ -187,32 +208,22 @@ namespace DirectMessages
                         break;
                     }
 
-                    bool commandFound = true, hasBeenKicked = false;
+                    bool commandFound = true;
 
                     switch (true)
                     {
                         case true when this.muteCommandRegex.IsMatch(messageContentReceived):
-                            this.TryChangeStatus(messageContentReceived, MUTE_STATUS, userName, this.mutedUsers);
-                            this.SendMessageToOneClient(CreateMessage(INFO_CHANGE_MUTE_STATUS_COMMAND, userName), clientSocket);
+                            this.TryChangeStatus(messageContentReceived, Server.MUTE_STATUS, userName, clientSocket, this.mutedUsers);
                             break;
                         case true when this.adminCommandRegex.IsMatch(messageContentReceived):
-                            this.TryChangeStatus(messageContentReceived, ADMIN_STATUS, userName, this.adminUsers);
-                            this.SendMessageToOneClient(CreateMessage(INFO_CHANGE_ADMIN_STATUS_COMMAND, userName), clientSocket);
+                            this.TryChangeStatus(messageContentReceived, Server.ADMIN_STATUS, userName, clientSocket, this.adminUsers);
                             break;
                         case true when this.kickCommandRegex.IsMatch(messageContentReceived):
-                            this.TryChangeStatus(messageContentReceived, KICK_STATUS, userName);
-                            this.SendMessageToOneClient(CreateMessage(INFO_CHANGE_KICK_STATUS_COMMAND, userName), clientSocket);
-                            this.RemoveClientInformation(clientSocket, userName, ipAddress);
-                            hasBeenKicked = true;
+                            this.TryChangeStatus(messageContentReceived, Server.KICK_STATUS, userName, clientSocket);
                             break;
                         default:
                             commandFound = false;
                             break;
-                    }
-
-                    if(hasBeenKicked)
-                    {
-                        break;
                     }
 
                     // Don't send the command to users
@@ -263,9 +274,16 @@ namespace DirectMessages
         /// <param name="message">Message to be sent</param>
         private void SendMessageToAllClients(Message message)
         {
-            foreach (KeyValuePair<Socket, String> clientSocketsAndAddresses in this.connectedClients)
+            foreach (KeyValuePair<Socket, String> clientSocketsAndAddresses in this.socketsAndAddresses)
             {
-                this.SendMessageToOneClient(message, clientSocketsAndAddresses.Key);
+                try
+                {
+                    this.SendMessageToOneClient(message, clientSocketsAndAddresses.Key);
+                }
+                catch(Exception)
+                {
+                    // The socket could be disposed
+                }
             }
         }
 
@@ -308,11 +326,11 @@ namespace DirectMessages
                 this.serverTimeout = new System.Threading.Timer((_) =>
                 {
                     // Recheck the condition after the countdown
-                    if (connectedClients.Count < MINIMUM_CONNECTIONS)
+                    if (socketsAndAddresses.Count < Server.MINIMUM_CONNECTIONS)
                     {
                         this.ShutDownServer();
                     }
-                }, null, SERVER_TIMEOUT_COUNTDOWN, System.Threading.Timeout.Infinite);
+                }, null, Server.SERVER_TIMEOUT_COUNTDOWN, System.Threading.Timeout.Infinite);
             }
         }
 
@@ -334,7 +352,7 @@ namespace DirectMessages
         /// </summary>
         private void CheckForMinimumConnections()
         {
-            if (this.connectedClients.Count < MINIMUM_CONNECTIONS)
+            if (this.socketsAndAddresses.Count < Server.MINIMUM_CONNECTIONS)
             {
                 this.InitializeServerTimeout();
             }
@@ -359,11 +377,11 @@ namespace DirectMessages
             switch (true)
             {
                 case true when this.hostName == userName:
-                    return HOST_STATUS;
-                case true when this.adminUsers.ContainsKey(userName):
-                    return ADMIN_STATUS;
+                    return Server.HOST_STATUS;
+                case true when this.adminUsers.GetValueOrDefault(userName):
+                    return Server.ADMIN_STATUS;
                 default:
-                    return REGULAR_USER_STATUS;
+                    return Server.REGULAR_USER_STATUS;
             }
         }
 
@@ -375,20 +393,21 @@ namespace DirectMessages
         /// <returns>True or False</returns>
         private bool IsUserAllowedOnTargetStatusChange(String firstUserStatus, String secondUserStatus)
         {
-            return (firstUserStatus == HOST_STATUS && secondUserStatus != HOST_STATUS) || (firstUserStatus == ADMIN_STATUS && secondUserStatus == REGULAR_USER_STATUS);
+            return (firstUserStatus == Server.HOST_STATUS && secondUserStatus != Server.HOST_STATUS)
+                || (firstUserStatus == Server.ADMIN_STATUS && secondUserStatus == Server.REGULAR_USER_STATUS);
         }
         
         /// <summary>
         /// Find the target username from a command
         /// Commands targeting users follow the match: <username>|Status|<targetedUsername>
         /// </summary>
-        /// <param name="Command">Client Command</param>
+        /// <param name="command">Client Command</param>
         /// <returns>Target username</returns>
-        private String FindTargetedUserNameFromCommand(String Command)
+        private String FindTargetedUserNameFromCommand(String command)
         {
             int commandTargetIndex = 2;
             char commandSeparator = '|';
-            String commandTarget = Command.Split(commandSeparator)[commandTargetIndex];
+            String commandTarget = command.Split(commandSeparator)[commandTargetIndex];
 
             int nameStartIndex = 1, nameEndIndex = commandTarget.Length - 2;
             String targetedUserName = commandTarget.Substring(nameStartIndex, nameEndIndex);
@@ -403,9 +422,26 @@ namespace DirectMessages
         /// <param name="targetedStatus">Mute/Admin/Kick</param>
         /// <param name="userName">Client who sent the command</param>
         /// <param name="statusDataHolder">The respected map to the targeted status</param>
-        private void TryChangeStatus(String command, String targetedStatus, String userName, ConcurrentDictionary<string, bool>? statusDataHolder = null)
+        private void TryChangeStatus(String command, String targetedStatus, String userName, Socket userSocket, ConcurrentDictionary<string, bool>? statusDataHolder = null)
         {
             String targetedUserName = this.FindTargetedUserNameFromCommand(command);
+
+            Socket? targetedUserSocket = null;
+            foreach (KeyValuePair<String, Socket> userNamesAndSockets in this.userNamesAndSockets)
+            {
+                if (targetedUserName == userNamesAndSockets.Key)
+                {
+                    targetedUserSocket = userNamesAndSockets.Value;
+                    break;
+                }
+            }
+
+            if (targetedUserSocket == null)
+            {
+                return;
+            }
+
+            String targetedUserIpAddress = this.socketsAndAddresses.GetValueOrDefault(targetedUserSocket) ?? "Not found";
 
             String userStatus = this.GetHighestStatus(userName);
             String targetedUserStatus = this.GetHighestStatus(targetedUserName);
@@ -417,7 +453,7 @@ namespace DirectMessages
                 bool isStatus = statusDataHolder?.AddOrUpdate(targetedUserName, false, (key, oldValue) => !oldValue) ?? false;
                 String messageContent;
 
-                if (targetedStatus.Equals(MUTE_STATUS))
+                if (targetedStatus.Equals(Server.MUTE_STATUS))
                 {
                     switch (isStatus)
                     {
@@ -428,25 +464,32 @@ namespace DirectMessages
                             messageContent = $"{targetedUserName} has been unmuted";
                             break;
                     }
+                    this.SendMessageToOneClient(CreateMessage(Server.INFO_CHANGE_MUTE_STATUS_COMMAND, targetedUserName), targetedUserSocket);
                 }
-                else if (targetedStatus.Equals(ADMIN_STATUS))
+                else if (targetedStatus.Equals(Server.ADMIN_STATUS))
                 {
                     switch (isStatus)
                     {
                         case true:
-                            messageContent = $"{targetedUserName} has been granted admin status";
+                            messageContent = $"{targetedUserName} is now an admin";
                             break;
                         case false:
-                            messageContent = $"{targetedUserName} has been removed from admin status";
+                            messageContent = $"{targetedUserName} is no longer an admin";
                             break;
                     }
+                    this.SendMessageToOneClient(CreateMessage(Server.INFO_CHANGE_ADMIN_STATUS_COMMAND, targetedUserName), targetedUserSocket);
                 }
                 else
                 {
                     messageContent = $"{targetedUserName} has been kicked";
+                    this.SendMessageToOneClient(CreateMessage(Server.INFO_CHANGE_KICK_STATUS_COMMAND, targetedUserName), targetedUserSocket);
+                    this.RemoveClientInformation(targetedUserSocket, targetedUserName, targetedUserIpAddress);
                 }
                 this.SendMessageToAllClients(CreateMessage(messageContent, userName));
+                return;
             }
+            
+            this.SendMessageToOneClient(CreateMessage(Server.SERVER_REJECT_COMMAND, this.hostName), userSocket);
         }
 
         /// <summary>
@@ -458,7 +501,8 @@ namespace DirectMessages
         private void RemoveClientInformation(Socket clientSocket, String userName, String ipAddress)
         {
             this.addressesAndUserNames.TryRemove(ipAddress, out _);
-            this.connectedClients.TryRemove(clientSocket, out _);
+            this.socketsAndAddresses.TryRemove(clientSocket, out _);
+            this.userNamesAndSockets.TryRemove(userName, out _);
             this.adminUsers.TryRemove(userName, out _);
             this.mutedUsers.TryRemove(userName, out _);
         }
