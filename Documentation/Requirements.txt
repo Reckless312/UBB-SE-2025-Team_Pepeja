@@ -80,9 +80,6 @@ Dependencies from other teams:
    -> Users can see their full friends list under the "Friends" section.
    -> Users can remove friends at any time, which will remove them from both friends lists.
 
-5. Privacy and Restrictions:
-   -> Users can set privacy settings to allow only friends, friends of friends, or no one to send friend requests.
-
 
 -----------------------------------------------NEWS----------------------------------------------------
 
