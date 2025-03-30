@@ -15,6 +15,7 @@
 
 --DMs (Chat)--
 -> If a user initiates the chat, a server will be created with them as its host; they will also be added as a client.
+-> A user will be able to host at most 1 server, he won't be able to initiate another chat until he closes his current server. He can still be invited to join other chats.
 -> The host will be able to make any users in the chat an admin, kick them (closing their connection), or mute them (removing their ability to send messages).
 -> Admins can kick/mute a user who is not an admin/host.
 -> Admins and the host can invite more people from the Search application.
