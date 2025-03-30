@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Window
-    x:Class="Search.MainWindow"
+    x:Class="Search.SearchWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:Search"
@@ -53,7 +53,8 @@
                                              Foreground="White"
                                              Padding="10"
                                              Height="40"
-                                             BorderThickness="0"/>
+                                             BorderThickness="0"
+                                             Name="InputBox"/>
                                     <Button Grid.Column="1" 
                                             Content="Search" 
                                             Margin="5,0,0,0" 
@@ -62,7 +63,8 @@
                                             Padding="15,5"
                                             Height="40"
                                             BorderThickness="0"
-                                            CornerRadius="3"/>
+                                            CornerRadius="3"
+                                            Click="SearchButton_Click"/>
                                 </Grid>
 
                                 <!-- Sort Row -->
@@ -131,57 +133,54 @@
                     <ScrollViewer>
                         <StackPanel>
                             <TextBlock Text="Search Results" 
-                                       FontSize="20" 
-                                       FontWeight="Bold" 
-                                       Foreground="Black"
-                                       Margin="0,0,0,10"/>
-
-                            <ScrollViewer>
-                                <StackPanel>
-                                    <!-- Search Result Item -->
-                                    <Border Background="#60000000" 
-                                            CornerRadius="3" 
-                                            Padding="10" 
-                                            Margin="0,0,0,10">
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto"/>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-
-                                            <Image Source="/Assets/user1.png" 
-                                                   Width="40" 
-                                                   Height="40"
-                                                   Grid.Column="0"/>
-
-                                            <TextBlock Text="GameMaster99" 
-                                                       Foreground="White"
-                                                       VerticalAlignment="Center"
-                                                       Margin="10,0,0,0"
-                                                       Grid.Column="1"/>
-
-                                            <StackPanel Orientation="Horizontal" 
-                                                        Grid.Column="2"
-                                                        VerticalAlignment="Center">
-                                                <Button Content="Message" 
-                                                        Background="Black" 
-                                                        Foreground="White"
-                                                        Padding="10,5"
-                                                        Margin="0,0,5,0"
-                                                        BorderThickness="0"
-                                                        CornerRadius="3"/>
-                                                <Button Content="Add Friend" 
-                                                        Background="Black" 
-                                                        Foreground="White"
-                                                        Padding="10,5"
-                                                        BorderThickness="0"
-                                                        CornerRadius="3"/>
-                                            </StackPanel>
-                                        </Grid>
-                                    </Border>
-                                </StackPanel>
-                            </ScrollViewer>
+                                            FontSize="20" 
+                                            FontWeight="Bold" 
+                                            Foreground="Black"
+                                            Margin="0,0,0,10"/>
+                            <ItemsControl ItemsSource="{x:Bind displayedUsers, Mode=OneWay}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="local:User">
+                                        <Border Background="#60000000" 
+                                                CornerRadius="3" 
+                                                Padding="10" 
+                                                Margin="0,0,0,10">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="{x:Bind UserName}" 
+                                                           Foreground="White"
+                                                           VerticalAlignment="Center"
+                                                           Margin="10,0,0,0"
+                                                           Grid.Column="1"/>
+                                                <StackPanel Orientation="Horizontal" 
+                                                            Grid.Column="2"
+                                                            VerticalAlignment="Center">
+                                                    <Button Content="Message" 
+                                                            Background="Black" 
+                                                            Foreground="White"
+                                                            Padding="10,5"
+                                                            Margin="0,0,5,0"
+                                                            BorderThickness="0"
+                                                            CornerRadius="3"
+                                                            Click="MessageButton_Click"
+                                                            Tag="{x:Bind UserName}"/>
+                                                    <Button Content="Add Friend" 
+                                                                    Background="Black" 
+                                                                    Foreground="White"
+                                                                    Padding="10,5"
+                                                                    BorderThickness="0"
+                                                                    CornerRadius="3"
+                                                                    Click="SendFriendRequestButton_Click"
+                                                                    Tag="{x:Bind UserName}"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
                         </StackPanel>
                     </ScrollViewer>
                 </Border>

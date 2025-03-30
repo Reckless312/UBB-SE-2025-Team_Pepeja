@@ -41,7 +41,7 @@ namespace Search
         /// <param name="args">Details about the launch request and process.</param>
         protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
         {
-            m_window = new MainWindow();
+            m_window = new SearchWindow(1, "Cora", "192.168.1.52");
             m_window.Activate();
         }
 
