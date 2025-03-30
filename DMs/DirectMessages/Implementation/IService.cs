@@ -7,12 +7,13 @@ namespace DirectMessages
     {
         public event EventHandler<MessageEventArgs> NewMessageEvent;
         public event EventHandler<ClientStatusEventArgs> ClientStatusChangedEvent;
-        public Task ConnectUserToServer();
-        public Task SendMessage(String message);
-        public Task DisconnectClient();
-        public Task TryChangeMuteStatus(String targetedUser);
-        public Task TryChangeAdminStatus(String targetedUser);
-        public Task TryKick(String targetedUser);
+        public event EventHandler<ExceptionEventArgs> ExceptionEvent;
+        public void ConnectUserToServer();
+        public void SendMessage(String message);
+        public void DisconnectClient();
+        public void TryChangeMuteStatus(String targetedUser);
+        public void TryChangeAdminStatus(String targetedUser);
+        public void TryKick(String targetedUser);
         public void SendFriendRequest(String targetedUser);
         public void CancelFriendRequest(String targetedUser);
         public bool IsInFriendRequests(String userName);

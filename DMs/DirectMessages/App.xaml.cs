@@ -31,11 +31,11 @@ namespace DirectMessages
             m_window.Activate();
         }
 
-        private async void M_window_Closed(object sender, WindowEventArgs args)
+        private void M_window_Closed(object sender, WindowEventArgs args)
         {
             if(m_window is ChatRoomWindow chatRoomWindow)
             {
-                await chatRoomWindow.DisconnectService();
+                chatRoomWindow.DisconnectService();
             }
         }
 
