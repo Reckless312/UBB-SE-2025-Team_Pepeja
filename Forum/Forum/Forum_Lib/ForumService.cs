@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Forum_Lib
 {
-    internal class ForumService
+    public class ForumService
     {
         private ForumRepository _repository;
         
@@ -19,12 +19,30 @@ namespace Forum_Lib
             _repository = repository;
         }
 #nullable enable
-        public List<Post> GetPagedPosts(uint pageNumber, uint pageSize, bool positiveScoreOnly = false, uint? gameId = null, string? filter = null)
+        public List<ForumPost> GetPagedPosts(uint pageNumber, uint pageSize, bool positiveScoreOnly = false, uint? gameId = null, string? filter = null)
         {
+            //List<ForumPost> forumPosts = new List<ForumPost>();
+            //Random random = new Random();
+
+            //for (uint i = pageNumber * pageSize + 1; i <= pageSize * pageNumber + pageSize; i++)
+            //{
+            //    forumPosts.Add(new ForumPost
+            //    {
+            //        Id = i,
+            //        Title = $"Sample Title {i}",
+            //        Body = $"This is a sample body text for post {i}.",
+            //        Score = random.Next(-10, 100),
+            //        TimeStamp = DateTime.UtcNow.AddMinutes(-i * 10).ToString("yyyy-MM-dd HH:mm:ss"),
+            //        AuthorId = (uint)random.Next(1, 10),
+            //        GameId = (random.Next(0, 2) == 1) ? (uint?)random.Next(1, 20) : null
+            //    });
+            //}
+
+            //return forumPosts;
             return _repository.GetPagedPosts(pageNumber, pageSize, positiveScoreOnly, gameId, filter);
         }
 
-        public List<Post> GetTopPosts(TimeSpanFilter filter)
+        public List<ForumPost> GetTopPosts(TimeSpanFilter filter)
         {
             return _repository.GetTopPosts(filter);
         }
@@ -39,8 +57,23 @@ namespace Forum_Lib
             _repository.VoteOnComment(commentId, voteValue);
         }
 
-        public List<Comment> GetComments(uint postId)
+        public List<ForumComment> GetComments(uint postId)
         {
+            //List<ForumComment> forumComments = new List<ForumComment>();
+            //Random random = new Random();
+
+            //for (uint i = 1; i <= 30; i++)
+            //{
+            //    forumComments.Add(new ForumComment
+            //    {
+            //        Id = i,
+            //        Body = $"This is a sample comment body {i}.",
+            //        Score = random.Next(-5, 50),
+            //        TimeStamp = DateTime.UtcNow.AddMinutes(-i * 5).ToString("yyyy-MM-dd HH:mm:ss"),
+            //        AuthorId = (uint)random.Next(1, 10)
+            //    });
+            //}
+            //return forumComments;
             return _repository.GetComments(postId);
         }
 
@@ -65,7 +98,7 @@ namespace Forum_Lib
         }
     }
 
-    internal enum TimeSpanFilter
+    public enum TimeSpanFilter
     {
         Day,
         Week,

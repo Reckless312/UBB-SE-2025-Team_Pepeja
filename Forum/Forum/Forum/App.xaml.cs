@@ -27,6 +27,11 @@ namespace Forum
     public partial class App : Application
     {
         /// <summary>
+        /// Gets the current main window of the app
+        /// </summary>
+        public static Window MainWindow { get; private set; }
+
+        /// <summary>
         /// Initializes the singleton application object.  This is the first line of authored code
         /// executed, and as such is the logical equivalent of main() or WinMain().
         /// </summary>
@@ -42,6 +47,7 @@ namespace Forum
         protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
         {
             m_window = new MainWindow();
+            MainWindow = m_window; // Set the static property
             m_window.Activate();
         }
 
