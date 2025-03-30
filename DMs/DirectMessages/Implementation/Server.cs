@@ -5,157 +5,68 @@ using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Google.Protobuf;
 
 namespace DirectMessages
 {
-    internal class Server
+    public partial class Server
     {
-        private Socket serverSocket;
-        private IPEndPoint ipEndPoint;
-        private System.Threading.Timer? serverTimeout;
-        private readonly object lockTimer;
-
-        private ConcurrentDictionary<String, String> addressesAndUserNames;
-        private ConcurrentDictionary<Socket, String> socketsAndAddresses;
-        private ConcurrentDictionary<String, Socket> userNamesAndSockets;
-        private ConcurrentDictionary<String, bool> mutedUsers;
-        private ConcurrentDictionary<String, bool> adminUsers;
-
-        private Regex muteCommandRegex;
-        private Regex adminCommandRegex;
-        private Regex kickCommandRegex;
-        private Regex infoChangeCommandRegex;
-
-        private String hostName;
-        private String muteCommandPattern;
-        private String adminCommandPattern;
-        private String kickCommandPattern;
-        private String infoCommandPattern;
-
-        private bool isRunning;
-
-        // Port number is always the same
-        public const int PORT_NUMBER = 6000;
-
-        public const int MESSAGE_MAXIMUM_SIZE = 4112;
-        public const int USER_NAME_MAXIMUM_SIZE = 512;
-        public const int NUMBER_OF_QUEUED_CONNECTIONS = 10;
-        public const int STARTING_INDEX = 0;
-        public const int DISCONNECT_CODE = 0;
-        public const int SERVER_TIMEOUT_COUNTDOWN = 180000;
-        public const int MINIMUM_CONNECTIONS = 2;
-        public const char ADDRESS_SEPARATOR = ':';
-        public const String ADMIN_STATUS = "ADMIN";
-        public const String MUTE_STATUS = "MUTE";
-        public const String KICK_STATUS = "KICK";
-        public const String HOST_STATUS = "HOST";
-        public const String REGULAR_USER_STATUS = "USER";
-        public const String INFO_CHANGE_MUTE_STATUS_COMMAND = "<INFO>|" + MUTE_STATUS + "|<INFO>";
-        public const String INFO_CHANGE_ADMIN_STATUS_COMMAND = "<INFO>|" + ADMIN_STATUS + "|<INFO>";
-        public const String INFO_CHANGE_KICK_STATUS_COMMAND = "<INFO>|" + KICK_STATUS + "|<INFO>";
-        public const String SERVER_REJECT_COMMAND = "Server rejected your command!\n You don't have the rights to that user!";
-        public const String SERVER_CAPACITY_REACHED = "Server capacity reached!\n Closing Connection!";
-
-        /// <summary>
-        /// Constructor for the server class
-        /// </summary>
-        /// <param name="hostAddress">Address of the host</param>
-        /// <param name="hostName">Name of the host</param>
-        /// <exception cref="Exception">Server Creation Error</exception>
-        public Server(String hostAddress, String hostName)
+        public async partial void Start()
         {
-            this.muteCommandPattern = @"^<.*>\|" + Server.MUTE_STATUS + @"\|<.*>$";
-            this.adminCommandPattern = @"^<.*>\|" + Server.ADMIN_STATUS + @"\|<.*>$";
-            this.kickCommandPattern = @"^<.*>\|" + Server.KICK_STATUS + @"\|<.*>$";
-            this.infoCommandPattern = @"^<INFO>\|.*\|<INFO>$";
-
-            this.muteCommandRegex = new Regex(this.muteCommandPattern);
-            this.adminCommandRegex = new Regex(this.adminCommandPattern);
-            this.kickCommandRegex = new Regex(this.kickCommandPattern);
-            this.infoChangeCommandRegex = new Regex(this.infoCommandPattern);
-
-            this.addressesAndUserNames = new ConcurrentDictionary<string, string>();
-            this.socketsAndAddresses = new ConcurrentDictionary<Socket, string>();
-            this.userNamesAndSockets = new ConcurrentDictionary<string, Socket>();
-            this.mutedUsers = new ConcurrentDictionary<string, bool>();
-            this.adminUsers = new ConcurrentDictionary<string, bool>();
-
-            this.lockTimer = new object();
-
-            this.hostName = hostName;
-
-            try
-            {
-                this.ipEndPoint = new IPEndPoint(IPAddress.Parse(hostAddress), Server.PORT_NUMBER);
-                this.serverSocket = new(this.ipEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-                this.serverSocket.Bind(this.ipEndPoint);
-                this.serverSocket.Listen(Server.NUMBER_OF_QUEUED_CONNECTIONS);
-            }
-            catch (Exception exception)
-            {
-                throw new Exception($"Server create error: {exception.Message}");
-            }
-
-            this.isRunning = true;
-        }
-
-        /// <summary>
-        /// Listen to connections to the server
-        /// </summary>
-        public async void Start()
-        {
+            // Handle new connection until the server is no longer running
             while (this.isRunning)
             {
                 try
                 {
+                    // Accepts a new connection
                     Socket clientSocket = await this.serverSocket.AcceptAsync();
 
-                    String socketNullResult = "Disconnected";
-                    String ipAddressAndPort = clientSocket.RemoteEndPoint?.ToString() ?? socketNullResult;
+                    String endPointNullResult = "Not Connected";
 
+                    // RemoteEndPoint provides us with a string of form: "ip_address:port"
+                    String ipAddressAndPort = clientSocket.RemoteEndPoint?.ToString() ?? endPointNullResult;
+
+                    // If the remote end point was null, this will throw an error from the IndexOf call
                     String ipAddress = ipAddressAndPort.Substring(Server.STARTING_INDEX, ipAddressAndPort.IndexOf(Server.ADDRESS_SEPARATOR));
 
-                    // Server has a limit of 20 active users
+                    // Server has a limit of 20 active users per requirements
                     if (this.socketsAndAddresses.Count >= 20)
                     {
+                        // Notify the user and then "Kick" the user (close forcefully the connection)
                         this.SendMessageToOneClient(CreateMessage(Server.SERVER_CAPACITY_REACHED, this.hostName), clientSocket);
                         this.SendMessageToOneClient(CreateMessage(Server.INFO_CHANGE_KICK_STATUS_COMMAND, this.hostName), clientSocket);
                         continue;
                     }
 
+                    // Store the user data available for now
                     this.socketsAndAddresses.TryAdd(clientSocket, ipAddress);
 
-                    this.CheckForMinimumConnections();
+                    // Check if the minimum connections, if so, initializes the timeout (this happens only when the host joins)
+                    this.StartTimeoutIfMinimumConnectionsNotMet();
 
-                    // A new thread for every client
+                    // A new "thread" is created to handle receiving messages / commands from clients
                     _ = Task.Run(() => HandleClient(clientSocket));
                 }
-                catch (Exception exception)
+                catch (Exception)
                 {
-                    // At most show the developer the error, don't crash the server
-                    Debug.WriteLine($"Client couldn't connect: {exception.Message}");
+                    // No error thrown back, if we do we stop the server
                 }
             }
         }
 
-        /// <summary>
-        /// Receives messages / commands from a client
-        /// </summary>
-        /// <param name="clientSocket">Current client socket</param>
-        /// <returns>A promise</returns>
-        private async Task HandleClient(Socket clientSocket)
+        private async partial Task HandleClient(Socket clientSocket)
         {
             try
             {
+                // Receive the username at the beginning of connection
                 byte[] userNameBuffer = new byte[Server.USER_NAME_MAXIMUM_SIZE];
                 int userNameLength = await clientSocket.ReceiveAsync(userNameBuffer, SocketFlags.None);
 
                 String userName = Encoding.UTF8.GetString(userNameBuffer, Server.STARTING_INDEX, userNameLength);
                 String ipAddress = this.socketsAndAddresses.GetValueOrDefault(clientSocket) ?? "";
 
+                // Add new information about the client to the server
                 this.addressesAndUserNames.TryAdd(ipAddress, userName);
                 this.userNamesAndSockets.TryAdd(userName, clientSocket);
                 this.adminUsers.TryAdd(userName, false);
@@ -163,7 +74,7 @@ namespace DirectMessages
 
                 while (this.isRunning)
                 {
-                    // Client force shutdown
+                    // Client force shutdown, if big red button pressed
                     if (clientSocket == null)
                     {
                         this.userNamesAndSockets.TryRemove(userName, out _);
@@ -174,7 +85,7 @@ namespace DirectMessages
                     byte[] messageBuffer = new byte[Server.MESSAGE_MAXIMUM_SIZE];
                     int charactersReceivedCount = await clientSocket.ReceiveAsync(messageBuffer, SocketFlags.None);
 
-                    // In case of a timeout between waiting for messages
+                    // In case of a server timeout between waiting to receive a message
                     if (!this.isRunning)
                     {
                         break;
@@ -188,6 +99,7 @@ namespace DirectMessages
                         continue;
                     }
 
+                    // Check if the user disconnected
                     if (charactersReceivedCount == Server.DISCONNECT_CODE)
                     {
                         switch (this.IsHost(ipAddress))
@@ -200,7 +112,7 @@ namespace DirectMessages
                             case false:
                                 messageContentReceived = "Disconnected";
                                 this.SendMessageToAllClients(CreateMessage(messageContentReceived, userName));
-                                this.CheckForMinimumConnections();
+                                this.StartTimeoutIfMinimumConnectionsNotMet();
                                 break;
                         }
 
@@ -210,6 +122,7 @@ namespace DirectMessages
 
                     bool commandFound = true;
 
+                    // Check if a command was received
                     switch (true)
                     {
                         case true when this.muteCommandRegex.IsMatch(messageContentReceived):
@@ -235,11 +148,11 @@ namespace DirectMessages
                     this.SendMessageToAllClients(CreateMessage(messageContentReceived, userName));
                 }
             }
-            catch (Exception exception)
+            catch (Exception)
             {
-                // Exception is not catched (doesn't crash the main thread),
-                // so at least show the developer the error
-                Debug.WriteLine($"Client had an error: {exception.Message}");
+                // The function returns a Task, a task which is "disposed" (we can't wait for it to finish,
+                // that would make the server only capable of handling one client), exceptions in this thread
+                // don't affect the main thread anyway, so we just close the client connection
             }
             finally
             {
@@ -248,14 +161,10 @@ namespace DirectMessages
             }
         }
 
-        /// <summary>
-        /// Create a message object with the content from the user
-        /// </summary>
-        /// <param name="contentMessage">Message received</param>
-        /// <param name="userName">Username of the client who sent the message</param>
-        /// <returns>A Message object (google protobuf class)</returns>
-        private Message CreateMessage(String contentMessage, String userName)
+        private partial Message CreateMessage(String contentMessage, String userName)
         {
+            // Creates a new message object (google protobuf auto-generated class)
+            // Assign the time of the sent (from the server), senders name and status (beside the content)
             Message message = new Message
             {
                 MessageContent = contentMessage,
@@ -268,11 +177,7 @@ namespace DirectMessages
             return message;
         }
 
-        /// <summary>
-        /// Sends a message to all connected users
-        /// </summary>
-        /// <param name="message">Message to be sent</param>
-        private void SendMessageToAllClients(Message message)
+        private partial void SendMessageToAllClients(Message message)
         {
             foreach (KeyValuePair<Socket, String> clientSocketsAndAddresses in this.socketsAndAddresses)
             {
@@ -287,41 +192,23 @@ namespace DirectMessages
             }
         }
 
-        /// <summary>
-        /// Send a message to only one connected user
-        /// </summary>
-        /// <param name="message">Message to be sent</param>
-        /// <param name="clientSocket">Connected client socket</param>
-        private void SendMessageToOneClient(Message message, Socket clientSocket)
+        private partial void SendMessageToOneClient(Message message, Socket clientSocket)
         {
             byte[] messageBytes = message.ToByteArray();
-            clientSocket.SendAsync(messageBytes, SocketFlags.None);
+            _ = clientSocket.SendAsync(messageBytes, SocketFlags.None);
         }
 
-        // If summaries feel redundant, I am trying my best, it's 1 am :<
-
-        /// <summary>
-        /// Checks to see if the user is host via their ip address
-        /// </summary>
-        /// <param name="ipAddress">Ip address of the user</param>
-        /// <returns>True or False</returns>
-        private bool IsHost(String ipAddress)
+        private partial bool IsHost(String ipAddress)
         {
             return ipAddress == ipEndPoint.Address.ToString();
         }
 
-        /// <summary>
-        /// Initializes the server timeout
-        /// The server will close itself and the host connection if the number of connected
-        /// users is < MINIMUM_CONNECTION ( which is set to 2 )
-        /// The timer starts at startup and any time the connection dips lower than 2
-        /// Timer is SERVER_TIMEOUT_COUNTDOWN ( which is set to 3 min / 180000 milisec)
-        /// </summary>
-        private void InitializeServerTimeout()
+        private partial void InitializeServerTimeout()
         {
             // Lock is used for thread safety
             lock (this.lockTimer)
             {
+                // Dispose of a previous allocated timeout (if it exists)
                 this.serverTimeout?.Dispose();
                 this.serverTimeout = new System.Threading.Timer((_) =>
                 {
@@ -334,11 +221,9 @@ namespace DirectMessages
             }
         }
 
-        /// <summary>
-        /// Closes the connection from the socket
-        /// </summary>
-        private void ShutDownServer()
+        private partial void ShutDownServer()
         {
+            // Check if it's connected, otherwise it throws an error
             if(this.serverSocket.Connected == true)
             {
                 this.serverSocket.Shutdown(SocketShutdown.Both);
@@ -347,10 +232,7 @@ namespace DirectMessages
             this.isRunning = false;
         }
 
-        /// <summary>
-        /// Checks for minimum connections, if not met starts the timeout
-        /// </summary>
-        private void CheckForMinimumConnections()
+        private partial void StartTimeoutIfMinimumConnectionsNotMet()
         {
             if (this.socketsAndAddresses.Count < Server.MINIMUM_CONNECTIONS)
             {
@@ -358,53 +240,38 @@ namespace DirectMessages
             }
         }
 
-        /// <summary>
-        /// Getter for isRunning
-        /// </summary>
-        /// <returns>True or False</returns>
-        public bool IsServerRunning()
+        public partial bool IsServerRunning()
         {
             return this.isRunning;
         }
 
-        /// <summary>
-        /// Gets the highest status that the user has
-        /// </summary>
-        /// <param name="userName">Client username</param>
-        /// <returns></returns>
-        private String GetHighestStatus(String userName)
+        private partial String GetHighestStatus(String userName)
         {
-            switch (true)
+            if (this.hostName == userName)
             {
-                case true when this.hostName == userName:
-                    return Server.HOST_STATUS;
-                case true when this.adminUsers.GetValueOrDefault(userName):
+                return Server.HOST_STATUS;
+            }
+
+            switch (this.adminUsers.GetValueOrDefault(userName))
+            {
+                case true:
                     return Server.ADMIN_STATUS;
-                default:
+                case false:
                     return Server.REGULAR_USER_STATUS;
             }
         }
 
-        /// <summary>
-        /// Checks if the user is allowed to change the status of the targeted user
-        /// </summary>
-        /// <param name="firstUserStatus">Current client status</param>
-        /// <param name="secondUserStatus">Targeted client status</param>
-        /// <returns>True or False</returns>
-        private bool IsUserAllowedOnTargetStatusChange(String firstUserStatus, String secondUserStatus)
+        private partial bool IsUserAllowedOnTargetStatusChange(String firstUserStatus, String secondUserStatus)
         {
+            // Host is not able to kick / mute / admin himself
             return (firstUserStatus == Server.HOST_STATUS && secondUserStatus != Server.HOST_STATUS)
                 || (firstUserStatus == Server.ADMIN_STATUS && secondUserStatus == Server.REGULAR_USER_STATUS);
         }
         
-        /// <summary>
-        /// Find the target username from a command
-        /// Commands targeting users follow the match: <username>|Status|<targetedUsername>
-        /// </summary>
-        /// <param name="command">Client Command</param>
-        /// <returns>Target username</returns>
-        private String FindTargetedUserNameFromCommand(String command)
+        private partial String FindTargetedUserNameFromCommand(String command)
         {
+            // Command follows the pattern : <username>|Status|<username>
+
             int commandTargetIndex = 2;
             char commandSeparator = '|';
             String commandTarget = command.Split(commandSeparator)[commandTargetIndex];
@@ -415,17 +282,12 @@ namespace DirectMessages
             return targetedUserName;
         }
 
-        /// <summary>
-        /// Attempts at changing a user status and sends a message with the new status to all clients
-        /// </summary>
-        /// <param name="command">Given command</param>
-        /// <param name="targetedStatus">Mute/Admin/Kick</param>
-        /// <param name="userName">Client who sent the command</param>
-        /// <param name="statusDataHolder">The respected map to the targeted status</param>
-        private void TryChangeStatus(String command, String targetedStatus, String userName, Socket userSocket, ConcurrentDictionary<string, bool>? statusDataHolder = null)
+        private partial void TryChangeStatus(String command, String targetedStatus, String userName, Socket userSocket, ConcurrentDictionary<string, bool>? statusDataHolder)
         {
             String targetedUserName = this.FindTargetedUserNameFromCommand(command);
 
+            // Socket can be null if it's not found (the user never existed, if the command was written
+            // or the user disconnected)
             Socket? targetedUserSocket = null;
             foreach (KeyValuePair<String, Socket> userNamesAndSockets in this.userNamesAndSockets)
             {
@@ -436,6 +298,7 @@ namespace DirectMessages
                 }
             }
 
+            // If we don't find the user, cancel the operation
             if (targetedUserSocket == null)
             {
                 return;
@@ -448,8 +311,8 @@ namespace DirectMessages
 
             if (this.IsUserAllowedOnTargetStatusChange(userStatus, targetedUserStatus))
             {
-                // Add is ignored, but if not it gets the value false
-                // Update changes to the negations of the current value
+                // Add is ignored, since we already have his data, but if add happens, it takes the value false
+                // Update operation should negate the current status that is targeted
                 bool isStatus = statusDataHolder?.AddOrUpdate(targetedUserName, false, (key, oldValue) => !oldValue) ?? false;
                 String messageContent;
 
@@ -492,13 +355,7 @@ namespace DirectMessages
             this.SendMessageToOneClient(CreateMessage(Server.SERVER_REJECT_COMMAND, this.hostName), userSocket);
         }
 
-        /// <summary>
-        /// Removes all knowledge of the client from the server
-        /// </summary>
-        /// <param name="clientSocket">Client socket</param>
-        /// <param name="userName">Client username</param>
-        /// <param name="ipAddress">Client ip address</param>
-        private void RemoveClientInformation(Socket clientSocket, String userName, String ipAddress)
+        private partial void RemoveClientInformation(Socket clientSocket, String userName, String ipAddress)
         {
             this.addressesAndUserNames.TryRemove(ipAddress, out _);
             this.socketsAndAddresses.TryRemove(clientSocket, out _);

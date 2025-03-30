@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DirectMessages
 {
+    // Used for events (a new message has been received => show it to the user)
     public class MessageEventArgs : EventArgs
     {
         public Message Message { get; }

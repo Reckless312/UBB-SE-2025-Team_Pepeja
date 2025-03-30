@@ -1,5 +1,6 @@
 ﻿namespace DirectMessages
 {
+    // Client Status is used to new events
     public class ClientStatus
     {
         private bool isAdmin;
@@ -12,21 +13,9 @@
         public bool IsHost { get => isHost; set => isHost = value; }
         public bool IsConnected { get => isConnected; set => isConnected = value; }
 
-        /// <summary>
-        /// Constructor for the Client Status class
-        /// </summary>
         public ClientStatus()
         {
             this.isAdmin = this.IsMuted = this.IsHost = this.IsConnected = false;
-        }
-
-        /// <summary>
-        /// Check if the client is a regular user
-        /// </summary>
-        /// <returns>True or False</returns>
-        public bool IsRegularUser()
-        {
-            return !(this.IsHost || this.IsAdmin);
         }
     }
 }
