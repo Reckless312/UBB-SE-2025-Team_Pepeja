@@ -16,6 +16,7 @@ namespace Search
         public const int MESSAGE_REQUEST_FOUND = 0;
         public const int MESSAGE_REQUEST_NOT_FOUND = 1;
         public const int ERROR_CODE = -1;
+        public const int HARDCODED_USER_ID = 1;
 
         public Service()
         {
@@ -29,6 +30,10 @@ namespace Search
                 String selectQuery = this.GetSelectQueryForUsersByName(username);
                 List<User> foundUsers = this.repository.GetUsers(selectQuery);
                 foundUsers.Sort((User firstUser, User secondUser) => String.Compare(firstUser.UserName, secondUser.UserName));
+                foreach (User user in foundUsers)
+                {
+                    user.FriendshipStatus = GetFriendshipStatus(currentUserId: HARDCODED_USER_ID, otherUserId: user.Id);
+                }
                 return foundUsers.Take(Service.MAXIMUM_NUMBER_OF_DISPLAYED_USERS).ToList();
             }
             catch (Exception exception)
@@ -122,6 +127,68 @@ namespace Search
 
                 this.repository.RemoveMessageRequest(invite);
 
+            }
+            catch (Exception exception)
+            {
+                Debug.WriteLine(exception);
+            }
+        }
+
+        public FriendshipStatus GetFriendshipStatus(int currentUserId, int otherUserId)
+        {
+            try
+            {
+                // Don't show friend status with yourself
+                if (currentUserId == otherUserId)
+                {
+                    return FriendshipStatus.Friends;
+                }
+
+                // Check if users are already friends
+                if (this.repository.CheckFriendshipExists(currentUserId, otherUserId))
+                {
+                    return FriendshipStatus.Friends;
+                }
+
+                // Check if current user has sent a friend request to the other user
+                if (this.repository.CheckFriendRequestExists(currentUserId, otherUserId))
+                {
+                    return FriendshipStatus.RequestSent;
+                }
+
+                // Check if other user has sent a friend request to the current user
+                if (this.repository.CheckFriendRequestExists(otherUserId, currentUserId))
+                {
+                    return FriendshipStatus.RequestReceived;
+                }
+
+                // No relationship exists
+                return FriendshipStatus.NotFriends;
+            }
+            catch (Exception exception)
+            {
+                Debug.WriteLine(exception);
+                return FriendshipStatus.NotFriends;
+            }
+        }
+
+        public void SendFriendRequest(int senderUserId, int receiverUserId)
+        {
+            try
+            {
+                this.repository.SendFriendRequest(senderUserId, receiverUserId);
+            }
+            catch (Exception exception)
+            {
+                Debug.WriteLine(exception);
+            }
+        }
+
+        public void CancelFriendRequest(int senderUserId, int receiverUserId)
+        {
+            try
+            {
+                this.repository.CancelFriendRequest(senderUserId, receiverUserId);
             }
             catch (Exception exception)
             {

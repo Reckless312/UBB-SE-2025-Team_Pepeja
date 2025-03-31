@@ -32,6 +32,7 @@ namespace Search
 
         public ObservableCollection<User> displayedUsers;
         public ObservableCollection<User> chatInvitesFromUsers;
+        public ObservableCollection<User> friendRequestsFromUsers;
 
         private bool isHosting;
 
@@ -49,6 +50,7 @@ namespace Search
             this.currentUser = new User(SearchWindow.HARDCODED_USER_ID, SearchWindow.HARDCODED_USER_NAME, DirectMessages.Service.GET_IP_REPLACER);
             this.displayedUsers = new ObservableCollection<User>();
             this.chatInvitesFromUsers = new ObservableCollection<User>();
+            this.friendRequestsFromUsers = new ObservableCollection<User>();
             this.service = new Service();
 
             this.currentUser.IpAddress = this.service.UpdateCurrentUserIpAddress(this.currentUser.Id);
@@ -146,6 +148,61 @@ namespace Search
         }
 
         public void SendFriendRequestButton_Click(object sender, RoutedEventArgs e)
+        {
+            Button? clickedButton = sender as Button;
+            if (clickedButton == null) return;
+
+            // Get the user associated with this button
+            User? clickedUser = null;
+
+            // Try to get the user from Tag
+            if (clickedButton.Tag is User)
+            {
+                clickedUser = clickedButton.Tag as User;
+            }
+            else if (clickedButton.Tag is string)
+            {
+                // Find the user by username in our displayed users
+                string username = clickedButton.Tag.ToString();
+                clickedUser = displayedUsers.FirstOrDefault(u => u.UserName == username);
+            }
+
+            if (clickedUser == null) return;
+
+            // Handle different friend status scenarios
+            switch (clickedUser.FriendshipStatus)
+            {
+                case FriendshipStatus.NotFriends:
+                    // Send friend request
+                    this.service.SendFriendRequest(this.currentUser.Id, clickedUser.Id);
+                    clickedUser.FriendshipStatus = FriendshipStatus.RequestSent;
+                    clickedButton.Content = "Cancel Request";
+                    break;
+
+                case FriendshipStatus.RequestSent:
+                    // Cancel the friend request
+                    this.service.CancelFriendRequest(this.currentUser.Id, clickedUser.Id);
+                    clickedUser.FriendshipStatus = FriendshipStatus.NotFriends;
+                    clickedButton.Content = "Add Friend";
+                    break;
+
+                case FriendshipStatus.RequestReceived:
+                    // Accept the friend request
+                    // This would require additional functionality to be implemented
+                    break;
+
+                case FriendshipStatus.Friends:
+                    // Already friends - could implement unfriend functionality here
+                    break;
+            }
+        }
+
+        public void AcceptFriendRequestButton_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        public void DeclineFriendRequestButton_Click(object sender, RoutedEventArgs e)
         {
 
         }
