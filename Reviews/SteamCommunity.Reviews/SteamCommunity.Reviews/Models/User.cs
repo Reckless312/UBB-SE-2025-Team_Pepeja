@@ -13,12 +13,8 @@ namespace SteamCommunity.Reviews.Models
         public int UserIdentifier { get; set; }
         public string UserName { get; set; } = string.Empty;
 
-        public string ProfilePictureUrlOrPath { get; set; } = string.Empty;
+        
+        
 
-        // Optional methods to retrieve User information
-        public int getUserId() => UserIdentifier;
-        public string getName() => UserName;
-
-        public string getProfilePicture() => ProfilePictureUrlOrPath;
     }
 }

@@ -140,14 +140,14 @@
 
     <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
 
-        <!-- Circular Profile Picture using Ellipse -->
-            <Ellipse Width="32" Height="32">
-             <Ellipse.Fill>
-             <ImageBrush ImageSource="{Binding ProfileImage, FallbackValue='/Assets/default_avatar.png'}" Stretch="UniformToFill" />
-              </Ellipse.Fill>
-            </Ellipse>
+                        <!-- Circular Profile Picture using Ellipse -->
+                            <Ellipse Width="100" Height="100">
+                                        <Ellipse.Fill>
+                                            <ImageBrush ImageSource="ms-appx:///Assets/default_avatar.png" Stretch="UniformToFill" />
+                                        </Ellipse.Fill>
+                                    </Ellipse>
 
-        <!-- Username + Timestamp -->
+                                    <!-- Username + Timestamp -->
         <StackPanel>
             <TextBlock Text="{Binding UserName}"
                 FontWeight="Bold"
