@@ -15,5 +15,11 @@ namespace News
         public int NrLikes { get; set; }
         public int NrDislikes { get; set; }
         public int NrComments { get; set; }
+        public bool? ActiveUserRating { get; set; }
+    }
+    public static class PostRatingType
+    {
+        public const bool LIKE = true;
+        public const bool DISLIKE = false;
     }
 }

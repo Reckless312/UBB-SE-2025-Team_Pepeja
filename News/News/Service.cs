@@ -81,10 +81,11 @@ namespace News
             try
             {
                 m_connection.Open();
-                var command = new SqlCommand($"UPDATE Posts SET nrLikes = nrLikes + 1 WHERE id = {postId}", m_connection);
+                var command1 = new SqlCommand($"UPDATE Posts SET nrLikes = nrLikes + 1 WHERE id = {postId}", m_connection);
+                var command2 = new SqlCommand($"INSERT INTO Ratings VALUES({postId}, {ActiveUser.id}, 1)", m_connection);
 
-                int rowsAffected = command.ExecuteNonQuery();
-                return rowsAffected > 0;
+                int rowsAffected = command1.ExecuteNonQuery() + command2.ExecuteNonQuery();
+                return rowsAffected == 2;
             }
             catch (Exception ex)
             {
@@ -96,20 +97,41 @@ namespace News
                 m_connection.Close();
             }
         }
-
         public bool DislikePost(int postId)
         {
             try
             {
                 m_connection.Open();
-                var command = new SqlCommand($"UPDATE Posts SET nrDislikes = nrDislikes + 1 WHERE id = {postId}", m_connection);
+                var command1 = new SqlCommand($"UPDATE Posts SET nrDislikes = nrDislikes + 1 WHERE id = {postId}", m_connection);
+                var command2 = new SqlCommand($"INSERT INTO Ratings VALUES({postId}, {ActiveUser.id}, 0)", m_connection);
+
+                int rowsAffected = command1.ExecuteNonQuery() + command2.ExecuteNonQuery();
+                return rowsAffected == 2;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error disliking post: {ex.Message}");
+                return false;
+            }
+            finally
+            {
+                m_connection.Close();
+            }
+        }
+
+        public bool RemoveRatingFromPost(int postId)
+        {
+            try
+            {
+                m_connection.Open();
+                var command = new SqlCommand($"DELETE FROM Ratings WHERE postId={postId} AND authorId={ActiveUser.id}", m_connection);
 
                 int rowsAffected = command.ExecuteNonQuery();
                 return rowsAffected > 0;
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error disliking post: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Error removing active user's like from post: {ex.Message}");
                 return false;
             }
             finally
@@ -222,7 +244,6 @@ namespace News
             }
         }
 
-        // TODO: Make this bool and evaluate success status on calls
         public bool SavePostToDatabase(string postBody)
         {
             try
@@ -316,7 +337,7 @@ namespace News
                 reader = command.ExecuteReader();
                 while (reader.Read())
                 {
-                    result.Add(new()
+                    Post post = new()
                     {
                         Id = (int)reader["id"],
                         AuthorId = (int)reader["authorId"],
@@ -325,9 +346,15 @@ namespace News
                         NrLikes = (int)reader["nrLikes"],
                         NrDislikes = (int)reader["nrDislikes"],
                         NrComments = (int)reader["nrComments"]
-                    });
+                    };
+                    result.Add(post);
                 }
-
+                reader.Close();
+                foreach (var post in result)
+                {
+                    command.CommandText = $"SELECT ratingType FROM Ratings WHERE postId={post.Id} AND authorId={ActiveUser.id}";
+                    post.ActiveUserRating = (bool?)command.ExecuteScalar();
+                }
                 return result;
             }
             catch (Exception ex)
