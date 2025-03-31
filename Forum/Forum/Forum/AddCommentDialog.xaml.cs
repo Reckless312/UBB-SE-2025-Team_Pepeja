@@ -1,4 +1,5 @@
 using System;
+using Forum_Lib;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 
@@ -6,8 +7,8 @@ namespace Forum
 {
     public sealed partial class AddCommentDialog : ContentDialog
     {
-        // Hard-coded current user ID for demo
-        private readonly uint _currentUserId = 2; // Using JaneSmith as the current user
+        // Current user ID from service
+        private readonly uint _currentUserId = ForumService.Instance.GetCurrentUserId();
         private User _currentUser;
         
         // The post ID this comment will be added to
@@ -53,7 +54,7 @@ namespace Forum
                 
                 // Create the comment
                 string currentDate = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-                Forum_Lib.ForumService.Instance.CreateComment(commentBody, PostId, currentDate, _currentUserId);
+                Forum_Lib.ForumService.Instance.CreateComment(commentBody, PostId, currentDate);
                 
                 // Log success
                 System.Diagnostics.Debug.WriteLine($"Comment created successfully for post {PostId}");

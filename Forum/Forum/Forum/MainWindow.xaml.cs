@@ -41,12 +41,6 @@ namespace Forum
             LoadPosts();
         }
         
-        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
-        {
-            // Now we can safely load posts since all UI elements are initialized
-            LoadPosts();
-        }
-        
         private void LoadPosts()
         {
             try

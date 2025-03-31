@@ -11,25 +11,39 @@
     <Grid Margin="0,5,0,5" HorizontalAlignment="Stretch">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="200"/>
         </Grid.ColumnDefinitions>
 
+        <!-- Voting Controls -->
+        <StackPanel Grid.Column="0" Orientation="Vertical" Margin="0,0,8,0" MinWidth="30">
+            <Button x:Name="UpvoteButton" Content="▲" Click="UpvoteButton_Click" 
+                    FontSize="10" Padding="0" 
+                    HorizontalAlignment="Center"/>
+            <TextBlock x:Name="ScoreTextBlock" Text="0" 
+                    HorizontalAlignment="Center" FontWeight="SemiBold" 
+                    FontSize="11" Margin="0,2,0,2"/>
+            <Button x:Name="DownvoteButton" Content="▼" Click="DownvoteButton_Click" 
+                    FontSize="10" Padding="0"
+                    HorizontalAlignment="Center"/>
+        </StackPanel>
+
         <!-- Comment Author Profile Pic -->
-        <Border Grid.Column="0" Width="30" Height="30" Margin="0,0,10,0" 
+        <Border Grid.Column="1" Width="30" Height="30" Margin="0,0,10,0" 
                 CornerRadius="15" Background="LightGray">
             <Image x:Name="ProfileImage" Stretch="UniformToFill"/>
         </Border>
 
         <!-- Comment Content -->
-        <StackPanel Grid.Column="1">
+        <StackPanel Grid.Column="2">
             <TextBlock x:Name="UsernameTextBlock" FontWeight="SemiBold" FontSize="12"/>
             <TextBlock x:Name="BodyTextBlock" TextWrapping="Wrap"/>
             <TextBlock x:Name="TimeStampTextBlock" Opacity="0.7" FontSize="10" Margin="0,3,0,0"/>
         </StackPanel>
 
-        <!-- Delete Button moved to a fixed width column-->
-        <Button Grid.Column="2"
+        <!-- Delete Button -->
+        <Button Grid.Column="3"
                 x:Name="DeleteButton"
                 Content="🗑️" 
                 Click="DeleteButton_Click"
@@ -40,6 +54,5 @@
                 VerticalAlignment="Top"
                 HorizontalAlignment="Left"
                 FontSize="12"/>
-        <!--<TextBlock Grid.Column="3" x:Name="asdf" Text="testing this shit" TextWrapping="Wrap"/>-->
     </Grid>
 </UserControl> 

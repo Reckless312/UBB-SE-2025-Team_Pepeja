@@ -11,7 +11,7 @@ namespace Forum
     public sealed partial class PostDetailDialog : ContentDialog
     {
         // Hard-coded current user ID for demo
-        private readonly uint _currentUserId = 2; // Using JaneSmith as the current user
+        private readonly uint _currentUserId = ForumService.Instance.GetCurrentUserId(); // Using JaneSmith as the current user
         
         // The forum post to display
         private ForumPost _post;
@@ -88,8 +88,9 @@ namespace Forum
                     var commentControl = new CommentControl();
                     commentControl.SetComment(commentDisplay);
                     
-                    // Subscribe to the delete event
+                    // Subscribe to events
                     commentControl.DeleteRequested += CommentControl_DeleteRequested;
+                    commentControl.CommentVoted += CommentControl_CommentVoted;
                     
                     // Add to the panel
                     CommentsPanel.Children.Add(commentControl);
@@ -123,6 +124,12 @@ namespace Forum
                 // Handle delete error
                 System.Diagnostics.Debug.WriteLine($"Error deleting comment: {ex.Message}");
             }
+        }
+        
+        private void CommentControl_CommentVoted(object sender, uint commentId)
+        {
+            // Mark that changes were made
+            ChangesWereMade = true;
         }
         
         private void UpvoteButton_Click(object sender, RoutedEventArgs e)

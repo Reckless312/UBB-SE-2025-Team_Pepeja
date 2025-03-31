@@ -138,6 +138,7 @@ namespace Forum_Lib
         {
             int newScore = getPostScore(postId) + voteValue;
             _dbConnection.Connect();
+            //PLACE CODE HERE
             _dbConnection.ExecuteUpdate("Posts", "score", "post_id", newScore, (int)postId);
             _dbConnection.Disconnect();
         }

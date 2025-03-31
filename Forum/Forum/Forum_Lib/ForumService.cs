@@ -18,6 +18,11 @@ namespace Forum_Lib
         {
             _repository = repository;
         }
+
+        public uint GetCurrentUserId()
+        {
+            return 2;
+        }
 #nullable enable
         public List<ForumPost> GetPagedPosts(uint pageNumber, uint pageSize, bool positiveScoreOnly = false, uint? gameId = null, string? filter = null)
         {
@@ -82,9 +87,9 @@ namespace Forum_Lib
             _repository.DeleteComment(commentId);
         }
 
-        public void CreateComment(string body, uint postId, string date, uint authorId)
+        public void CreateComment(string body, uint postId, string date)
         {
-            _repository.CreateComment(body, postId, date, authorId);
+            _repository.CreateComment(body, postId, date, GetCurrentUserId());
         }
 
         public void DeletePost(uint postId)
@@ -92,9 +97,9 @@ namespace Forum_Lib
             _repository.DeletePost(postId);
         }
 
-        public void CreatePost(string title, string body, uint authorId, string date, uint? gameId)
+        public void CreatePost(string title, string body, string date, uint? gameId)
         {
-            _repository.CreatePost(title, body, authorId, date, gameId);
+            _repository.CreatePost(title, body, GetCurrentUserId(), date, gameId);
         }
     }
 
