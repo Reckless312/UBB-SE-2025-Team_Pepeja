@@ -114,12 +114,74 @@
                         <!-- Chat Invites -->
                         <Border CornerRadius="5" Padding="10" Background="#60000000" Margin="0,20,0,0">
                             <StackPanel>
-                                <TextBlock Text="Chat Invites" 
-                                           FontWeight="Bold" 
-                                           Foreground="Black"
-                                           Margin="0,0,0,10"/>
+                                <!-- Header row with Refresh button -->
+                                <Grid Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="Chat Invites" 
+                                                    FontWeight="Bold" 
+                                                    Foreground="Black"
+                                                    VerticalAlignment="Center"/>
+                                    <Button Content="Refresh" 
+                                                    Grid.Column="1"
+                                                    Background="Black" 
+                                                    Foreground="White"
+                                                    Padding="10,5"
+                                                    BorderThickness="0"
+                                                    CornerRadius="3"
+                                                    Click="RefreshChatInvitesButton_Click"/>
+                                </Grid>
+
                                 <ScrollViewer MaxHeight="200">
-                                    <!-- Chat invite items here -->
+                                    <!-- Chat invite items will be displayed here -->
+                                    <StackPanel>
+                                        <ItemsControl ItemsSource="{x:Bind chatInvitesFromUsers, Mode=OneWay}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate x:DataType="local:User">
+                                                    <Border Background="#60000000" 
+                                                            CornerRadius="3" 
+                                                            Padding="10" 
+                                                            Margin="0,0,0,10">
+                                                        <Grid>
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="Auto"/>
+                                                                <ColumnDefinition Width="*"/>
+                                                                <ColumnDefinition Width="Auto"/>
+                                                            </Grid.ColumnDefinitions>
+                                                            <TextBlock Text="{x:Bind UserName}"
+                                                                       Foreground="White"
+                                                                       VerticalAlignment="Center"
+                                                                       Margin="10,0,0,0"
+                                                                       Grid.Column="1"/>
+                                                            <StackPanel Orientation="Horizontal" 
+                                                                        Grid.Column="2"
+                                                                        VerticalAlignment="Center"> 
+                                                                <Button Content="Accept" 
+                                                                        Background="Black" 
+                                                                        Foreground="White"
+                                                                        Padding="10,5"
+                                                                        Margin="0,0,5,0"
+                                                                        BorderThickness="0"
+                                                                        CornerRadius="3"
+                                                                        Tag="{x:Bind}"
+                                                                        Click="AcceptChatInviteButton_Click"/>
+                                                                <Button Content="Decline" 
+                                                                        Background="Black" 
+                                                                        Foreground="White"
+                                                                        Padding="10,5"
+                                                                        BorderThickness="0"
+                                                                        CornerRadius="3"
+                                                                        Tag="{x:Bind}"
+                                                                        Click="DeclineChatInviteButton_Click"/>
+                                                            </StackPanel>
+                                                        </Grid>
+                                                    </Border>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </StackPanel>
                                 </ScrollViewer>
                             </StackPanel>
                         </Border>
@@ -158,7 +220,7 @@
                                                 <StackPanel Orientation="Horizontal" 
                                                             Grid.Column="2"
                                                             VerticalAlignment="Center">
-                                                    <Button Content="Message" 
+                                                    <Button Content="Invite to Chat" 
                                                             Background="Black" 
                                                             Foreground="White"
                                                             Padding="10,5"
@@ -166,7 +228,7 @@
                                                             BorderThickness="0"
                                                             CornerRadius="3"
                                                             Click="MessageButton_Click"
-                                                            Tag="{x:Bind UserName}"/>
+                                                            Tag="{x:Bind}"/>
                                                     <Button Content="Add Friend" 
                                                                     Background="Black" 
                                                                     Foreground="White"

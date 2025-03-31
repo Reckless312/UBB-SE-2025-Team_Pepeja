@@ -1,7 +1,5 @@
-﻿using Microsoft.UI.Dispatching;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System;
+using System.Net;
 
 namespace DirectMessages
 {
@@ -147,6 +145,23 @@ namespace DirectMessages
         public partial bool IsInFriendRequests(String userName)
         {
             return this.sentFriendRequests.Contains(userName);
+        }
+
+        public static partial String GetIpAddressOfCurrentUser()
+        {
+            try
+            {
+                String hostName = Dns.GetHostName();
+
+                // need to further check if the 4 element is always the ip
+                String ipAddress = Dns.GetHostEntry(hostName).AddressList[3].ToString();
+
+                return ipAddress;
+            }
+            catch (Exception)
+            {
+                return Service.GET_IP_REPLACER;
+            }
         }
     }
 }

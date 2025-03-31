@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Azure.Core;
+using System;
 using System.Collections.Generic;
 using System.Data;
 
@@ -12,17 +13,18 @@ namespace Search
         public const String USER_USERNAME_ROW = "username";
         public const String USER_IPADDRESS_ROW = "ipAddress";
         public const String USER_TABLE_NAME = "USERS";
+        public const String MESSAGE_INVITES_TABLE_NAME = "CHAT_INVITES";
+        public const String MESSAGE_INVITES_SENDER_ROW = "sender";
+        public const String MESSAGE_INVITES_RECEIVER_ROW = "receiver";
 
         public Repository()
         {
             this.databaseConnection = new DatabaseConnection();
         }
 
-        public List<User> GetUsersByName(string username)
+        public List<User> GetUsers(string selectQuery)
         {
             List<User> foundUsers = new List<User>();
-
-            String selectQuery = $"SELECT * FROM {Repository.USER_TABLE_NAME} WHERE username LIKE '%{username}%'";
 
             try
             {
@@ -45,7 +47,7 @@ namespace Search
                     foundUsers.Add(user);
                 }
             }
-            catch(Exception)
+            catch (Exception)
             {
                 throw;
             }
@@ -55,6 +57,42 @@ namespace Search
             }
 
             return foundUsers;
+        }
+
+        public void SendNewMessageRequest(Dictionary<String, object> invite)
+        {
+            try
+            {
+                this.databaseConnection.Connect();
+
+                this.databaseConnection.ExecuteInsert(Repository.MESSAGE_INVITES_TABLE_NAME, invite);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally 
+            { 
+                this.databaseConnection.Disconnect(); 
+            }
+        }
+
+        public void RemoveMessageRequest(Dictionary<String, object> request)
+        {
+            try
+            {
+                this.databaseConnection.Connect();
+
+                this.databaseConnection.ExecuteDeleteWithAnd(Repository.MESSAGE_INVITES_TABLE_NAME, request);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                this.databaseConnection.Disconnect();
+            }
         }
 
         public void UpdateUserIpAddress(String userIpAddress, int userId)
@@ -69,10 +107,87 @@ namespace Search
             {
                 throw;
             }
-            finally 
-            { 
-                this.databaseConnection.Disconnect(); 
+            finally
+            {
+                this.databaseConnection.Disconnect();
             }
+        }
+
+        public bool CheckMessageInviteRequestExistance(int senderUserId, int receiverUserId)
+        {
+            int foundInvites = 0;
+
+            String selectQuery = $"SELECT * FROM {Repository.MESSAGE_INVITES_TABLE_NAME} WHERE {Repository.MESSAGE_INVITES_SENDER_ROW}={senderUserId} AND {Repository.MESSAGE_INVITES_RECEIVER_ROW}={receiverUserId}";
+
+            try
+            {
+                this.databaseConnection.Connect();
+                DataSet dataSet = this.databaseConnection.ExecuteQuery(selectQuery, Repository.MESSAGE_INVITES_TABLE_NAME);
+
+                int tableIndex = 0;
+                foreach (DataRow row in dataSet.Tables[tableIndex].Rows)
+                {
+                    foundInvites++;
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                this.databaseConnection.Disconnect();
+            }
+
+            return foundInvites == 1;
+        }
+
+        public void CancelAllMessageRequests(int userId)
+        {
+            try
+            {
+                this.databaseConnection.Connect();
+
+                this.databaseConnection.ExecuteDelete(Repository.MESSAGE_INVITES_TABLE_NAME, Repository.MESSAGE_INVITES_SENDER_ROW, userId);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                this.databaseConnection.Disconnect();
+            }
+        }
+
+        public List<int> GetInvites(int receiverId)
+        {
+            List<int> foundInvites = new List<int>();
+
+            String selectQuery = $"SELECT * FROM {Repository.MESSAGE_INVITES_TABLE_NAME} WHERE {Repository.MESSAGE_INVITES_RECEIVER_ROW} = {receiverId}";
+
+            try
+            {
+                this.databaseConnection.Connect();
+                DataSet dataSet = this.databaseConnection.ExecuteQuery(selectQuery, Repository.MESSAGE_INVITES_TABLE_NAME);
+
+                int inviteTableIndex = 0;
+                foreach (DataRow row in dataSet.Tables[inviteTableIndex].Rows)
+                {
+                    int foundId = Convert.ToInt32(row[Repository.MESSAGE_INVITES_SENDER_ROW]);
+                    foundInvites.Add(foundId);
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                this.databaseConnection.Disconnect();
+            }
+
+            return foundInvites;
         }
     }
 }

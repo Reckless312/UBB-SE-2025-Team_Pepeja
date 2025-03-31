@@ -8,7 +8,7 @@
 
         public int Id { get { return id; } }
         public string UserName { get { return userName; } }
-        public string IpAddress { get { return ipAddress; } }
+        public string IpAddress { get { return ipAddress; } set { this.ipAddress = value; } }
 
         public User(int id, string userName, string ipAddress)
         {

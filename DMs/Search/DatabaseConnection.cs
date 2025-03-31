@@ -76,6 +76,35 @@ namespace Search
             command.ExecuteNonQuery();
         }
 
+        public void ExecuteDeleteWithAnd (string tableName, Dictionary<string, object> parameters)
+        {
+            StringBuilder query = new StringBuilder();
+
+            if (parameters.Count == 0)
+            {
+                return;
+            }
+
+            query.Append($"DELETE FROM {tableName} WHERE");
+
+            foreach (var param in parameters)
+            {
+                query.Append($" {param.Key} = @{param.Key} AND");
+            }
+
+            int numberOfCharactersToBeRemoved = 3;
+            query.Remove(query.Length - numberOfCharactersToBeRemoved, numberOfCharactersToBeRemoved);
+
+            SqlCommand command = new SqlCommand(query.ToString(), Connection);
+
+            foreach (var param in parameters)
+            {
+                command.Parameters.AddWithValue("@" + param.Key, param.Value);
+            }
+
+            command.ExecuteNonQuery();
+        }
+
         public void ExecuteUpdate(string tableName, string columnToUpdate, string columnToMatch, object updateValue, object matchValue)
         {
             string query = $"UPDATE {tableName} SET {columnToUpdate} = @columnToUpdate WHERE {columnToMatch} = @matchValue";

@@ -32,6 +32,7 @@ namespace DirectMessages
         public const String CANCEL_FRIEND_REQUEST_CONTENT = "Cancel Friend Request";
 
         public event PropertyChangedEventHandler? PropertyChanged;
+        public event EventHandler<bool> WindowClosed;
 
         /// <summary>
         /// This property is bound to the ListView from the View
@@ -55,15 +56,15 @@ namespace DirectMessages
             }
         }
 
+        private bool IsOpen { get; set; }
+
         /// <summary>
         /// Creates a new window representing a chat room for users
         /// </summary>
         /// <param name="userName">The name of the user who joined the chat room</param>
-        /// <param name="userIpAddress">The ip address of the user who joined the chat room,
-        ///                             will be omitted if the user is not the host of the server</param>
-        /// <param name="serverInviteIp">The ip address of the user who sent the invite,
-        ///                              will be "None" if the user is the host</param>
-        public ChatRoomWindow(String userName, String userIpAddress, String serverInviteIp)
+        /// <param name="serverInviteIp">The ip of the person who invited the user
+        ///                              Don't provide the argument if you want to host</param>
+        public ChatRoomWindow(String userName, String serverInviteIp=Service.HOST_IP_FINDER)
         {
             this.InitializeComponent();
 
@@ -78,14 +79,17 @@ namespace DirectMessages
             Microsoft.UI.Dispatching.DispatcherQueue uiThread = Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread();
 
             this.userName = userName;
+            this.IsOpen = true;
             this.messages = new ObservableCollection<Message>();
-            this.service = new Service(userName, userIpAddress, serverInviteIp, uiThread);
+            this.service = new Service(userName, serverInviteIp, uiThread);
 
             //Events -> if something happened, alert the listeners, in this case we are the listeners
             //          and we assign functions for each trigger of an event
             this.service.NewMessageEvent += HandleNewMessage;
             this.service.ClientStatusChangedEvent += HandleUserStatusChange;
             this.service.ExceptionEvent += HandleException;
+
+            this.Closed += this.DisconnectService;
 
             WaitAndConnectToTheServer();
         }
@@ -171,7 +175,7 @@ namespace DirectMessages
         /// When the client closes the window, this function is triggered, and will attempt at
         /// closing the connection to the server ("attempt" - could be already disconnected)
         /// </summary>
-        public partial void DisconnectService();    
+        public partial void DisconnectService(object sender, WindowEventArgs args);    
 
         /// <summary>
         /// Displays the error propagated from the server to the user

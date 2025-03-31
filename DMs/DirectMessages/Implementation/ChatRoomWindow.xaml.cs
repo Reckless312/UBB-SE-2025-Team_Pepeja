@@ -128,14 +128,29 @@ namespace DirectMessages
             this.service.ConnectUserToServer();
         }
 
-        public partial void DisconnectService()
+        public partial void DisconnectService(object sender, WindowEventArgs args)
         {
+            this.IsOpen = false;
+
             // Further call on the service (we attempt at disconnecting the client on window close)
             this.service.DisconnectClient();
+
+            // Alert listeners about window closure
+            if (this.WindowClosed != null)
+            {
+                this.WindowClosed.Invoke(this, true);
+            }
         }
         
         private async partial void HandleException(object? sender, ExceptionEventArgs exceptionEventArgs)
         {
+            // If somebody created this class, they could get an error if the window was closed fast
+            // since the socket will attempt to connect for around 15 - 30 seconds
+            if (!this.IsOpen)
+            {
+                return;
+            }
+
             // ContentDialog is a pop up that tells about what exactly happened (the error message)
             ContentDialog errorDialog = new ContentDialog()
             {
