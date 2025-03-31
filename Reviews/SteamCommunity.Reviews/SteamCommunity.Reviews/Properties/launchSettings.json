@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "SteamCommunity.Reviews (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "SteamCommunity.Reviews (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
