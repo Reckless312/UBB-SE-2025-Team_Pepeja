@@ -13,11 +13,8 @@ namespace News
 {
     public sealed partial class PostControl : UserControl
     {
-        // Event for when the panel of this control is closed
         public event RoutedEventHandler? PanelClosed;
-        // Event for when a post is deleted
         public event RoutedEventHandler? PostDeleted;
-        // Event for when post edit is requested
         public event EventHandler<Post>? PostEditRequested;
 
         public Post PostData { get; private set; }

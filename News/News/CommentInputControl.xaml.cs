@@ -6,17 +6,13 @@ namespace News
 {
     public sealed partial class CommentInputControl : UserControl
     {
-        // Event for when a new comment is posted
         public event RoutedEventHandler? CommentPosted;
         private readonly Service m_service = Service.Instance;
         
-        // Flag to determine if we're in edit mode
         private bool m_isEditMode = false;
 
-        // Post ID this comment will be attached to
         public int PostId { get; set; }
 
-        // Comment ID when in edit mode
         public int CommentId { get; set; }
 
         public CommentInputControl()
@@ -25,12 +21,10 @@ namespace News
             this.Loaded += CommentInputControl_Loaded;
         }
 
-        // Set edit mode 
         public void SetEditMode(bool isEdit)
         {
             m_isEditMode = isEdit;
             
-            // Update button text
             if (m_isEditMode)
             {
                 PostCommentButton.Content = "Save";
@@ -41,7 +35,6 @@ namespace News
             }
         }
         
-        // Reset control state
         public void ResetControl()
         {
             m_isEditMode = false;
@@ -89,12 +82,10 @@ namespace News
             
             if (m_isEditMode)
             {
-                // Update existing comment
                 success = m_service.UpdateComment(CommentId, m_service.FormatAsPost(RawEditor.Text));
             }
             else
             {
-                // Create new comment
                 success = m_service.SaveComment(PostId, m_service.FormatAsPost(RawEditor.Text));
             }
 
@@ -103,13 +94,12 @@ namespace News
                 CommentPosted?.Invoke(this, new RoutedEventArgs());
 
                 RawEditor.Text = "";
-                m_isEditMode = false; // Reset edit mode
+                m_isEditMode = false;
                 PostCommentButton.Content = "Post Comment";
                 RawButton_Click(this, new RoutedEventArgs());
             }
             else
             {
-                // Show error message (in a real app, you might want to use a ContentDialog here)
                 System.Diagnostics.Debug.WriteLine("Failed to post comment.");
             }
         }

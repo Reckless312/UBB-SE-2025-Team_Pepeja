@@ -10,17 +10,15 @@ namespace News
         private List<Post> m_currentPosts = new List<Post>();
         private int m_currentPage = 0;
         private Service m_service = Service.Instance;
-        private bool m_bIsLoadingPosts = false;
+        private bool m_IsLoadingPosts = false;
         private string m_searchQuery = "";
 
         public MainWindow()
         {
             this.InitializeComponent();
           
-            // Set Create Post button visibility based on user role
             CreatePostButton.Visibility = m_service.ActiveUser.bIsDeveloper ? Visibility.Visible : Visibility.Collapsed;
             
-            // Load the first page of posts from the database
             LoadPosts();
 
             PostControl.PanelClosed += PostDetailPanel_PanelClosed;
@@ -30,7 +28,7 @@ namespace News
 
         }
 
-        private void PostControl_PostEditRequested(object? sender, Post post)
+        private void PostControl_PostEditRequested(object sender, Post post)
         {
             PostEditorPanel.SetPostToEdit(post);
             EditorOverlayContainer.Visibility = Visibility.Visible;
@@ -56,19 +54,17 @@ namespace News
 
         private void OverlayBackground_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
-            // Close the post panel when clicking outside of the PostControl
             PostDetailPanel_PanelClosed(sender, new RoutedEventArgs());
-            // Stop event propagation to prevent further handling
             e.Handled = true;
         }
 
         private void PostsScroller_ViewChanged(object sender, ScrollViewerViewChangedEventArgs e)
         {
-            if (!m_bIsLoadingPosts && PostsScroller.VerticalOffset >= PostsScroller.ScrollableHeight - 50)
+            if (!m_IsLoadingPosts && PostsScroller.VerticalOffset >= PostsScroller.ScrollableHeight - 50)
             {
-                m_bIsLoadingPosts = true;
+                m_IsLoadingPosts = true;
                 LoadPosts(false, m_searchQuery);
-                m_bIsLoadingPosts = false;
+                m_IsLoadingPosts = false;
             }
         }
 
@@ -90,10 +86,8 @@ namespace News
         {
             if (e.Key == Windows.System.VirtualKey.Enter)
             {
-                // Get the search query
                 m_searchQuery = SearchBox.Text.Trim();
                 
-                // Reset the grid and load filtered posts
                 LoadPosts(true, m_searchQuery);
             }
         }
