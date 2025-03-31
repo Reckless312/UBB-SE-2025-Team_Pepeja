@@ -6,7 +6,7 @@ using System.IO;
 using System.Linq;
 using Windows.System;
 
-namespace Steam_Community
+namespace News
 {
     public sealed partial class PostEditorControl : UserControl
     {
@@ -65,20 +65,25 @@ namespace Steam_Community
 
         private void UploadButton_Click(object sender, RoutedEventArgs e)
         {
-            if (RawHtmlEditor.Text == "")
-            {
-                return;
-            }
+
             if (m_bIsEditMode)
             {
+                if (RawHtmlEditor.Text == "")
+                {
+                    return;
+                }
                 string html = m_service.FormatAsPost(RawHtmlEditor.Text);
                 m_service.UpdatePost(m_postBeingEdited.Id, html);
             }
             else
             {
-                string html = m_service.FormatAsPost(RawHtmlEditor.Text);
-                m_service.SavePostToDatabase(html);
+                if (RawHtmlEditor.Text != "")
+                {
+                    string html = m_service.FormatAsPost(RawHtmlEditor.Text);
+                    m_service.SavePostToDatabase(html);
+                }
             }
+
             ResetEditor();
             RawHtmlEditor.Text = "";
             PostUploaded?.Invoke(this, new RoutedEventArgs());

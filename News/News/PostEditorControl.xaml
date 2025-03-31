@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <UserControl
-    x:Class="Steam_Community.PostEditorControl"
+    x:Class="News.PostEditorControl"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:Steam_Community"
+    xmlns:local="using:News"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
@@ -17,10 +17,10 @@
 
         <!-- Panel Content -->
         <Border 
-            Background="White"
-            BorderBrush="DarkBlue"
+            Background="#FFF0F5"
+            BorderBrush="#D94C8A"
             BorderThickness="2"
-            CornerRadius="8"
+            CornerRadius="15"
             Margin="40,20"
             VerticalAlignment="Stretch">
 
@@ -35,7 +35,7 @@
                 </Grid.RowDefinitions>
 
                 <!-- Header with Toggle Buttons -->
-                <Grid Grid.Row="0" Margin="16,16,16,16">
+                <Grid Grid.Row="0" Margin="32,16,32,16" Background="#FFC2D9" CornerRadius="10" Padding="16,8">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
                         <!-- Profile picture -->
@@ -64,11 +64,11 @@
                             Name="Username"
                             FontWeight="SemiBold"
                             FontSize="18"
-                            Foreground="Black"/>
+                            Foreground="#D94C8A"/>
                         <TextBlock 
                             Name="CurrentDate"
                             FontSize="14"
-                            Foreground="DarkGray"/>
+                            Foreground="#333333"/>
                     </StackPanel>
 
                     <!-- Toggle Buttons -->
@@ -76,26 +76,26 @@
                         <Button x:Name="RawButton" 
                                Content="Raw" 
                                Click="RawButton_Click"
-                               Background="#0078D7"
+                               Background="#D94C8A"
                                Foreground="White"
                                Padding="12,6"
-                               CornerRadius="4"
+                               CornerRadius="20"
                                MinWidth="70"/>
 
                         <Button x:Name="PreviewButton" 
                                Content="Preview" 
                                Click="PreviewButton_Click"
-                               Background="LightGray"
-                               Foreground="Black"
+                               Background="#FFACC7"
+                               Foreground="#333333"
                                Padding="12,6"
-                               CornerRadius="4"
+                               CornerRadius="20"
                                Margin="8,0,0,0"
                                MinWidth="70"/>
                     </StackPanel>
                 </Grid>
 
                 <!-- Content Area -->
-                <Grid Grid.Row="1" Margin="16,0">
+                <Grid Grid.Row="1" Margin="32,0">
                     <!-- Raw Text Editor -->
                     <TextBox x:Name="RawHtmlEditor"
                              AcceptsReturn="True"
@@ -104,11 +104,12 @@
                              Padding="12"
                              MinHeight="300"
                              BorderThickness="1"
-                             BorderBrush="#DDDDDD"
+                             BorderBrush="#FFACC7"
                              Background="White"
-                             Foreground="Black"
+                             Foreground="#333333"
                              Visibility="Visible"
-                             PlaceholderText="Write your post here. Use HTML tags for formatting (e.g., &lt;h1&gt;Title&lt;/h1&gt;)"/>
+                             PlaceholderText="Write your post here. Use HTML tags for formatting (e.g., &lt;h1&gt;Title&lt;/h1&gt;)"
+                             CornerRadius="10"/>
 
                     <!-- Preview WebView -->
                     <WebView2 x:Name="HtmlPreview"
@@ -116,7 +117,7 @@
                 </Grid>
 
                 <!-- Action Button -->
-                <Grid Grid.Row="2" Margin="16,16,16,16">
+                <Grid Grid.Row="2" Margin="32,16,32,16">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
@@ -128,10 +129,10 @@
                         Click="UploadButton_Click"
                         Grid.Column="1" 
                         Content="Upload Post"
-                        Background="#0078D7"
+                        Background="#D94C8A"
                         Foreground="White"
                         Padding="16,8"
-                        CornerRadius="4"
+                        CornerRadius="20"
                         MinWidth="100"/>
                 </Grid>
             </Grid>

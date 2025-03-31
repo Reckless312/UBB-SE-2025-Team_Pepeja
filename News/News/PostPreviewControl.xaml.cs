@@ -7,7 +7,7 @@ using System;
 using System.IO;
 using Windows.UI;
 
-namespace Steam_Community
+namespace News
 {
     public sealed partial class PostPreviewControl : UserControl
     {

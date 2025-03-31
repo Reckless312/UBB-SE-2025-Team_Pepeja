@@ -4,11 +4,12 @@ using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Imaging;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using Windows.System;
 using Windows.UI;
 
-namespace Steam_Community
+namespace News
 {
     public sealed partial class PostControl : UserControl
     {
@@ -30,6 +31,21 @@ namespace Steam_Community
             this.Loaded += PostControl_Loaded;
         }
 
+        private void NewCommentInput_CommentPosted(object sender, RoutedEventArgs e)
+        {
+            // Reload comments to show the newly added comment
+            LoadComments();
+
+            // Update the comment count in the UI
+            if (PostData != null)
+            {
+                // In a real app, you'd reload the PostData from the database to get the updated count
+                // For now, we'll just increment it
+                PostData.NrComments++;
+                CommentsCount.Text = PostData.NrComments.ToString();
+            }
+        }
+
         public void SetPostData(Post post)
         {
             User? user = m_users.GetUserById(post.AuthorId);
@@ -44,7 +60,61 @@ namespace Steam_Community
             image.SetSource(new MemoryStream(user.profilePicture).AsRandomAccessStream());
             ProfilePicture.ImageSource = image;
 
+            bool isDeveloper = m_service.ActiveUser.bIsDeveloper;
+            EditButton.Visibility = isDeveloper ? Visibility.Visible : Visibility.Collapsed;
+            DeleteButton.Visibility = isDeveloper ? Visibility.Visible : Visibility.Collapsed;
+
             UpdateWebViewContent();
+
+            InitializeComments();
+
+            LoadComments();
+        }
+
+        private void InitializeComments()
+        {
+            // Ensure NewCommentInput is properly connected
+            if (NewCommentInput != null && PostData != null)
+            {
+                NewCommentInput.PostId = PostData.Id;
+                NewCommentInput.CommentPosted += NewCommentInput_CommentPosted;
+            }
+        }
+
+        private void LoadComments()
+        {
+            if (PostData == null)
+                return;
+
+            // Clear existing comments
+            CommentsPanel.Children.Clear();
+
+            // Get comments for this post
+            List<Comment> comments = m_service.LoadNextComments(PostData.Id, 1);
+
+            // Display all comments
+            foreach (var comment in comments)
+            {
+                var commentControl = new CommentControl();
+                commentControl.SetCommentData(comment);
+                commentControl.CommentDeleted += CommentControl_CommentDeleted;
+                commentControl.CommentUpdated += CommentControl_CommentUpdated;
+                CommentsPanel.Children.Add(commentControl);
+            }
+        }
+
+        private void CommentControl_CommentDeleted(object sender, RoutedEventArgs e)
+        {
+            LoadComments();
+            PostData.NrComments -= 1;
+            CommentsCount.Text = PostData.NrComments.ToString();
+        }
+
+        private void CommentControl_CommentUpdated(object sender, RoutedEventArgs e)
+        {
+            // No need to reload all comments or change the count
+            // The comment control has already updated its own UI
+            System.Diagnostics.Debug.WriteLine("Comment updated successfully");
         }
 
         private void DeleteButton_Click(object sender, RoutedEventArgs e)

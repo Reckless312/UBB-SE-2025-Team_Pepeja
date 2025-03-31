@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using Windows.Storage;
 
 // Bare bones garbage 'cause others weren't willing to share their repos
-namespace Steam_Community
+namespace News
 {
     public class User
     {
@@ -28,7 +28,7 @@ namespace Steam_Community
         private async void LoadProfilePicture()
         {
             string exePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            string imagePath = Path.Combine(exePath, "Assets", "profilePicture.jpg");
+            string imagePath = Path.Combine(exePath, "Assets", "profilePicture.png");
             profilePicture = File.ReadAllBytes(imagePath);
         }
     }

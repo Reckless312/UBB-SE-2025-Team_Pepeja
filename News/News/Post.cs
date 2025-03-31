@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Steam_Community
+namespace News
 {
     public class Post
     {
