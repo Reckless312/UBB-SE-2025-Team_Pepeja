@@ -9,52 +9,34 @@
 	-> Upload Date
 	-> Profile picture of the author
 	-> Username of the author
-	-> Title:
-		- Between 1 and 200 UTF-16 characters
 	-> Body: 
 		- Between 1 and 5.000 UTF-16 characters. This includes: plain text, mark-ups, embedded links (Youtube only), and hyperlinks.
-		- At most 10MB in size. This includes: text from the post (2 bytes per character) and images (only GIF, PNG, JPG, and JPEG formats are supported). The images will be provided by the uploader, from their own device.
-	-> Community awards:
-		- Between 0 and 50 community awards, given by non-developer users only (Should discuss this with the 'profiles' team)
 	-> Comments section: 
 		- Between 0 and 500 comments
 		- Can be used by both developers and users alike
 	-> Ratings:
-		- Between 0 and 30.000 total ratings
+		- Between 0 and 2(2^31 - 1) total ratings
 		- Each rating can be either a like or a dislike
 		- Each user may only submit one rating, which they can later change or remove
-		- Ratings cannot be given by any developers
 	-> Notes:
-		- A post can be edited or removed only within 24 hours of being uploaded. After that, they will stay up for 1 year, before being automatically removed.
-		- Only one post can be uploaded per day.
+		- Posts can be edited, created, and deleted indefinitely only by the developers associated to the game the news page is dedicated to. If a developer wants to edit or delete another developer's post they are free to do so.
 		- Only the developers of the game associated with the news page may create posts
-		- Each poster will have the option to format their text (excluding the title) using html mark-ups. Formatting would enable the following: bold text, italic text, strikethrough text, superscript and subscript text, headings (h1, h2, and h3), and spoiler text.
+		- Each poster will have the option to format their text (excluding the title) using html mark-ups. Formatting would enable the following: bold text, italic text, strikethrough text, superscript and subscript text, headings (h1, h2, and h3), images (sourced from the web only), and spoiler text.
 
 -> Comments will be ordered from best to most controversial (based on the difference between the number of likes and dislikes they've received) and will contain the following features:
 	-> Profile picture of the author
 	-> Username of the author
 	-> Body:
 		- Between 1 and 3.000 UTF-16 characters. This includes: plain text and mark-ups
-	-> Ratings:
-		- Between 0 and 30.000 total ratings
-		- Each rating can be either a like or a dislike
-		- Each user may only submit one rating, which they can later change or remove
-
-	-> Answers / Responses:
-		- These are comments that reply to another comment, we can consider these 'nested comments'
-		- Responses can be nested up to 10 levels deep (where one reply to a comment under a post is considered a 1 level deep nested response) 
-	
 	-> Notes:
 		- Each comment can be edited or removed indefinitely by its author
-		- Each commenter will have the option to format their text using html mark-ups. Formatting would enable the following: bold text, italic text, strikethrough text, superscript and subscript text, headings (h1, h2, and h3), and spoiler text.
+		- Each commenter will have the option to format their text using html mark-ups. Formatting would enable the following: bold text, italic text, strikethrough text, superscript and subscript text, headings (h1, h2, and h3), images (sourced from the web only), and spoiler text.
 
 -> Initially, only the 9 most recent posts will be loaded on the front page. After the user scrolls through them all, the next 9 will load along with the previous ones, continuing until a total of 90 posts have been rendered on the user's device.
--> A similar mechanic will be applied to the loading of comments of each post: 20 will be loaded first, then the next 20 and so on until the user scrolls through every comment of a post.
 -> Paging of this sort would require the user to have a stable internet connection with a download speed of at least 100 Mbps if they expect data to arrive in under a second
--> The database must be able to handle at least 100 connections and must be able to perform queries asynchronously
+-> Due to memory costs and considering the scale of this app, each post will load all associated comments once it's opened
 
 -> A search bar will be included to enable the user to search posts
 -> The input the user can enter into the search bar must be between 0 and 200 UTF-16 characters long
 -> If the user performs a search using an empty string, they'll be taken to the default page described above
--> A search query is split into tokens, each separated by one or more whitespaces. These tokens are matched against the titles of all posts to find the best matches. The posts that match are then displayed in the same manner as the default page, described above, except they're now ordered in descending order based on how well they match the query.
--> To determine if a token matches a word in a post, it is checked if the token is a substring of the word, in which case it matches that word. (Maybe allow regex later on)
+-> Searching involves taking the user input from the search bar and matching its contents against the contents of the posts
