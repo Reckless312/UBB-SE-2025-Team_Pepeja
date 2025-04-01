@@ -16,6 +16,12 @@ namespace Search
         public const String MESSAGE_INVITES_TABLE_NAME = "CHAT_INVITES";
         public const String MESSAGE_INVITES_SENDER_ROW = "sender";
         public const String MESSAGE_INVITES_RECEIVER_ROW = "receiver";
+        public const String FRIEND_REQUESTS_TABLE_NAME = "FRIEND_REQUESTS";
+        public const String FRIEND_REQUESTS_SENDER_ROW = "sender";
+        public const String FRIEND_REQUESTS_RECEIVER_ROW = "receiver";
+        public const String FRIENDS_TABLE_NAME = "FRIENDS";
+        public const String FRIENDS_USER1_ROW = "user1";
+        public const String FRIENDS_USER2_ROW = "user2";
 
         public Repository()
         {
@@ -188,6 +194,89 @@ namespace Search
             }
 
             return foundInvites;
+        }
+
+        public void SendFriendRequest(int senderUserId, int receiverUserId)
+        {
+            try
+            {
+                this.databaseConnection.Connect();
+
+                Dictionary<String, object> newRequest = new Dictionary<String, object>();
+                newRequest.Add(FRIEND_REQUESTS_SENDER_ROW, senderUserId);
+                newRequest.Add(FRIEND_REQUESTS_RECEIVER_ROW, receiverUserId);
+
+                this.databaseConnection.ExecuteInsert(FRIEND_REQUESTS_TABLE_NAME, newRequest);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                this.databaseConnection.Disconnect();
+            }
+        }
+
+        public void CancelFriendRequest(int senderUserId, int receiverUserId)
+        {
+            try
+            {
+                this.databaseConnection.Connect();
+
+                String deleteQuery = $"DELETE FROM {FRIEND_REQUESTS_TABLE_NAME} WHERE {FRIEND_REQUESTS_SENDER_ROW}={senderUserId} AND {FRIEND_REQUESTS_RECEIVER_ROW}={receiverUserId}";
+                this.databaseConnection.ExecuteNonQuery(deleteQuery);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                this.databaseConnection.Disconnect();
+            }
+        }
+
+        public bool CheckFriendRequestExists(int senderUserId, int receiverUserId)
+        {
+            try
+            {
+                this.databaseConnection.Connect();
+
+                String selectQuery = $"SELECT * FROM {FRIEND_REQUESTS_TABLE_NAME} WHERE {FRIEND_REQUESTS_SENDER_ROW}={senderUserId} AND {FRIEND_REQUESTS_RECEIVER_ROW}={receiverUserId}";
+                DataSet dataSet = this.databaseConnection.ExecuteQuery(selectQuery, FRIEND_REQUESTS_TABLE_NAME);
+
+                return dataSet.Tables[0].Rows.Count > 0;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+            finally
+            {
+                this.databaseConnection.Disconnect();
+            }
+        }
+
+        public bool CheckFriendshipExists(int userId1, int userId2)
+        {
+            try
+            {
+                this.databaseConnection.Connect();
+
+                String selectQuery = $"SELECT * FROM {FRIENDS_TABLE_NAME} WHERE ({FRIENDS_USER1_ROW}={userId1} AND {FRIENDS_USER2_ROW}={userId2}) OR ({FRIENDS_USER1_ROW}={userId2} AND {FRIENDS_USER2_ROW}={userId1})";
+                DataSet dataSet = this.databaseConnection.ExecuteQuery(selectQuery, FRIENDS_TABLE_NAME);
+
+                return dataSet.Tables[0].Rows.Count > 0;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+            finally
+            {
+                this.databaseConnection.Disconnect();
+            }
         }
     }
 }

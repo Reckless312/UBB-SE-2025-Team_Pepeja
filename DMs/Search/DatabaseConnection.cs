@@ -116,5 +116,11 @@ namespace Search
 
             command.ExecuteNonQuery();
         }
+
+        public void ExecuteNonQuery(string query)
+        {
+            SqlCommand command = new SqlCommand(query, Connection);
+            command.ExecuteNonQuery();
+        }
     }
 }
