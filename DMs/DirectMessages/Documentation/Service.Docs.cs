@@ -1,7 +1,6 @@
 ﻿using Microsoft.UI.Dispatching;
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace DirectMessages
 {
@@ -24,20 +23,19 @@ namespace DirectMessages
         private String serverInviteIp;
 
         public const String HOST_IP_FINDER = "None";
+        public const String GET_IP_REPLACER = "NULL";
 
         /// <summary>
         /// Creates the handler for any operations or for errors encountered
         /// </summary>
         /// <param name="userName">The name of the user who joined the chat room</param>
-        /// <param name="userIpAddress">The ip address of the user who joined the chat room,
-        ///                             will be omitted if the user is not the host of the server</param>
         /// <param name="serverInviteIp">The ip address of the user who sent the invite,
         ///                              will be HOST_IP_FINDER if the user is the host</param>
         /// <param name="uiThread">Updating the ui can be done using only the main thread</param>
-        public Service(String userName, String userIpAddress, String serverInviteIp, DispatcherQueue uiThread)
+        public Service(String userName, String serverInviteIp, DispatcherQueue uiThread)
         {
             this.userName = userName;
-            this.userIpAddress = userIpAddress;
+            this.userIpAddress = Service.GetIpAddressOfCurrentUser();
             this.serverInviteIp = serverInviteIp;
             this.uiThread = uiThread;
         }
@@ -125,5 +123,11 @@ namespace DirectMessages
         /// <param name="targetedUser">The name of the user provided from the received messages (on select and button interaction)</param>
         /// <returns>True if it's in the list, false otherwise</returns>
         public partial bool IsInFriendRequests(String userName);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public static partial String GetIpAddressOfCurrentUser();
     }
 }

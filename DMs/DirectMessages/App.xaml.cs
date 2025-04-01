@@ -26,17 +26,8 @@ namespace DirectMessages
         /// <param name="args">Details about the launch request and process.</param>
         protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
         {
-            m_window = new ChatRoomWindow("Cora", "192.168.154.84", "None");
-            m_window.Closed += M_window_Closed;
+            m_window = new ChatRoomWindow("Cora");
             m_window.Activate();
-        }
-
-        private void M_window_Closed(object sender, WindowEventArgs args)
-        {
-            if(m_window is ChatRoomWindow chatRoomWindow)
-            {
-                chatRoomWindow.DisconnectService();
-            }
         }
 
         private Window? m_window;

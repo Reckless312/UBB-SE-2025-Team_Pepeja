@@ -13,6 +13,9 @@ namespace Search
         private Repository repository;
 
         public const int MAXIMUM_NUMBER_OF_DISPLAYED_USERS = 10;
+        public const int MESSAGE_REQUEST_FOUND = 0;
+        public const int MESSAGE_REQUEST_NOT_FOUND = 1;
+        public const int ERROR_CODE = -1;
 
         public Service()
         {
@@ -23,7 +26,8 @@ namespace Search
         {
             try
             {
-                List<User> foundUsers = this.repository.GetUsersByName(username);
+                String selectQuery = this.GetSelectQueryForUsersByName(username);
+                List<User> foundUsers = this.repository.GetUsers(selectQuery);
                 foundUsers.Sort((User firstUser, User secondUser) => String.Compare(firstUser.UserName, secondUser.UserName));
                 return foundUsers.Take(Service.MAXIMUM_NUMBER_OF_DISPLAYED_USERS).ToList();
             }
@@ -34,21 +38,117 @@ namespace Search
             }
         }
 
-        public void UpdateCurrentUserIpAddress(int userId)
+        public String UpdateCurrentUserIpAddress(int userId)
         {
             try
             {
-                string hostName = Dns.GetHostName();
+                String newIpAddress = DirectMessages.Service.GetIpAddressOfCurrentUser();
 
-                // need to further check if the 4 element is always the ip
-                string ipAddress = Dns.GetHostEntry(hostName).AddressList[3].ToString();
+                this.repository.UpdateUserIpAddress(newIpAddress, userId);
 
-                this.repository.UpdateUserIpAddress(ipAddress, userId);
+                return newIpAddress;
+            }
+            catch (Exception)
+            {
+                return DirectMessages.Service.GET_IP_REPLACER;
+            }
+        }
+
+        public int MessageRequest(int senderUserId, int receiverUserId)
+        {
+            if (senderUserId == receiverUserId)
+            {
+                return Service.ERROR_CODE;
+            }
+
+            try
+            {
+                bool alreadyInvited = this.repository.CheckMessageInviteRequestExistance(senderUserId, receiverUserId);
+
+                Dictionary<String, object> invite = new Dictionary<String, object>();
+
+                invite.Add(Repository.MESSAGE_INVITES_SENDER_ROW, senderUserId);
+                invite.Add(Repository.MESSAGE_INVITES_RECEIVER_ROW, receiverUserId);
+
+                switch (alreadyInvited)
+                {
+                    case true:
+                        this.repository.RemoveMessageRequest(invite);
+                        return Service.MESSAGE_REQUEST_FOUND;
+                    case false:
+                        this.repository.SendNewMessageRequest(invite);
+                        return Service.MESSAGE_REQUEST_NOT_FOUND;
+                }
+
+            }
+            catch (Exception exception)
+            {
+                Debug.WriteLine(exception);
+                return Service.ERROR_CODE;
+            }
+        }
+
+        public List<User> GetUsersWhoSentMessageRequest(int receiverId)
+        {
+            try
+            {
+                List<User> foundUsers = new List<User>();
+                List<int> foundIds = this.repository.GetInvites(receiverId);
+
+                foreach(int id in foundIds)
+                {
+                    String selectQuery = this.GetSelectQueryForUsersById(id);
+                    List<User> foundUser = this.repository.GetUsers(selectQuery);
+                    foundUsers.AddRange(foundUser);
+                }
+
+                return foundUsers;
+            }
+            catch (Exception exception)
+            {
+                Debug.WriteLine(exception);
+                return new List<User>();
+            }
+        }
+
+        public void HandleMessageAcceptOrDecline(int senderUserId, int receiverUserId)
+        {
+            try
+            {
+                Dictionary<String, object> invite = new Dictionary<String, object>();
+
+                invite.Add(Repository.MESSAGE_INVITES_SENDER_ROW, senderUserId);
+                invite.Add(Repository.MESSAGE_INVITES_RECEIVER_ROW, receiverUserId);
+
+                this.repository.RemoveMessageRequest(invite);
+
             }
             catch (Exception exception)
             {
                 Debug.WriteLine(exception);
             }
+        }
+
+        public void OnCloseWindow(int userId)
+        {
+            try
+            {
+                this.repository.CancelAllMessageRequests(userId);
+            }
+            catch (Exception exception)
+            {
+                Debug.WriteLine(exception);
+            }
+        }
+
+        private String GetSelectQueryForUsersByName(string username)
+        {
+            return $"SELECT * FROM {Repository.USER_TABLE_NAME} WHERE username LIKE '%{username}%'";
+        }
+
+        private String GetSelectQueryForUsersById(int userId)
+        {
+            return $"SELECT * FROM {Repository.USER_TABLE_NAME} WHERE {Repository.USER_ID_ROW} = {userId}";
         }
     }
 }
