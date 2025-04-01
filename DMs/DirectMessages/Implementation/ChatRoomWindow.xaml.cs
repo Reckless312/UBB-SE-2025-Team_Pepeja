@@ -125,7 +125,19 @@ namespace DirectMessages
                 Content = exceptionEventArgs.Exception.Message,
                 CloseButtonText = "Ok",
                 XamlRoot = this.Content.XamlRoot,
+                Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.ColorHelper.FromArgb(230, 219, 112, 147)), 
+                Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.White),
+                CornerRadius = new CornerRadius(8)
             };
+
+            // AI generated style for the pop up (it fits with the background)
+            errorDialog.Resources["ContentDialogButtonBackground"] =
+                new Microsoft.UI.Xaml.Media.SolidColorBrush(
+                    Microsoft.UI.ColorHelper.FromArgb(255, 219, 112, 147));
+
+            errorDialog.Resources["ContentDialogButtonForeground"] =
+                new Microsoft.UI.Xaml.Media.SolidColorBrush(
+                    Microsoft.UI.Colors.White);
 
             await errorDialog.ShowAsync();
         }
