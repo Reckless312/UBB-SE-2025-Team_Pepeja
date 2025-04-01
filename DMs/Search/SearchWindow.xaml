@@ -86,13 +86,15 @@
                                                 Foreground="White"
                                                 Margin="0,0,5,0"
                                                 BorderThickness="0"
-                                                CornerRadius="3"/>
+                                                CornerRadius="3"
+                                                Click="SortAscendingButton_Click"/>
                                         <Button Content="Z-A" 
                                                 Width="80" 
                                                 Background="Black" 
                                                 Foreground="White"
                                                 BorderThickness="0"
-                                                CornerRadius="3"/>
+                                                CornerRadius="3"
+                                                Click="SortDescendingButton_Click"/>
                                     </StackPanel>
                                 </Grid>
                             </StackPanel>
@@ -124,7 +126,7 @@
                                 <ScrollViewer MaxHeight="200">
                                     <!-- Friend request items will be displayed here -->
                                     <StackPanel>
-                                        <ItemsControl ItemsSource="{x:Bind chatInvitesFromUsers, Mode=OneWay}">
+                                        <ItemsControl ItemsSource="{x:Bind friendRequestsFromUsers, Mode=OneWay}">
                                             <ItemsControl.ItemTemplate>
                                                 <DataTemplate x:DataType="local:User">
                                                     <Border Background="#60000000" 
@@ -199,7 +201,7 @@
                                 <ScrollViewer MaxHeight="200">
                                     <!-- Chat invite items will be displayed here -->
                                     <StackPanel>
-                                        <ItemsControl ItemsSource="{x:Bind friendRequestsFromUsers, Mode=OneWay}">
+                                        <ItemsControl ItemsSource="{x:Bind chatInvitesFromUsers, Mode=OneWay}">
                                             <ItemsControl.ItemTemplate>
                                                 <DataTemplate x:DataType="local:User">
                                                     <Border Background="#60000000" 

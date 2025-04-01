@@ -16,8 +16,6 @@ namespace DirectMessages
         public event EventHandler<ClientStatusEventArgs> ClientStatusChangedEvent;
         public event EventHandler<ExceptionEventArgs> ExceptionEvent;
 
-        private List<String> sentFriendRequests = new List<String>();
-
         private String userName;
         private String userIpAddress;
         private String serverInviteIp;
@@ -106,28 +104,10 @@ namespace DirectMessages
         private partial void InvokeClientStatusChange(object? sender, ClientStatusEventArgs clientStatusEventArgs);
 
         /// <summary>
-        /// Sends a friend request to the user
+        /// Dynamically search for the user ip address
+        /// Could have bugs related to the position of the ip in the array resulted by DNS
         /// </summary>
-        /// <param name="targetedUser">The name of the user provided from the received messages (on select and button interaction)</param>
-        public partial void SendFriendRequest(String targetedUser);
-
-        /// <summary>
-        /// Cancels the friend request sent to the user
-        /// </summary>
-        /// <param name="targetedUser">The name of the user provided from the received messages (on select and button interaction)</param>
-        public partial void CancelFriendRequest(String targetedUser);
-
-        /// <summary>
-        /// Checks if the user is in the friend request list
-        /// </summary>
-        /// <param name="targetedUser">The name of the user provided from the received messages (on select and button interaction)</param>
-        /// <returns>True if it's in the list, false otherwise</returns>
-        public partial bool IsInFriendRequests(String userName);
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
+        /// <returns>The local ip of the current user</returns>
         public static partial String GetIpAddressOfCurrentUser();
     }
 }

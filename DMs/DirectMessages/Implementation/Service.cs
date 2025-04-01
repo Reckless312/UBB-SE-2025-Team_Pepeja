@@ -128,25 +128,6 @@ namespace DirectMessages
             this.uiThread.TryEnqueue(() => this.ClientStatusChangedEvent?.Invoke(this, new ClientStatusEventArgs(clientStatusEventArgs.ClientStatus)));
         }
 
-        public partial void SendFriendRequest(String targetedUser)
-        {
-            this.sentFriendRequests.Add(targetedUser);
-            
-            // TO DO: Make connection to FriendRequest Component
-        }
-
-        public partial void CancelFriendRequest(String targetedUser)
-        {
-            this.sentFriendRequests.Remove(targetedUser);
-
-            // TO DO: Make connection to FriendRequest Component
-        }
-
-        public partial bool IsInFriendRequests(String userName)
-        {
-            return this.sentFriendRequests.Contains(userName);
-        }
-
         public static partial String GetIpAddressOfCurrentUser()
         {
             try

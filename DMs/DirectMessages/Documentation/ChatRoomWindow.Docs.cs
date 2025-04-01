@@ -16,22 +16,17 @@ namespace DirectMessages
     /// not removing the client from the server so the socket is disposable (that should be fixed but
     /// other thing may arise)
     /// </summary>
-    public partial class ChatRoomWindow : Window, INotifyPropertyChanged
+    public partial class ChatRoomWindow : Window
     {
         private IService service;
         private ObservableCollection<Message> messages;
 
         private String userName;
-        private String friendRequestButtonContent;
 
         private bool isAdmin;
         private bool isHost;
         private bool isMuted;
 
-        public const String SEND_FRIEND_REQUEST_CONTENT = "Send Friend Request";
-        public const String CANCEL_FRIEND_REQUEST_CONTENT = "Cancel Friend Request";
-
-        public event PropertyChangedEventHandler? PropertyChanged;
         public event EventHandler<bool> WindowClosed;
 
         /// <summary>
@@ -46,15 +41,6 @@ namespace DirectMessages
         /// This property is used to trigger a change in the text shown by the friend
         /// request button
         /// </summary>
-        public String FriendRequestButtonContent
-        {
-            get => this.friendRequestButtonContent;
-            set
-            {
-                this.friendRequestButtonContent = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(FriendRequestButtonContent)));
-            }
-        }
 
         private bool IsOpen { get; set; }
 
@@ -68,10 +54,6 @@ namespace DirectMessages
         {
             this.InitializeComponent();
 
-            this.FriendRequestButtonContent = ChatRoomWindow.SEND_FRIEND_REQUEST_CONTENT;
-            //Hides the button on start up until the user selects a message
-            this.FriendRequestButton.Visibility = Visibility.Collapsed;
-            
             //Extra buttons: Admin/Mute/Kick
             this.HideExtraButtonsFromUser();
 
@@ -122,13 +104,6 @@ namespace DirectMessages
         /// Parameters from the function overload are not used
         /// </summary>
         public partial void Kick_Button_Click(object sender, RoutedEventArgs routedEventArgs);
-
-        /// <summary>
-        /// Will take the name of the sender of the selected message and will try to send a friend
-        /// request / cancel the current friend requests sent
-        /// Parameters from the function overload are not used
-        /// </summary>
-        public partial void Friend_Request_Button_Click(object sender, RoutedEventArgs routedEventArgs);
 
         /// <summary>
         /// Clears all messages that are shown on the screen

@@ -6,7 +6,7 @@ using System.ComponentModel;
 
 namespace DirectMessages
 {
-    public partial class ChatRoomWindow : Window, INotifyPropertyChanged
+    public partial class ChatRoomWindow : Window
     {
         public partial void Send_Button_Click(object sender, RoutedEventArgs routedEventArgs)
         {
@@ -39,25 +39,6 @@ namespace DirectMessages
             }
         }
 
-        public partial void Friend_Request_Button_Click(object sender, RoutedEventArgs routedEventArgs)
-        {
-            if (this.InvertedListView.SelectedItem is Message message)
-            {
-                switch (this.FriendRequestButtonContent.Equals(ChatRoomWindow.CANCEL_FRIEND_REQUEST_CONTENT))
-                {
-                    case true:
-                        this.service.CancelFriendRequest(message.MessageSenderName);
-                        //Content -> the text that appears on the button
-                        this.FriendRequestButtonContent = ChatRoomWindow.SEND_FRIEND_REQUEST_CONTENT;
-                        break;
-                    case false:
-                        this.service.SendFriendRequest(message.MessageSenderName);
-                        this.FriendRequestButtonContent = ChatRoomWindow.CANCEL_FRIEND_REQUEST_CONTENT;
-                        break;
-                }
-            }
-        }
-
         public partial void Clear_Button_Click(object sender, RoutedEventArgs routedEventArgs)
         {
             this.messages.Clear();
@@ -67,27 +48,13 @@ namespace DirectMessages
         {
             if(this.InvertedListView.SelectedItem is Message message)
             {
-                // Change the "content" of the friend request button based on the selected user
-                // (if he is already in the friend request list or not)
-                switch (this.service.IsInFriendRequests(message.MessageSenderName))
-                {
-                    case true:
-                        this.FriendRequestButtonContent = ChatRoomWindow.CANCEL_FRIEND_REQUEST_CONTENT;
-                        break;
-                    case false:
-                        this.FriendRequestButtonContent = ChatRoomWindow.SEND_FRIEND_REQUEST_CONTENT;
-                        break;
-                }
-
                 // Check if the current user sent the message, in which case hide these buttons
                 switch(message.MessageSenderName == this.userName)
                 {
                     case true:
-                        this.FriendRequestButton.Visibility = Visibility.Collapsed;
                         this.HideExtraButtonsFromUser();
                         break;
                     case false:
-                        this.FriendRequestButton.Visibility = Visibility.Visible;
                         this.ShowAvailableButtons();
                         break;
                 }
