@@ -29,7 +29,7 @@ namespace Search
             {
                 String selectQuery = this.GetSelectQueryForUsersByName(username);
                 List<User> foundUsers = this.repository.GetUsers(selectQuery);
-                foundUsers.Sort((User firstUser, User secondUser) => String.Compare(firstUser.UserName, secondUser.UserName));
+                foundUsers = this.SortAscending(foundUsers);
                 foreach (User user in foundUsers)
                 {
                     user.FriendshipStatus = GetFriendshipStatus(currentUserId: HARDCODED_USER_ID, otherUserId: user.Id);
@@ -132,6 +132,18 @@ namespace Search
             {
                 Debug.WriteLine(exception);
             }
+        }
+
+        public List<User> SortAscending(List<User> usersList)
+        {
+            usersList.Sort((User firstUser, User secondUser) => String.Compare(firstUser.UserName, secondUser.UserName));
+            return usersList;
+        }
+
+        public List<User> SortDescending(List<User> usersList)
+        {
+            usersList.Sort((User firstUser, User secondUser) => String.Compare(secondUser.UserName, firstUser.UserName));
+            return usersList;
         }
 
         public FriendshipStatus GetFriendshipStatus(int currentUserId, int otherUserId)

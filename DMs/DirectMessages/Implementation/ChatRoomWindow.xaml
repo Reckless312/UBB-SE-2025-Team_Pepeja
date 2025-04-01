@@ -213,21 +213,6 @@
                                 </ResourceDictionary>
                             </Button.Resources>
                         </Button>
-                        <Button Content="{x:Bind FriendRequestButtonContent, Mode=OneWay}" 
-                                Click="Friend_Request_Button_Click"
-                                Margin="0,5" Padding="10,5"
-                                Height="60" VerticalAlignment="Top"
-                                Background="{StaticResource LightPinkBackground}"
-                                Foreground="{StaticResource WhiteText}"
-                                HorizontalAlignment="Stretch"
-                                x:Name="FriendRequestButton">
-                            <Button.Resources>
-                                <ResourceDictionary>
-                                    <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#6A1B9A"/>
-                                    <SolidColorBrush x:Key="ButtonBackgroundPressed" Color="#6A1B9A"/>
-                                </ResourceDictionary>
-                            </Button.Resources>
-                        </Button>
                     </StackPanel>
 
                     <!-- Send Button -->

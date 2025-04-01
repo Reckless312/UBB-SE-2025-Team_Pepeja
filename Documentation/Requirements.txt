@@ -5,13 +5,10 @@
 -> Input will be checked if it is a substring of a particular username; in that case, the username will be shown.
 -> The list of users received will be sorted by their username alphabetically in ascending order. The user will be able to switch to descending or back to the original state via a button.
 -> The number of displayed users shall be limited to 10.
--> If no users are found, a simple "No users found." message will be displayed.
 -> Alongside the username, an option to invite the user to chat will appear.
--> The page will also contain a list of incoming invites to chat, sorted by the date sent (earliest to latest).
+-> The page will also contain a list of incoming invites to chat.
 -> Each invite can be accepted or rejected.
--> The number of displayed invites shall be limited to 10.
 -> Accepting an invitation will open the DM application.
--> The search will handle at most 100 connections to the database.
 
 --DMs (Chat)--
 -> If a user initiates the chat, a server will be created with them as its host; they will also be added as a client.

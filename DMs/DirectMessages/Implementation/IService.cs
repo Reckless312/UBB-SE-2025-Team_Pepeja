@@ -14,9 +14,5 @@ namespace DirectMessages
         public void TryChangeMuteStatus(String targetedUser);
         public void TryChangeAdminStatus(String targetedUser);
         public void TryKick(String targetedUser);
-        public void SendFriendRequest(String targetedUser);
-        public void CancelFriendRequest(String targetedUser);
-        public bool IsInFriendRequests(String userName);
-
     }
 }

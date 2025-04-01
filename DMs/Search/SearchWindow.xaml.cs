@@ -1,20 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Navigation;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 using DirectMessages;
-using System.ComponentModel;
 
 
 // To learn more about WinUI, the WinUI project structure,
@@ -61,7 +51,27 @@ namespace Search
             this.Closed += this.Disconnect;
         }
 
-        public void MessageButton_Click(object sender, RoutedEventArgs e)
+        public void SortAscendingButton_Click(object sender, RoutedEventArgs routedEvents)
+        {
+            List<User> sortedUsers = this.service.SortAscending(this.displayedUsers.ToList());
+            this.displayedUsers.Clear();
+            foreach (User user in sortedUsers)
+            {
+                this.displayedUsers.Add(user);
+            }
+        }
+
+        public void SortDescendingButton_Click(object sender, RoutedEventArgs routedEvents)
+        {
+            List<User> sortedUsers = this.service.SortDescending(this.displayedUsers.ToList());
+            this.displayedUsers.Clear();
+            foreach (User user in sortedUsers)
+            {
+                this.displayedUsers.Add(user);
+            }
+        }
+
+        public void MessageButton_Click(object sender, RoutedEventArgs routedEvents)
         {
             Button? clickedButton = sender as Button;
             User? clickedUser = clickedButton?.Tag as User;
@@ -100,7 +110,7 @@ namespace Search
             }
         }
 
-        public void RefreshChatInvitesButton_Click(object sender, RoutedEventArgs e)
+        public void RefreshChatInvitesButton_Click(object sender, RoutedEventArgs routedEvents)
         {
             this.FillInvites();
         }
@@ -117,7 +127,7 @@ namespace Search
             }
         }
 
-        public void DeclineChatInviteButton_Click(object sender, RoutedEventArgs e)
+        public void DeclineChatInviteButton_Click(object sender, RoutedEventArgs routedEvents)
         {
             Button? clickedButton = sender as Button;
             User? clickedUser = clickedButton?.Tag as User;
@@ -130,7 +140,7 @@ namespace Search
             this.service.HandleMessageAcceptOrDecline(clickedUser.Id, this.currentUser.Id);
             this.chatInvitesFromUsers.Remove(clickedUser);
         }
-        public void AcceptChatInviteButton_Click(object sender, RoutedEventArgs e)
+        public void AcceptChatInviteButton_Click(object sender, RoutedEventArgs routedEvents)
         {
             Button? clickedButton = sender as Button;
             User? clickedUser = clickedButton?.Tag as User;
@@ -147,7 +157,7 @@ namespace Search
             this.chatInvitesFromUsers.Remove(clickedUser);
         }
 
-        public void SendFriendRequestButton_Click(object sender, RoutedEventArgs e)
+        public void SendFriendRequestButton_Click(object sender, RoutedEventArgs routedEvents)
         {
             Button? clickedButton = sender as Button;
             if (clickedButton == null) return;
@@ -197,17 +207,17 @@ namespace Search
             }
         }
 
-        public void AcceptFriendRequestButton_Click(object sender, RoutedEventArgs e)
+        public void AcceptFriendRequestButton_Click(object sender, RoutedEventArgs routedEvents)
         {
 
         }
 
-        public void DeclineFriendRequestButton_Click(object sender, RoutedEventArgs e)
+        public void DeclineFriendRequestButton_Click(object sender, RoutedEventArgs routedEvents)
         {
 
         }
 
-        public void SearchButton_Click(object sender, RoutedEventArgs e)
+        public void SearchButton_Click(object sender, RoutedEventArgs routedEvents)
         {
             String username = this.InputBox.Text;
 
