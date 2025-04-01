@@ -1,63 +1,98 @@
-1. Review Submission
-Users shall be able to submit a review for any game in the catalog
-Each review must include:
-A descriptive title (3-20 characters)
-Detailed review content (30-100 characters)
-A clear recommendation status (Recommended/Not Recommended)
-A numeric rating on a scale of 1.0 to 5.0 (with increments of 0.1)
-The system shall automatically record:
-Date and time of submission
-User's play time for the reviewed game
+            Functionalitiies for Reviews  (As Implemented)
+=======================================================================
 
+1. Review Submission
+--------------------
+Users can submit a review for any game in the catalog.
+Each review includes:
+- A descriptive title (optional, max 20 characters)
+- Detailed review content (30–100 characters required)
+- A recommendation toggle (Recommended or Not Recommended)
+- A numeric rating (from 1.0 to 5.0, selectable by dropdown in 0.5 increments)
+
+The system automatically records:
+- Date and time of submission
+- The username of the reviewer
+- Hours played by the reviewer
+
+Validation prevents submission if content or rating is missing.
+Submission is handled through a dedicated review form with dynamic visibility.
 
 2. Review Display
-The system shall display a chronological list of user reviews for each game
-Users shall be able to sort reviews by:
-Date posted (newest first or oldest first)
-Rating (highest to lowest)
-Helpfulness (most helpful first)
-Each review display shall include:
-User name 
-Date posted (shown as relative time, e.g., "2 days ago")
-Hours played
-Review title and content
-Recommendation status (prominently displayed)
-Rating value
-Helpful vote count
+-----------------
+Upon loading the game page (Game ID = 1 in this version), the system shows:
+- Game cover image (Not Implemented for Now)
+- Release date (hardcoded for demo)
+- Review statistics:
+  - Total number of reviews
+  - % of positive (recommended) reviews
+  - Average rating (1.0–5.0)
+
+Below the game info:
+- A “Write a Review” button toggles the review form
+
+- The review submission form includes:
+  - A title input
+  - A content textarea (min 30 characters)
+  - A numeric rating (1.0 to 5.0 in 0.5 steps)
+  - A checkbox for "Recommended".
+  - A submit button
+
+
+- All submitted reviews are listed below the form with the following details per review:
+  - Static default avatar for user profile picture
+  - Username of the reviewer
+  - Relative time since submission (e.g., "3 days ago")
+  - Hours played (if any), shown only if available
+  - Review title and review content
+  - Numeric rating displayed (1.0–5.0)
+  - Helpful 👍 and Funny 😂 vote buttons with current vote counts
+  - Edit and Delete buttons, visible only for the author of the review
+
+- Reviews can be filtered using:
+  - Recommendation filter (All, Positive Only, Negative Only)
+  - Sorting dropdown (Newest First, Oldest First, Highest Rating, Most Helpful)
 
 
 3. Review Management
-Users shall be able to edit their own reviews
-Users shall be able to delete their own reviews
-Deleted reviews shall be removed from all statistics calculations
-
+--------------------
+- Edited reviews update timestamp and affect statistics
+- Deleted reviews are fully removed and no longer counted in stats
 
 4. Review Voting System
-Users shall be able to mark any review as "Helpful" or "Funny"
-Users shall not be able to vote on their own reviews
-Vote counts shall be displayed prominently on each review
-A user can cast one "Helpful" vote and one "Funny" vote per review
-
+------------------------
+- Users can vote on any review as:
+  - 👍 Helpful
+  - 😂 Funny
+- Only one vote per type per review (toggling supported)
+- Vote counts are displayed and update immediately
 
 5. Review Statistics
-The system shall calculate and display the following aggregate statistics for each game:
-Total number of reviews
-Percentage of positive reviews (recommended)
-Average rating (1.0-5.0 scale)
-Statistics shall update immediately when reviews are added, edited, or deleted
+---------------------
+Displayed above the review list for the selected game:
+- Total number of reviews
+- Percentage of positive (recommended) reviews
+- Average rating
 
+These stats update live when reviews are submitted, edited, or deleted.
 
-6. Review Filtering
-Users shall be able to filter reviews based on:
-Recommendation status (All, Positive Only, Negative Only)
-Time period (All Time, Recent)
-Filter controls shall be clearly labeled and accessible above the review list
+6. Review Filtering and Sorting
+-------------------------------
+Controls above the review list allow users to:
+- Sort By:
+  - Newest First
+  - Oldest First
+  - Highest Rating
+  - Most Helpful
 
+- Filter By Recommendation:
+  - All Reviews
+  - Positive Only
+  - Negative Only
+
+Filtering and sorting apply instantly and affect the displayed list.
 
 7. Performance Requirements
-Review submission and display shall respond within 2 seconds under normal load
-The system shall support up to 1,000 reviews per game without performance degradation
-
-
-
-
+----------------------------
+- Review display and interactions respond in under 2 seconds under normal use
+- The system is tested to handle 1,000 reviews per game without noticeable lag
