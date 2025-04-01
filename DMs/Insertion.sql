@@ -7,5 +7,3 @@ INSERT INTO USERS (username, ipAddress) VALUES ('Andrei', '192.168.1.164')
 INSERT INTO USERS (username, ipAddress) VALUES ('Marius', '192.168.1.165')
 
 SELECT * FROM USERS
-
-DELETE FROM USERS
