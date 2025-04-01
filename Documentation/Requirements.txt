@@ -64,10 +64,9 @@ Dependencies from other teams:
    -> A user cannot send multiple friend requests to the same person if one is already pending.
 
 2. Searching and Adding Friends:
-   -> Users can search for other users by username or email.
+   -> Users can search for other users by username.
 
 3. Receiving and Managing Friend Requests:
-   -> Users will receive a notification when they receive a friend request.
    -> Friend requests can be accepted or declined.
    -> A request will remain pending until it is either accepted or declined.
    -> Declined friend requests will not notify the sender but will be removed from both users' lists.
