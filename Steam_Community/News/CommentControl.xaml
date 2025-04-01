@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="News.CommentControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:News"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Border 
+        BorderBrush="#FFACC7" 
+        BorderThickness="1" 
+        CornerRadius="12" 
+        Padding="12" 
+        Background="#FFF0F5"
+        Margin="0,0,0,8">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <!-- Author info -->
+                <RowDefinition Height="Auto"/>
+                <!-- Content -->
+                <RowDefinition Height="Auto"/>
+                <!-- Action buttons -->
+                <RowDefinition Height="Auto"/>
+                <!-- Edit panel (hidden by default) -->
+            </Grid.RowDefinitions>
+
+            <!-- Author Info Row -->
+            <Grid Grid.Row="0" Background="#FFC2D9" CornerRadius="8" Padding="6">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <!-- Profile picture -->
+                    <ColumnDefinition Width="*"/>
+                    <!-- Username and date -->
+                </Grid.ColumnDefinitions>
+
+                <!-- Comment Author Picture -->
+                <Ellipse 
+                    Grid.Column="0" 
+                    Width="32" 
+                    Height="32" 
+                    Margin="0,0,8,0">
+                    <Ellipse.Fill>
+                        <ImageBrush x:Name="ProfilePicture" Stretch="UniformToFill"/>
+                    </Ellipse.Fill>
+                </Ellipse>
+
+                <!-- Comment Author and Date -->
+                <StackPanel Grid.Column="1">
+                    <TextBlock 
+                        x:Name="UsernameText"
+                        Text="Username" 
+                        FontWeight="SemiBold"
+                        Foreground="#D94C8A"/>
+                    <TextBlock 
+                        x:Name="CommentDateText"
+                        Text="Comment Date" 
+                        FontSize="12" 
+                        Foreground="#333333"/>
+                </StackPanel>
+            </Grid>
+
+            <!-- Comment Content -->
+            <WebView2 
+                x:Name="CommentContent" 
+                Grid.Row="1" 
+                Height="Auto"
+                MinHeight="60"
+                Margin="0,8,0,0"/>
+
+            <!-- Action Buttons -->
+            <StackPanel 
+                Grid.Row="2" 
+                Orientation="Horizontal" 
+                HorizontalAlignment="Right" 
+                Margin="0,8,0,0">
+                <Button 
+                    x:Name="EditButton" 
+                    Content="Edit" 
+                    Padding="8,4"
+                    Margin="0,0,8,0"
+                    Click="EditButton_Click"
+                    Visibility="Collapsed"
+                    Background="#D94C8A"
+                    Foreground="White"
+                    CornerRadius="15"/>
+                <!-- Only visible for own comments -->
+                <Button 
+                    x:Name="DeleteButton" 
+                    Content="Delete" 
+                    Padding="8,4"
+                    Background="#FF4C70"
+                    Foreground="White"
+                    Click="DeleteButton_Click"
+                    Visibility="Collapsed"
+                    CornerRadius="15"/>
+                <!-- Only visible for own comments -->
+            </StackPanel>
+
+            <!-- Edit Panel (Hidden by default) -->
+            <Grid 
+                Grid.Row="3" 
+                x:Name="EditPanel" 
+                Visibility="Collapsed"
+                Margin="0,8,0,0">
+                <local:CommentInputControl x:Name="EditCommentInput" />
+            </Grid>
+        </Grid>
+    </Border>
+</UserControl> 
