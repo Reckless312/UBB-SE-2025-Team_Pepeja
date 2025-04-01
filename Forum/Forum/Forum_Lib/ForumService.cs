@@ -54,12 +54,12 @@ namespace Forum_Lib
 
         public void VoteOnPost(uint postId, int voteValue)
         {
-            _repository.VoteOnPost(postId, voteValue);
+            _repository.VoteOnPost(postId, voteValue, (int)GetCurrentUserId());
         }
 
         public void VoteOnComment(uint commentId, int voteValue)
         {
-            _repository.VoteOnComment(commentId, voteValue);
+            _repository.VoteOnComment(commentId, voteValue, (int)GetCurrentUserId());
         }
 
         public List<ForumComment> GetComments(uint postId)

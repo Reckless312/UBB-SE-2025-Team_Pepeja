@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.System;
 using Windows.Web.AtomPub;
 
 namespace Forum_Lib
@@ -116,9 +117,9 @@ namespace Forum_Lib
         private int getPostScore(uint id)
         {
             string query = $"SELECT score FROM Posts WHERE post_id = {id}";
-            _dbConnection.Connect();
+            //_dbConnection.Connect();
             DataSet dataSet = _dbConnection.ExecuteQuery(query, "Posts");
-            _dbConnection.Disconnect();
+            //_dbConnection.Disconnect();
             var score = dataSet.Tables[0].Rows[0]["score"];
             return Convert.ToInt32(score);
         }
@@ -126,28 +127,166 @@ namespace Forum_Lib
         private int getCommentScore(uint id)
         {
             string query = $"SELECT score FROM Comments WHERE comment_id = {id}";
-            _dbConnection.Connect();
+            //_dbConnection.Connect();
             DataSet dataSet = _dbConnection.ExecuteQuery(query, "Comments");
-            _dbConnection.Disconnect();
+            //_dbConnection.Disconnect();
             var score = dataSet.Tables[0].Rows[0]["score"];
 
             return Convert.ToInt32(score);
         }
 
-        public void VoteOnPost(uint postId, int voteValue)
+        public void VoteOnPost(uint postId, int voteValue, int userId)
         {
+
             int newScore = getPostScore(postId) + voteValue;
+
             _dbConnection.Connect();
-            //PLACE CODE HERE
+
+            DataSet likedPost = _dbConnection.ExecuteQuery(
+        $"SELECT * FROM UserLikedPost WHERE userId = {userId} AND post_id = {postId}",
+        "UserLikedPost");
+
+            DataSet dislikedPost = _dbConnection.ExecuteQuery(
+        $"SELECT * FROM UserDislikedPost WHERE userId = {userId} AND post_id = {postId}",
+        "UserDislikedPost");
+
+            Dictionary<string, object> data = new Dictionary<string, object>(); 
+            data.Add("userId", userId);
+            data.Add("post_id", (int)postId);
+
+            if (likedPost.Tables[0].Rows.Count == 0 && dislikedPost.Tables[0].Rows.Count == 0)
+            {
+                // User has not voted yet, apply the vote normally and insert into the appropriate table
+                _dbConnection.ExecuteUpdate("Posts", "score", "post_id", newScore, (int)postId);
+
+                if (voteValue > 0)
+                {
+                    // User liked the post
+                    _dbConnection.ExecuteInsert("UserLikedPost", data);
+                }
+                else
+                {
+                    // User disliked the post
+                    _dbConnection.ExecuteInsert("UserDislikedPost", data);
+                }
+            }
+            else
+            {
+                // User has already voted, check if it's the same or opposite vote
+                if (likedPost.Tables[0].Rows.Count > 0)
+                {
+                    if (voteValue > 0)
+                    {
+                        // Same vote, retract the like
+                        _dbConnection.ExecuteDelete("UserLikedPost", "userId", (int)userId);
+                        newScore = getPostScore(postId) - voteValue; // Adjust the post score
+                    }
+                    else
+                    {
+                        // Opposite vote, retract the like and add a dislike
+                        _dbConnection.ExecuteDelete("UserLikedPost", "userId", (int)userId);
+                        _dbConnection.ExecuteInsert("UserDislikedPost", data);
+                        newScore = getPostScore(postId) + 2 * voteValue; // Adjust the post score accordingly
+                    }
+                }
+                else if (dislikedPost.Tables[0].Rows.Count > 0)
+                {
+                    if (voteValue < 0)
+                    {
+                        // Same vote, retract the dislike
+                        _dbConnection.ExecuteDelete("UserDislikedPost", "userId", (int)userId);
+                        newScore = getPostScore(postId) - voteValue; // Adjust the post score
+                    }
+                    else
+                    {
+                        // Opposite vote, retract the dislike and add a like
+                        _dbConnection.ExecuteDelete("UserDislikedPost", "userId", (int)userId);
+                        _dbConnection.ExecuteInsert("UserLikedPost", data);
+                        newScore = getPostScore(postId) + 2 * voteValue; // Adjust the post score accordingly
+                    }
+                }
+            }
+
+            // Update the post score
             _dbConnection.ExecuteUpdate("Posts", "score", "post_id", newScore, (int)postId);
+
             _dbConnection.Disconnect();
         }
 
-        public void VoteOnComment(uint commentId, int voteValue)
+        public void VoteOnComment(uint commentId, int voteValue, int userId)
         {
             int newScore = getCommentScore(commentId) + voteValue;
+
             _dbConnection.Connect();
+
+            DataSet likedComment = _dbConnection.ExecuteQuery(
+        $"SELECT * FROM UserLikedComment WHERE userId = {userId} AND comment_id = {commentId}",
+        "UserLikedComment");
+
+            DataSet dislikedComment = _dbConnection.ExecuteQuery(
+        $"SELECT * FROM UserDislikedComment WHERE userId = {userId} AND comment_id = {commentId}",
+        "UserDislikedComment");
+
+            Dictionary<string, object> data = new Dictionary<string, object>();
+            data.Add("userId", userId);
+            data.Add("comment_id", (int)commentId);
+
+            if (likedComment.Tables[0].Rows.Count == 0 && dislikedComment.Tables[0].Rows.Count == 0)
+            {
+                // User has not voted yet, apply the vote normally and insert into the appropriate table
+                _dbConnection.ExecuteUpdate("Comments", "score", "comment_id", newScore, (int)commentId);
+
+                if (voteValue > 0)
+                {
+                    // User liked the comment
+                    _dbConnection.ExecuteInsert("UserLikedComment", data);
+                }
+                else
+                {
+                    // User disliked the comment
+                    _dbConnection.ExecuteInsert("UserDislikedComment", data);
+                }
+            }
+            else
+            {
+                // User has already voted, check if it's the same or opposite vote
+                if (likedComment.Tables[0].Rows.Count > 0)
+                {
+                    if (voteValue > 0)
+                    {
+                        // Same vote, retract the like
+                        _dbConnection.ExecuteDelete("UserLikedComment", "userId", (int)userId);
+                        newScore = getCommentScore(commentId) - voteValue; // Adjust the comment score
+                    }
+                    else
+                    {
+                        // Opposite vote, retract the like and add a dislike
+                        _dbConnection.ExecuteDelete("UserLikedComment", "userId", (int)userId);
+                        _dbConnection.ExecuteInsert("UserDislikedComment", data);
+                        newScore = getCommentScore(commentId) + 2 * voteValue; // Adjust the comment score accordingly
+                    }
+                }
+                else if (dislikedComment.Tables[0].Rows.Count > 0)
+                {
+                    if (voteValue < 0)
+                    {
+                        // Same vote, retract the dislike
+                        _dbConnection.ExecuteDelete("UserDislikedComment", "userId", (int)userId);
+                        newScore = getCommentScore(commentId) - voteValue; // Adjust the comment score
+                    }
+                    else
+                    {
+                        // Opposite vote, retract the dislike and add a like
+                        _dbConnection.ExecuteDelete("UserDislikedComment", "userId", (int)userId);
+                        _dbConnection.ExecuteInsert("UserLikedComment", data);
+                        newScore = getCommentScore(commentId) + 2 * voteValue; // Adjust the comment score accordingly
+                    }
+                }
+            }
+
+            // Update the comment score
             _dbConnection.ExecuteUpdate("Comments", "score", "comment_id", newScore, (int)commentId);
+
             _dbConnection.Disconnect();
         }
 
