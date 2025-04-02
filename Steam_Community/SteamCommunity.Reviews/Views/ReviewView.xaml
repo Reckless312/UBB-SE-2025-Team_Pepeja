@@ -23,7 +23,7 @@
 
             <!-- Game Info -->
             <StackPanel Orientation="Horizontal" Spacing="15">
-                <Image Source="/Assets/sample_cover.jpg" Width="120" Height="160" />
+                <Image Source="/Assets/default_avatar.png" Width="120" Height="160" />
                 <StackPanel>
                     <TextBlock Text="Release Date: March 20, 2024" FontWeight="Bold" />
                     <TextBlock Text="Review Statistics:" Margin="0,10,0,0"/>

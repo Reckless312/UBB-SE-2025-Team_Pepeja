@@ -2,8 +2,9 @@
 using SteamCommunity.Reviews.Database;
 using System;
 using System.Collections.Generic;
-using Microsoft.Data.SqlClient;
+using System.Data.SqlClient;
 using System.IO;
+using System.Data;
 
 namespace SteamCommunity.Reviews.Repository
 {
@@ -64,7 +65,7 @@ namespace SteamCommunity.Reviews.Repository
             });
         }
 
-        
+
 
 
         // Update an existing review based on its ID
@@ -150,7 +151,7 @@ namespace SteamCommunity.Reviews.Repository
                     if (readerForStatistics.Read())
                     {
                         totalReviewsCount = Convert.ToInt32(readerForStatistics["TotalReviews"]);
-                        totalPositiveRecommendationsCount = Convert.ToInt32(readerForStatistics["PositiveReviews"]);
+                        totalPositiveRecommendationsCount = readerForStatistics.IsDBNull(readerForStatistics.GetOrdinal("PositiveReviews")) ? 0 : Convert.ToInt32(readerForStatistics["PositiveReviews"]);
                         averageRatingForGame = readerForStatistics["AvgRating"] != DBNull.Value
                             ? Convert.ToDouble(readerForStatistics["AvgRating"])
                             : 0.0;
@@ -198,7 +199,7 @@ namespace SteamCommunity.Reviews.Repository
         private void BindReviewObjectToSqlCommandParameters(SqlCommand sqlCommandToBindParametersTo, Review reviewDataToBind, bool isUpdateOperation)
         {
             sqlCommandToBindParametersTo.Parameters.AddWithValue("@Title", reviewDataToBind.ReviewTitleText);
-           // sqlCommandToBindParametersTo.Parameters.AddWithValue("@Title", reviewDataToBind.TitleOfGame);
+            // sqlCommandToBindParametersTo.Parameters.AddWithValue("@Title", reviewDataToBind.TitleOfGame);
             sqlCommandToBindParametersTo.Parameters.AddWithValue("@Content", reviewDataToBind.ReviewContentText);
             sqlCommandToBindParametersTo.Parameters.AddWithValue("@IsRecommended", reviewDataToBind.IsRecommended);
             sqlCommandToBindParametersTo.Parameters.AddWithValue("@Rating", reviewDataToBind.NumericRatingGivenByUser);

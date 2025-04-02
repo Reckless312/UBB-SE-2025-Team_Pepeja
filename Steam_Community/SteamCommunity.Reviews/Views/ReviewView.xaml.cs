@@ -7,12 +7,16 @@ namespace SteamCommunity.Reviews.Views
 {
     public sealed partial class ReviewView : UserControl
     {
+        private readonly ReviewViewModel _reviewViewModel;
         public ReviewView()
         {
-            if (DataContext is ReviewViewModel vm)
-            {
-                vm.OnValidationFailed = ShowValidationMessage;
-            }
+            _reviewViewModel = new ReviewViewModel();
+            //if (DataContext is ReviewViewModel vm)
+            //{
+            //    vm.OnValidationFailed = ShowValidationMessage;
+            //}
+            DataContext = _reviewViewModel;
+            _reviewViewModel.OnValidationFailed = ShowValidationMessage;
 
             InitializeComponent();
         }
@@ -28,21 +32,22 @@ namespace SteamCommunity.Reviews.Views
 
         private void OnSubmitReviewClicked(object sender, RoutedEventArgs e)
         {
-            if (DataContext is ReviewViewModel vm)
-            {
-                vm.SubmitNewReview();
-                ReviewPanel.Visibility = Visibility.Collapsed;
-            }
+            //if (DataContext is ReviewViewModel vm)
+            //{
+            //    vm.SubmitNewReview();
+            //    ReviewPanel.Visibility = Visibility.Collapsed;
+            //}
+            _reviewViewModel.SubmitNewReview();
+            ReviewPanel.Visibility = Visibility.Collapsed;
         }
 
         private void OnSortChanged(object sender, SelectionChangedEventArgs e)
         {
             if (e?.AddedItems.Count > 0 &&
                 e.AddedItems[0] is ComboBoxItem { Content: string sortOption } &&
-                !string.IsNullOrWhiteSpace(sortOption) &&
-                DataContext is ReviewViewModel vm)
+                !string.IsNullOrWhiteSpace(sortOption))
             {
-                vm.ApplySortinOption(sortOption);
+                _reviewViewModel.ApplySortinOption(sortOption);
             }
         }
 
@@ -50,20 +55,18 @@ namespace SteamCommunity.Reviews.Views
         {
             if (e?.AddedItems.Count > 0 &&
                 e.AddedItems[0] is ComboBoxItem { Content: string filter } &&
-                !string.IsNullOrWhiteSpace(filter) &&
-                DataContext is ReviewViewModel vm)
+                !string.IsNullOrWhiteSpace(filter))
             {
-                vm.ApplyReccomendationFilter(filter);
+                _reviewViewModel.ApplyReccomendationFilter(filter);
             }
         }
 
         private void OnEditReviewClicked(object sender, RoutedEventArgs e)
         {
             if (sender is Button btn &&
-                btn.DataContext is Models.Review review &&
-                DataContext is ReviewViewModel vm)
+                btn.DataContext is Models.Review review)
             {
-                vm.EditAReview(review);
+                _reviewViewModel.EditAReview(review);
 
                 // Ensure ReviewPanel is visible
                 if (ReviewPanel != null)
@@ -74,30 +77,27 @@ namespace SteamCommunity.Reviews.Views
         private void OnDeleteReviewClicked(object sender, RoutedEventArgs e)
         {
             if (sender is Button btn &&
-                btn.Tag is int reviewId &&
-                DataContext is ReviewViewModel vm)
+                btn.Tag is int reviewId)
             {
-                vm.DeleteSelectedReview(reviewId);
+                _reviewViewModel.DeleteSelectedReview(reviewId);
             }
         }
 
         private void OnVoteHelpfulClicked(object sender, RoutedEventArgs e)
         {
             if (sender is Button btn &&
-                btn.DataContext is Models.Review review &&
-                DataContext is ReviewViewModel vm)
+                btn.DataContext is Models.Review review)
             {
-                vm.ToggleVoteForReview(review.ReviewIdentifier, "Helpful", review);
+                _reviewViewModel.ToggleVoteForReview(review.ReviewIdentifier, "Helpful", review);
             }
         }
 
         private void OnVoteFunnyClicked(object sender, RoutedEventArgs e)
         {
             if (sender is Button btn &&
-                btn.DataContext is Models.Review review &&
-                DataContext is ReviewViewModel vm)
+                btn.DataContext is Models.Review review)
             {
-                vm.ToggleVoteForReview(review.ReviewIdentifier, "Funny", review);
+                _reviewViewModel.ToggleVoteForReview(review.ReviewIdentifier, "Funny", review);
             }
         }
 

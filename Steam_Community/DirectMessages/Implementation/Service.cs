@@ -3,7 +3,7 @@ using System.Net;
 
 namespace DirectMessages
 {
-    public partial class Service: IService
+    public partial class Service : IService
     {
         public async partial void ConnectUserToServer()
         {
@@ -39,7 +39,7 @@ namespace DirectMessages
                 this.client.NewMessageReceivedEvent += UpdateNewMessage;
                 this.client.ClientStatusChangedEvent += InvokeClientStatusChange;
             }
-            catch(Exception exception) 
+            catch (Exception exception)
             {
                 // Alert the UI about the new exception
                 this.uiThread.TryEnqueue(() => this.ExceptionEvent?.Invoke(this, new ExceptionEventArgs(exception)));
@@ -134,8 +134,22 @@ namespace DirectMessages
             {
                 String hostName = Dns.GetHostName();
 
-                // need to further check if the 4 element is always the ip
-                String ipAddress = Dns.GetHostEntry(hostName).AddressList[3].ToString();
+                System.Net.IPAddress[] ipAddresses = System.Net.Dns.GetHostEntry(hostName).AddressList;
+                String ipAddress = null;
+
+                foreach (System.Net.IPAddress ip in ipAddresses)
+                {
+                    if (ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork) 
+                    {
+                        ipAddress = ip.ToString();
+                        break;
+                    }
+                }
+
+                if (ipAddress == null)
+                {
+                    throw new Exception("no ip");
+                }
 
                 return ipAddress;
             }
