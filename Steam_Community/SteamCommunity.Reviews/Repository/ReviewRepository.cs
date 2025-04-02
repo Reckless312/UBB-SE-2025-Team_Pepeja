@@ -46,10 +46,6 @@ namespace SteamCommunity.Reviews.Repository
             return listOfReviewsForGame;
         }
 
-
-
-
-
         // Insert a new review into the database
         public bool InsertNewReviewIntoDatabase(Review reviewToInsert)
         {
@@ -64,9 +60,6 @@ namespace SteamCommunity.Reviews.Repository
                 BindReviewObjectToSqlCommandParameters(sqlCommand, reviewToInsert, isUpdateOperation: false);
             });
         }
-
-
-
 
         // Update an existing review based on its ID
         public bool UpdateExistingReviewInDatabase(Review reviewToUpdate)
@@ -87,11 +80,6 @@ namespace SteamCommunity.Reviews.Repository
             });
         }
 
-
-
-
-
-
         // Delete a review by its ID
         public bool DeleteReviewFromDatabaseById(int reviewIdToDelete)
         {
@@ -102,8 +90,6 @@ namespace SteamCommunity.Reviews.Repository
                 sqlCommand.Parameters.AddWithValue("@ReviewId", reviewIdToDelete);
             });
         }
-
-
 
         // Toggle Helpful or Funny votes for a review
         public bool ToggleVoteForReview(int reviewIdToVoteOn, string voteTypeAsStringEitherHelpfulOrFunny, bool shouldIncrementVoteCount)
@@ -213,11 +199,6 @@ namespace SteamCommunity.Reviews.Repository
                 sqlCommandToBindParametersTo.Parameters.AddWithValue("@ReviewId", reviewDataToBind.ReviewIdentifier);
             }
         }
-
-
-
-
-
 
         // Execute a non-query SQL command (INSERT, UPDATE, DELETE) with parameter binding
         private bool ExecuteSqlNonQueryWithParameterBinding(string sqlQueryToExecute, Action<SqlCommand> bindSqlParametersAction)
