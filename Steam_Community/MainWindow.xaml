@@ -30,7 +30,7 @@
                     <friend_requests:ProfileControl/>
                 </TabViewItem>
                 <TabViewItem Header="Search" IsClosable="False">
-                    <search:SearchControl/>
+                    <search:SearchControl x:Name="searchControl"/>
                 </TabViewItem>
             </TabView.TabItems>
         </TabView>
