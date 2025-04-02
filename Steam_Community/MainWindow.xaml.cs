@@ -13,6 +13,8 @@ using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Search;
+using DirectMessages;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -27,6 +29,14 @@ namespace Steam_Community
         public MainWindow()
         {
             this.InitializeComponent();
+            this.searchControl.ChatRoomOpened += HandleChatInvite;
+            this.Closed += this.searchControl.OnClosing;
+        }
+
+        public void HandleChatInvite(object? sender, ChatRoomOpenedEventArgs e)
+        {
+            ChatRoomWindow chatRoomWindow = new ChatRoomWindow(e.Username, e.IpAddress);
+            chatRoomWindow.Activate();
         }
     }
 }

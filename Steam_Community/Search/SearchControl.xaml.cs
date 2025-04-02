@@ -25,8 +25,7 @@ namespace Search
         public const String SEND_MESSAGE_REQUEST_CONTENT = "Invite to Chat";
         public const String CANCEL_MESSAGE_REQUEST_CONTENT = "Cancel Invite";
 
-        // Event to notify when a chat room window should be opened
-        public event EventHandler<ChatRoomOpenedEventArgs> ChatRoomOpened;
+        public event EventHandler<ChatRoomOpenedEventArgs>? ChatRoomOpened;
 
         public SearchControl()
         {
@@ -44,13 +43,10 @@ namespace Search
 
             this.FillInvites();
 
-            // We don't need the Closed event handler for a UserControl
-            // Instead, we'll add a method that can be called when the parent window is closing
-            // this.Closed += this.Disconnect;
         }
 
         // Method that parent can call when closing
-        public void OnClosing()
+        public void OnClosing(object? sender, WindowEventArgs e)
         {
             this.service.OnCloseWindow(this.currentUser.Id);
         }
@@ -106,8 +102,6 @@ namespace Search
                 case true:
                     break;
                 case false:
-                    // Instead of directly creating a ChatRoomWindow here, we'll raise an event
-                    // so the parent window can handle creating the window
                     ChatRoomOpened?.Invoke(this, new ChatRoomOpenedEventArgs
                     {
                         Username = this.currentUser.UserName,
@@ -159,7 +153,6 @@ namespace Search
                 return;
             }
 
-            // Instead of directly creating a ChatRoomWindow here, we'll raise an event
             ChatRoomOpened?.Invoke(this, new ChatRoomOpenedEventArgs
             {
                 Username = this.currentUser.UserName,
