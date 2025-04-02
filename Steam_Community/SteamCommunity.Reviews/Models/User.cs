@@ -13,8 +13,5 @@ namespace SteamCommunity.Reviews.Models
         public int UserIdentifier { get; set; }
         public string UserName { get; set; } = string.Empty;
 
-        
-        
-
     }
 }

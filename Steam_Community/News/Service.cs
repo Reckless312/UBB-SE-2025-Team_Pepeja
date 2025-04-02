@@ -29,7 +29,7 @@ namespace News
 
         private Service()
         {
-            m_connection = new SqlConnection("Data Source=DESKTOP-7DEHML0;Initial Catalog=News;Integrated Security=true;");
+            m_connection = new SqlConnection("Data Source=DESKTOP-2OA983C;Initial Catalog=Community;Integrated Security=true;");
         }
 
         public string FormatAsPost(string text)
@@ -81,7 +81,7 @@ namespace News
             try
             {
                 m_connection.Open();
-                var command1 = new SqlCommand($"UPDATE Posts SET nrLikes = nrLikes + 1 WHERE id = {postId}", m_connection);
+                var command1 = new SqlCommand($"UPDATE NewsPosts SET nrLikes = nrLikes + 1 WHERE id = {postId}", m_connection);
                 var command2 = new SqlCommand($"INSERT INTO Ratings VALUES({postId}, {ActiveUser.id}, 1)", m_connection);
 
                 int rowsAffected = command1.ExecuteNonQuery() + command2.ExecuteNonQuery();
@@ -102,7 +102,7 @@ namespace News
             try
             {
                 m_connection.Open();
-                var command1 = new SqlCommand($"UPDATE Posts SET nrDislikes = nrDislikes + 1 WHERE id = {postId}", m_connection);
+                var command1 = new SqlCommand($"UPDATE NewsPosts SET nrDislikes = nrDislikes + 1 WHERE id = {postId}", m_connection);
                 var command2 = new SqlCommand($"INSERT INTO Ratings VALUES({postId}, {ActiveUser.id}, 0)", m_connection);
 
                 int rowsAffected = command1.ExecuteNonQuery() + command2.ExecuteNonQuery();
@@ -146,7 +146,7 @@ namespace News
             {
                 m_connection.Open();
 
-                var command = new SqlCommand($"INSERT INTO Comments VALUES({ActiveUser.id}, {postId}, @content, '{DateTime.Now}')", m_connection);
+                var command = new SqlCommand($"INSERT INTO NewsComments VALUES({ActiveUser.id}, {postId}, @content, '{DateTime.Now}')", m_connection);
                 command.Parameters.AddWithValue("@content", commentContent);
 
                 int rowsAffected = command.ExecuteNonQuery();
@@ -168,7 +168,7 @@ namespace News
             try
             {
                 m_connection.Open();
-                var command = new SqlCommand($"UPDATE Comments SET content=@content WHERE id={commentId}", m_connection);
+                var command = new SqlCommand($"UPDATE NewsComments SET content=@content WHERE id={commentId}", m_connection);
                 command.Parameters.AddWithValue("@content", commentBody);
 
                 int rowsAffected = command.ExecuteNonQuery();
@@ -190,7 +190,7 @@ namespace News
             try
             {
                 m_connection.Open();
-                var command = new SqlCommand($"DELETE FROM Comments WHERE id={commentId}", m_connection);
+                var command = new SqlCommand($"DELETE FROM NewsComments WHERE id={commentId}", m_connection);
                 int rowsAffected = command.ExecuteNonQuery();
                 return rowsAffected > 0;
             }
@@ -215,7 +215,7 @@ namespace News
                 m_connection.Open();
                 int offset = (pageNumber - 1) * PAGE_SIZE;
                 var command = new SqlCommand($"""
-                SELECT * FROM Comments WHERE postId={postId}
+                SELECT * FROM NewsComments WHERE postId={postId}
                 """, m_connection);
 
                 reader = command.ExecuteReader();
@@ -249,7 +249,7 @@ namespace News
             try
             {
                 m_connection.Open();
-                var command = new SqlCommand($"INSERT INTO Posts VALUES({ActiveUser.id}, @body, '{DateTime.Now}', 0, 0, 0)", m_connection);
+                var command = new SqlCommand($"INSERT INTO NewsPosts VALUES({ActiveUser.id}, @body, '{DateTime.Now}', 0, 0, 0)", m_connection);
                 command.Parameters.AddWithValue("@body", postBody);
                 int rowsAffected = command.ExecuteNonQuery();
                 return rowsAffected > 0;
@@ -270,7 +270,7 @@ namespace News
             try
             {
                 m_connection.Open();
-                var command = new SqlCommand($"UPDATE Posts SET content=@content WHERE id={postId}", m_connection);
+                var command = new SqlCommand($"UPDATE NewsPosts SET content=@content WHERE id={postId}", m_connection);
                 command.Parameters.AddWithValue("@content", postBody);
                 int rowsAffected = command.ExecuteNonQuery();
                 return rowsAffected > 0;
@@ -291,7 +291,7 @@ namespace News
             try
             {
                 m_connection.Open();
-                var command = new SqlCommand($"DELETE FROM Posts WHERE id={postId}", m_connection);
+                var command = new SqlCommand($"DELETE FROM NewsPosts WHERE id={postId}", m_connection);
                 command.ExecuteNonQuery();
             }
             catch (Exception ex)
@@ -328,7 +328,7 @@ namespace News
                     SELECT 
                         *,
                         ROW_NUMBER() OVER (ORDER BY uploadDate DESC) AS RowNum
-                    FROM Posts WHERE content LIKE @query
+                    FROM NewsPosts WHERE content LIKE @query
                 ) AS _
                 WHERE RowNum > {offset} AND RowNum <= {offset + PAGE_SIZE}
                 """, m_connection);

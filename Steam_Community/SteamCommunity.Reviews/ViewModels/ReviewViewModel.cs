@@ -18,7 +18,7 @@ namespace SteamCommunity.Reviews.ViewModels
 
         public Action<string>? OnValidationFailed;
 
-        private const int CurrentUserId = 1; // TEMPORARY STATIC ID FOR DEMO
+        private const int CurrentUserId = 1;
         private bool IsEditingReview = false;
         private int? EditingReviewId = null;
 
@@ -79,36 +79,6 @@ namespace SteamCommunity.Reviews.ViewModels
             }
         }
 
-        //public void SubmitNewReview()
-        //{
-        //    ReviewCurrentlyBeingWritten.GameIdentifier = _currentGameIdentifier;
-        //    ReviewCurrentlyBeingWritten.UserIdentifier = CurrentUserId;
-        //    ReviewCurrentlyBeingWritten.DateAndTimeWhenReviewWasCreated = DateTime.Now;
-
-        //    bool success;
-
-        //    if (IsEditingReview && EditingReviewId.HasValue)
-        //    {
-        //        ReviewCurrentlyBeingWritten.ReviewIdentifier = EditingReviewId.Value;
-        //        success = _reviewService.EditReview(ReviewCurrentlyBeingWritten);
-        //    }
-        //    else
-        //    {
-        //        success = _reviewService.SubmitReview(ReviewCurrentlyBeingWritten);
-        //    }
-
-        //    if (success)
-        //    {
-        //        ReviewCurrentlyBeingWritten = new Review();
-        //        OnPropertyChanged(nameof(ReviewCurrentlyBeingWritten));
-        //        IsEditingReview = false;
-        //        EditingReviewId = null;
-            
-        //        LoadReviewsForGame(_currentGameIdentifier);
-        //    }
-        //}
-
-
         public void SubmitNewReview()
         {
             // Validation
@@ -145,11 +115,6 @@ namespace SteamCommunity.Reviews.ViewModels
                 LoadReviewsForGame(_currentGameIdentifier);
             }
         }
-
-
-
-
-
 
         public void EditAReview(Review review)
         {

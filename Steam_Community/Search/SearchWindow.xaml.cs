@@ -27,7 +27,7 @@ namespace Search
         private bool isHosting;
 
         private const int HARDCODED_USER_ID = 1;
-        private const String HARDCODED_USER_NAME = "Cora";
+        private const String HARDCODED_USER_NAME = "JaneSmith";
 
         public const String SEND_MESSAGE_REQUEST_CONTENT = "Invite to Chat";
         public const String CANCEL_MESSAGE_REQUEST_CONTENT = "Cancel Invite";

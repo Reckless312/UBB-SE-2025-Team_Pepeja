@@ -9,10 +9,7 @@ namespace SteamCommunity.Reviews.Database
 
         public DatabaseConnection()
         {
-            connectionString = "Server=JUSTIN;Database=SteamCommunity_Reviews;Integrated Security=true;Encrypt=false;TrustServerCertificate=true;";
-
-
-            ;
+            connectionString = "Data Source=DESKTOP-2OA983C;Initial Catalog=Community;Integrated Security=true;";
         }
 
         public SqlConnection GetConnection()

@@ -25,7 +25,7 @@ namespace News
         private Users()
         {
             //             ID  Username IsDeveloper
-            m_users.Add(new(1, "GabeN", true));
+            m_users.Add(new(1, "JaneSmith", true));
             m_users.Add(new(2, "Iraphahell", false));
             m_users.Add(new(3, "XSlayder", false));
             m_users.Add(new(4, "Tristopher", true));

@@ -49,7 +49,7 @@ namespace Steam_Community
         private void ConfigureServices()
         {
             // Configuration
-            string currentUsername = "MainUser"; // This would come from authentication
+            string currentUsername = "JaneSmith"; // This would come from authentication
 
 
             // Register database connection

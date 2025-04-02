@@ -7,7 +7,7 @@ namespace Search
 {
     public class DatabaseConnection
     {
-        const string CONNECTION_STRING = "Data Source=CORA\\MSSQLSERVER01;" + "Initial Catalog=Steam;Integrated Security=true;TrustServerCertificate=True";
+        const string CONNECTION_STRING = "Data Source=DESKTOP-2OA983C;" + "Initial Catalog=Community;Integrated Security=true;TrustServerCertificate=True";
         public string ConnectionString { get; }
         public SqlConnection Connection { get; }
 

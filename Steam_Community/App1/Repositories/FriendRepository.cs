@@ -26,7 +26,7 @@ namespace App1.Repositories
                 -- Get friends where the user is User1
                 SELECT u.Username, u.Email, u.ProfilePhotoPath
                 FROM Friends f
-                JOIN Users u ON f.User2Username = u.Username
+                JOIN FriendUsers u ON f.User2Username = u.Username
                 WHERE f.User1Username = @Username
                 
                 UNION
@@ -34,7 +34,7 @@ namespace App1.Repositories
                 -- Get friends where the user is User2
                 SELECT u.Username, u.Email, u.ProfilePhotoPath
                 FROM Friends f
-                JOIN Users u ON f.User1Username = u.Username
+                JOIN FriendUsers u ON f.User1Username = u.Username
                 WHERE f.User2Username = @Username";
 
             // Create SQL parameters

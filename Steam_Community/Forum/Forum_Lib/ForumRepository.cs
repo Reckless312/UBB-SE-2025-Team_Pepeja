@@ -45,14 +45,14 @@ namespace Forum_Lib
             switch (filter)
             {
                 case TimeSpanFilter.AllTime:
-                    query = "SELECT TOP 20 * FROM Posts ORDER BY score DESC";
+                    query = "SELECT TOP 20 * FROM ForumPosts ORDER BY score DESC";
                     break;
                 default:
-                    query = $"SELECT TOP 20 * FROM Posts WHERE creation_date >= DATEADD({TimeSpanFilterToString(filter)}, -1, GETDATE()) ORDER BY score DESC";
+                    query = $"SELECT TOP 20 * FROM ForumPosts WHERE creation_date >= DATEADD({TimeSpanFilterToString(filter)}, -1, GETDATE()) ORDER BY score DESC";
                     break;
             }
             _dbConnection.Connect();
-            DataSet dataSet = _dbConnection.ExecuteQuery(query, "Posts");
+            DataSet dataSet = _dbConnection.ExecuteQuery(query, "ForumPosts");
             List<ForumPost> posts = new();
             foreach (DataRow row in dataSet.Tables[0].Rows)
             {
@@ -81,16 +81,16 @@ namespace Forum_Lib
             data.Add("author_id", (int)authorId);
             data.Add("creation_date", date);
             data.Add("score", 0);
-            data.Add("game_id", gameId != null ? gameId : DBNull.Value);
+            data.Add("game_id", gameId != null ? (int)gameId : DBNull.Value);
             _dbConnection.Connect();
-            _dbConnection.ExecuteInsert("Posts", data);
+            _dbConnection.ExecuteInsert("ForumPosts", data);
             _dbConnection.Disconnect();
         }
 
         public void DeletePost(uint postId)
         {
             _dbConnection.Connect();
-            _dbConnection.ExecuteDelete("Posts", "post_id", (int)postId);
+            _dbConnection.ExecuteDelete("ForumPosts", "post_id", (int)postId);
             _dbConnection.Disconnect();
         }
 
@@ -103,22 +103,22 @@ namespace Forum_Lib
             data.Add("author_id", (int)authorId);
             data.Add("score", 0);
             _dbConnection.Connect();
-            _dbConnection.ExecuteInsert("Comments", data);
+            _dbConnection.ExecuteInsert("ForumComments", data);
             _dbConnection.Disconnect();
         }
 
         public void DeleteComment(uint commentId)
         {
             _dbConnection.Connect();
-            _dbConnection.ExecuteDelete("Comments", "comment_id", (int)commentId);
+            _dbConnection.ExecuteDelete("ForumComments", "comment_id", (int)commentId);
             _dbConnection.Disconnect();
         }
 
         private int getPostScore(uint id)
         {
-            string query = $"SELECT score FROM Posts WHERE post_id = {id}";
+            string query = $"SELECT score FROM ForumPosts WHERE post_id = {id}";
             //_dbConnection.Connect();
-            DataSet dataSet = _dbConnection.ExecuteQuery(query, "Posts");
+            DataSet dataSet = _dbConnection.ExecuteQuery(query, "ForumPosts");
             //_dbConnection.Disconnect();
             var score = dataSet.Tables[0].Rows[0]["score"];
             return Convert.ToInt32(score);
@@ -126,9 +126,9 @@ namespace Forum_Lib
 
         private int getCommentScore(uint id)
         {
-            string query = $"SELECT score FROM Comments WHERE comment_id = {id}";
+            string query = $"SELECT score FROM ForumComments WHERE comment_id = {id}";
             //_dbConnection.Connect();
-            DataSet dataSet = _dbConnection.ExecuteQuery(query, "Comments");
+            DataSet dataSet = _dbConnection.ExecuteQuery(query, "ForumComments");
             //_dbConnection.Disconnect();
             var score = dataSet.Tables[0].Rows[0]["score"];
 
@@ -157,7 +157,7 @@ namespace Forum_Lib
             if (likedPost.Tables[0].Rows.Count == 0 && dislikedPost.Tables[0].Rows.Count == 0)
             {
                 // User has not voted yet, apply the vote normally and insert into the appropriate table
-                _dbConnection.ExecuteUpdate("Posts", "score", "post_id", newScore, (int)postId);
+                _dbConnection.ExecuteUpdate("ForumPosts", "score", "post_id", newScore, (int)postId);
 
                 if (voteValue > 0)
                 {
@@ -208,7 +208,7 @@ namespace Forum_Lib
             }
 
             // Update the post score
-            _dbConnection.ExecuteUpdate("Posts", "score", "post_id", newScore, (int)postId);
+            _dbConnection.ExecuteUpdate("ForumPosts", "score", "post_id", newScore, (int)postId);
 
             _dbConnection.Disconnect();
         }
@@ -234,7 +234,7 @@ namespace Forum_Lib
             if (likedComment.Tables[0].Rows.Count == 0 && dislikedComment.Tables[0].Rows.Count == 0)
             {
                 // User has not voted yet, apply the vote normally and insert into the appropriate table
-                _dbConnection.ExecuteUpdate("Comments", "score", "comment_id", newScore, (int)commentId);
+                _dbConnection.ExecuteUpdate("ForumComments", "score", "comment_id", newScore, (int)commentId);
 
                 if (voteValue > 0)
                 {
@@ -285,7 +285,7 @@ namespace Forum_Lib
             }
 
             // Update the comment score
-            _dbConnection.ExecuteUpdate("Comments", "score", "comment_id", newScore, (int)commentId);
+            _dbConnection.ExecuteUpdate("ForumComments", "score", "comment_id", newScore, (int)commentId);
 
             _dbConnection.Disconnect();
         }
@@ -293,7 +293,7 @@ namespace Forum_Lib
 #nullable enable
         public List<ForumPost> GetPagedPosts(uint pageNumber, uint pageSize, bool positiveScoreOnly = false, uint? gameId = null, string? filter = null)
         {
-            string query = $"SELECT * FROM Posts WHERE 1 = 1";
+            string query = $"SELECT * FROM ForumPosts WHERE 1 = 1";
 
             if (gameId != null)
                 query += $" AND game_id = {gameId}";
@@ -307,7 +307,7 @@ namespace Forum_Lib
             query += $" ORDER BY creation_date OFFSET {pageNumber * pageSize} ROWS FETCH NEXT {pageSize} ROWS ONLY";
 
             _dbConnection.Connect();
-            DataSet dataSet = _dbConnection.ExecuteQuery(query, "Posts");
+            DataSet dataSet = _dbConnection.ExecuteQuery(query, "ForumPosts");
             List<ForumPost> posts = new();
             foreach (DataRow row in dataSet.Tables[0].Rows)
             {
@@ -330,9 +330,9 @@ namespace Forum_Lib
 
         public List<ForumComment> GetComments(uint postId)
         {
-            string query = $"SELECT * FROM Comments WHERE post_id = {postId} ORDER BY creation_date";
+            string query = $"SELECT * FROM ForumComments WHERE post_id = {postId} ORDER BY creation_date";
             _dbConnection.Connect();
-            DataSet dataSet = _dbConnection.ExecuteQuery(query, "Comments");
+            DataSet dataSet = _dbConnection.ExecuteQuery(query, "ForumComments");
             List<ForumComment> comments = new();
             foreach (DataRow row in dataSet.Tables[0].Rows)
             {

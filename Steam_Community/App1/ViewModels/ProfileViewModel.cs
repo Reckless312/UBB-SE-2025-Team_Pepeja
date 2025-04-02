@@ -32,8 +32,8 @@ namespace App1.ViewModels
             // Initialize with sample data
             _userProfile = new UserProfile
             {
-                Username = "MainUser",
-                Email = "main.user@example.com",
+                Username = "JaneSmith",
+                Email = "jane.smith.69@fake.email.ai.com",
                 ProfilePhotoPath = "ms-appx:///Assets/default_avatar.png"
             };
 

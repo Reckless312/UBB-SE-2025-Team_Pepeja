@@ -24,7 +24,7 @@ namespace SteamCommunity.Reviews.Repository
                                               SELECT r.*, u.Name AS Username, 
                                               u.ProfilePicture AS ProfilePictureBlob
                                                 FROM Reviews r
-                                                INNER JOIN Users u ON r.UserId = u.UserId
+                                                INNER JOIN ReviewsUsers u ON r.UserId = u.UserId
                                                 WHERE r.GameId = @GameId
                                                ORDER BY r.CreatedAt DESC";
             ;

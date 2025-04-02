@@ -10,7 +10,7 @@ namespace Forum_Lib
 {
     internal class DatabaseConnection
     {
-        const string CONNECTION_STRING = "Data Source=DESKTOP-2OA983C;Initial Catalog=Forum;Integrated Security=true;";
+        const string CONNECTION_STRING = "Data Source=DESKTOP-2OA983C;Initial Catalog=Community;Integrated Security=true;";
         public string ConnectionString { get; }
         public SqlConnection Connection { get; }
 

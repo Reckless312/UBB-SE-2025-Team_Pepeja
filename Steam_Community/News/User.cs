@@ -28,7 +28,7 @@ namespace News
         private async void LoadProfilePicture()
         {
             string exePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            string imagePath = Path.Combine(exePath, "Assets", "profilePicture.png");
+            string imagePath = Path.Combine(exePath, "Assets", "default_avatar.png");
             profilePicture = File.ReadAllBytes(imagePath);
         }
     }
