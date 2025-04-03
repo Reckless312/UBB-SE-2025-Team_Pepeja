@@ -36,6 +36,10 @@ namespace Steam_Community
         public void HandleChatInvite(object? sender, ChatRoomOpenedEventArgs e)
         {
             ChatRoomWindow chatRoomWindow = new ChatRoomWindow(e.Username, e.IpAddress);
+            if (e.IpAddress == DirectMessages.Service.HOST_IP_FINDER)
+            {
+                chatRoomWindow.Closed += this.searchControl.StoppedHosting;
+            }
             chatRoomWindow.Activate();
         }
     }
