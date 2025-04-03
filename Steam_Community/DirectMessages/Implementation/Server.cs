@@ -31,7 +31,7 @@ namespace DirectMessages
                     String ipAddress = ipAddressAndPort.Substring(Server.STARTING_INDEX, ipAddressAndPort.IndexOf(Server.ADDRESS_SEPARATOR));
 
                     // Server has a limit of 20 active users per requirements
-                    if (this.socketsAndAddresses.Count >= 20)
+                    if (this.socketsAndAddresses.Count >= Server.MAXIMUN_NUMBER_OF_ACTIVE_CONNECTIONS)
                     {
                         // Notify the user and then "Kick" the user (close forcefully the connection)
                         this.SendMessageToOneClient(CreateMessage(Server.SERVER_CAPACITY_REACHED, this.hostName), clientSocket);

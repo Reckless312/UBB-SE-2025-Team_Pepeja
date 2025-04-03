@@ -59,6 +59,7 @@ namespace Search
             {
                 this.displayedUsers.Add(user);
             }
+            this.CheckForDisplayingNoUsersFound();
         }
 
         public void SortDescendingButton_Click(object sender, RoutedEventArgs routedEvents)
@@ -69,6 +70,7 @@ namespace Search
             {
                 this.displayedUsers.Add(user);
             }
+            this.CheckForDisplayingNoUsersFound();
         }
 
         public void MessageButton_Click(object sender, RoutedEventArgs routedEvents)
@@ -235,9 +237,23 @@ namespace Search
             {
                 this.displayedUsers.Add(user);
             }
+
+            this.CheckForDisplayingNoUsersFound();
         }
 
-        public void StoppedHosting(object? sender, bool eventArgs)
+        private void CheckForDisplayingNoUsersFound()
+        {
+            if (this.displayedUsers.Count == 0)
+            {
+                this.NoUsersFoundMessage.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                this.NoUsersFoundMessage.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        public void StoppedHosting(object? sender, WindowEventArgs windowEventArgs)
         {
             this.isHosting = false;
         }

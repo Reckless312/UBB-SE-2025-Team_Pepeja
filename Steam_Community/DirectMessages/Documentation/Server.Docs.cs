@@ -42,6 +42,7 @@ namespace DirectMessages
 
         public const int MESSAGE_MAXIMUM_SIZE = 4112;
         public const int USER_NAME_MAXIMUM_SIZE = 512;
+        public const int MAXIMUN_NUMBER_OF_ACTIVE_CONNECTIONS = 20;
         public const int NUMBER_OF_QUEUED_CONNECTIONS = 10;
         public const int STARTING_INDEX = 0;
         public const int DISCONNECT_CODE = 0;
