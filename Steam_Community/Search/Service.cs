@@ -182,6 +182,8 @@ namespace Search
             }
         }
 
+
+
         public void SendFriendRequest(int senderUserId, int receiverUserId)
         {
             try
