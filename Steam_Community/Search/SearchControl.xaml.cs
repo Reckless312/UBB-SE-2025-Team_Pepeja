@@ -10,7 +10,7 @@ namespace Search
 {
     public partial class SearchControl : UserControl
     {
-        private Service service;
+        private IService service;
         private User currentUser;
 
         public ObservableCollection<User> DisplayedUsers;
@@ -189,19 +189,18 @@ namespace Search
                 return;
             }
 
+          
             // Handle different friend status scenarios
             switch (clickedUser.FriendshipStatus)
             {
                 case FriendshipStatus.NotFriends:
                     // Send friend request
-                    this.service.SendFriendRequest(this.currentUser.Id, clickedUser.Id);
                     clickedUser.FriendshipStatus = FriendshipStatus.RequestSent;
                     clickedButton.Content = "Cancel Request";
                     break;
 
                 case FriendshipStatus.RequestSent:
                     // Cancel the friend request
-                    this.service.CancelFriendRequest(this.currentUser.Id, clickedUser.Id);
                     clickedUser.FriendshipStatus = FriendshipStatus.NotFriends;
                     clickedButton.Content = "Add Friend";
                     break;
@@ -215,6 +214,7 @@ namespace Search
                     // Already friends - could implement unfriend functionality here
                     break;
             }
+            this.service.ToggleFriendRequest(clickedUser.FriendshipStatus, this.currentUser.Id, clickedUser.Id);
         }
 
         public void AcceptFriendRequestButton_Click(object sender, RoutedEventArgs routedEvents)

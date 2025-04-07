@@ -1,233 +1,255 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
+﻿    using System;
+    using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.Linq;
+    using System.Net;
+    using System.Text;
+    using System.Threading.Tasks;
 
-namespace Search
-{
-    public class Service
+    namespace Search
     {
-        private Repository repository;
-
-        public const int MAXIMUM_NUMBER_OF_DISPLAYED_USERS = 10;
-        public const int MESSAGE_REQUEST_FOUND = 0;
-        public const int MESSAGE_REQUEST_NOT_FOUND = 1;
-        public const int ERROR_CODE = -1;
-        public const int HARDCODED_USER_ID = 1;
-
-        public Service()
+        public class Service : IService
         {
-            this.repository = new Repository();
-        }
+            private IRepository repository;
 
-        public List<User> GetFirst10UsersMatchedSorted(string username)
-        {
-            try
+            public const int MAXIMUM_NUMBER_OF_DISPLAYED_USERS = 10;
+            public const int MESSAGE_REQUEST_FOUND = 0;
+            public const int MESSAGE_REQUEST_NOT_FOUND = 1;
+            public const int ERROR_CODE = -1;
+            public const int HARDCODED_USER_ID = 1;
+
+            public Service()
             {
-                string selectQuery = this.GetSelectQueryForUsersByName(username);
-                List<User> foundUsers = this.repository.GetUsers(selectQuery);
-                foundUsers = this.SortAscending(foundUsers);
-                foreach (User user in foundUsers)
+                this.repository = new Repository();
+            }
+
+            public List<User> GetFirst10UsersMatchedSorted(string username)
+            {
+                try
                 {
-                    user.FriendshipStatus = GetFriendshipStatus(currentUserId: HARDCODED_USER_ID, otherUserId: user.Id);
+                    string selectQuery = this.GetSelectQueryForUsersByName(username);
+                    List<User> foundUsers = this.repository.GetUsers(selectQuery);
+                    foundUsers = this.SortAscending(foundUsers);
+                    foreach (User user in foundUsers)
+                    {
+                        user.FriendshipStatus = GetFriendshipStatus(currentUserId: HARDCODED_USER_ID, otherUserId: user.Id);
+                    }
+                    return foundUsers.Take(Service.MAXIMUM_NUMBER_OF_DISPLAYED_USERS).ToList();
                 }
-                return foundUsers.Take(Service.MAXIMUM_NUMBER_OF_DISPLAYED_USERS).ToList();
-            }
-            catch (Exception exception)
-            {
-                Debug.WriteLine(exception);
-                return new List<User>();
-            }
-        }
-
-        public string UpdateCurrentUserIpAddress(int userId)
-        {
-            try
-            {
-                string newIpAddress = DirectMessages.Service.GetIpAddressOfCurrentUser();
-
-                this.repository.UpdateUserIpAddress(newIpAddress, userId);
-
-                return newIpAddress;
-            }
-            catch (Exception)
-            {
-                return DirectMessages.Service.GET_IP_REPLACER;
-            }
-        }
-
-        public int MessageRequest(int senderUserId, int receiverUserId)
-        {
-            if (senderUserId == receiverUserId)
-            {
-                return Service.ERROR_CODE;
-            }
-
-            try
-            {
-                bool alreadyInvited = this.repository.CheckMessageInviteRequestExistance(senderUserId, receiverUserId);
-
-                Dictionary<string, object> invite = new Dictionary<string, object>();
-
-                invite.Add(Repository.MESSAGE_INVITES_SENDER_ROW, senderUserId);
-                invite.Add(Repository.MESSAGE_INVITES_RECEIVER_ROW, receiverUserId);
-
-                switch (alreadyInvited)
+                catch (Exception exception)
                 {
-                    case true:
-                        this.repository.RemoveMessageRequest(invite);
-                        return Service.MESSAGE_REQUEST_FOUND;
-                    case false:
-                        this.repository.SendNewMessageRequest(invite);
-                        return Service.MESSAGE_REQUEST_NOT_FOUND;
+                    Debug.WriteLine(exception);
+                    return new List<User>();
                 }
             }
-            catch (Exception exception)
-            {
-                Debug.WriteLine(exception);
-                return Service.ERROR_CODE;
-            }
-        }
 
-        public List<User> GetUsersWhoSentMessageRequest(int receiverId)
-        {
-            try
+            public string UpdateCurrentUserIpAddress(int userId)
             {
-                List<User> foundUsers = new List<User>();
-                List<int> foundIds = this.repository.GetInvites(receiverId);
-
-                foreach (int id in foundIds)
+                try
                 {
-                    string selectQuery = this.GetSelectQueryForUsersById(id);
-                    List<User> foundUser = this.repository.GetUsers(selectQuery);
-                    foundUsers.AddRange(foundUser);
+                    string newIpAddress = DirectMessages.Service.GetIpAddressOfCurrentUser();
+
+                    this.repository.UpdateUserIpAddress(newIpAddress, userId);
+
+                    return newIpAddress;
+                }
+                catch (Exception)
+                {
+                    return DirectMessages.Service.GET_IP_REPLACER;
+                }
+            }
+
+            public int MessageRequest(int senderUserId, int receiverUserId)
+            {
+                if (senderUserId == receiverUserId)
+                {
+                    return Service.ERROR_CODE;
                 }
 
-                return foundUsers;
-            }
-            catch (Exception exception)
-            {
-                Debug.WriteLine(exception);
-                return new List<User>();
-            }
-        }
-
-        public void HandleMessageAcceptOrDecline(int senderUserId, int receiverUserId)
-        {
-            try
-            {
-                Dictionary<string, object> invite = new Dictionary<string, object>();
-
-                invite.Add(Repository.MESSAGE_INVITES_SENDER_ROW, senderUserId);
-                invite.Add(Repository.MESSAGE_INVITES_RECEIVER_ROW, receiverUserId);
-
-                this.repository.RemoveMessageRequest(invite);
-            }
-            catch (Exception exception)
-            {
-                Debug.WriteLine(exception);
-            }
-        }
-
-        public List<User> SortAscending(List<User> usersList)
-        {
-            usersList.Sort((User firstUser, User secondUser) => string.Compare(firstUser.UserName, secondUser.UserName));
-            return usersList;
-        }
-
-        public List<User> SortDescending(List<User> usersList)
-        {
-            usersList.Sort((User firstUser, User secondUser) => string.Compare(secondUser.UserName, firstUser.UserName));
-            return usersList;
-        }
-
-        public FriendshipStatus GetFriendshipStatus(int currentUserId, int otherUserId)
-        {
-            try
-            {
-                // Don't show friend status with yourself
-                if (currentUserId == otherUserId)
+                try
                 {
-                    return FriendshipStatus.Friends;
-                }
+                    bool alreadyInvited = this.repository.CheckMessageInviteRequestExistance(senderUserId, receiverUserId);
 
-                // Check if users are already friends
-                if (this.repository.CheckFriendshipExists(currentUserId, otherUserId))
+                    Dictionary<string, object> invite = new Dictionary<string, object>();
+
+                    invite.Add(Repository.MESSAGE_INVITES_SENDER_ROW, senderUserId);
+                    invite.Add(Repository.MESSAGE_INVITES_RECEIVER_ROW, receiverUserId);
+
+                    switch (alreadyInvited)
+                    {
+                        case true:
+                            this.repository.RemoveMessageRequest(invite);
+                            return Service.MESSAGE_REQUEST_FOUND;
+                        case false:
+                            this.repository.SendNewMessageRequest(invite);
+                            return Service.MESSAGE_REQUEST_NOT_FOUND;
+                    }
+                }
+                catch (Exception exception)
                 {
-                    return FriendshipStatus.Friends;
+                    Debug.WriteLine(exception);
+                    return Service.ERROR_CODE;
                 }
+            }
 
-                // Check if current user has sent a friend request to the other user
-                if (this.repository.CheckFriendRequestExists(currentUserId, otherUserId))
+            public List<User> GetUsersWhoSentMessageRequest(int receiverId)
+            {
+                try
                 {
-                    return FriendshipStatus.RequestSent;
-                }
+                    List<User> foundUsers = new List<User>();
+                    List<int> foundIds = this.repository.GetInvites(receiverId);
 
-                // Check if other user has sent a friend request to the current user
-                if (this.repository.CheckFriendRequestExists(otherUserId, currentUserId))
+                    foreach (int id in foundIds)
+                    {
+                        string selectQuery = this.GetSelectQueryForUsersById(id);
+                        List<User> foundUser = this.repository.GetUsers(selectQuery);
+                        foundUsers.AddRange(foundUser);
+                    }
+
+                    return foundUsers;
+                }
+                catch (Exception exception)
                 {
-                    return FriendshipStatus.RequestReceived;
+                    Debug.WriteLine(exception);
+                    return new List<User>();
                 }
+            }
 
-                // No relationship exists
-                return FriendshipStatus.NotFriends;
-            }
-            catch (Exception exception)
+            public void HandleMessageAcceptOrDecline(int senderUserId, int receiverUserId)
             {
-                Debug.WriteLine(exception);
-                return FriendshipStatus.NotFriends;
+                try
+                {
+                    Dictionary<string, object> invite = new Dictionary<string, object>();
+
+                    invite.Add(Repository.MESSAGE_INVITES_SENDER_ROW, senderUserId);
+                    invite.Add(Repository.MESSAGE_INVITES_RECEIVER_ROW, receiverUserId);
+
+                    this.repository.RemoveMessageRequest(invite);
+                }
+                catch (Exception exception)
+                {
+                    Debug.WriteLine(exception);
+                }
             }
-        }
+
+            public List<User> SortAscending(List<User> usersList)
+            {
+                usersList.Sort((User firstUser, User secondUser) => string.Compare(firstUser.UserName, secondUser.UserName));
+                return usersList;
+            }
+
+            public List<User> SortDescending(List<User> usersList)
+            {
+                usersList.Sort((User firstUser, User secondUser) => string.Compare(secondUser.UserName, firstUser.UserName));
+                return usersList;
+            }
+
+            public FriendshipStatus GetFriendshipStatus(int currentUserId, int otherUserId)
+            {
+                try
+                {
+                    // Don't show friend status with yourself
+                    if (currentUserId == otherUserId)
+                    {
+                        return FriendshipStatus.Friends;
+                    }
+
+                    // Check if users are already friends
+                    if (this.repository.CheckFriendshipExists(currentUserId, otherUserId))
+                    {
+                        return FriendshipStatus.Friends;
+                    }
+
+                    // Check if current user has sent a friend request to the other user
+                    if (this.repository.CheckFriendRequestExists(currentUserId, otherUserId))
+                    {
+                        return FriendshipStatus.RequestSent;
+                    }
+
+                    // Check if other user has sent a friend request to the current user
+                    if (this.repository.CheckFriendRequestExists(otherUserId, currentUserId))
+                    {
+                        return FriendshipStatus.RequestReceived;
+                    }
+
+                    // No relationship exists
+                    return FriendshipStatus.NotFriends;
+                }
+                catch (Exception exception)
+                {
+                    Debug.WriteLine(exception);
+                    return FriendshipStatus.NotFriends;
+                }
+            }
 
 
 
-        public void SendFriendRequest(int senderUserId, int receiverUserId)
-        {
-            try
+            public void SendFriendRequest(int senderUserId, int receiverUserId)
             {
-                this.repository.SendFriendRequest(senderUserId, receiverUserId);
+                try
+                {
+                    this.repository.SendFriendRequest(senderUserId, receiverUserId);
+                }
+                catch (Exception exception)
+                {
+                    Debug.WriteLine(exception);
+                }
             }
-            catch (Exception exception)
-            {
-                Debug.WriteLine(exception);
-            }
-        }
 
-        public void CancelFriendRequest(int senderUserId, int receiverUserId)
-        {
-            try
+            public void CancelFriendRequest(int senderUserId, int receiverUserId)
             {
-                this.repository.CancelFriendRequest(senderUserId, receiverUserId);
+                try
+                {
+                    this.repository.CancelFriendRequest(senderUserId, receiverUserId);
+                }
+                catch (Exception exception)
+                {
+                    Debug.WriteLine(exception);
+                }
             }
-            catch (Exception exception)
+
+            public void ToggleFriendRequest(FriendshipStatus friendshipStatus, int senderUserId, int receiverUserId)
             {
-                Debug.WriteLine(exception);
+                try
+                {
+                    switch (friendshipStatus)
+                    {
+                        case FriendshipStatus.RequestSent:
+                            this.CancelFriendRequest(senderUserId, receiverUserId);
+                            break;
+                        case FriendshipStatus.RequestReceived:
+                            this.SendFriendRequest(senderUserId, receiverUserId);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                catch (Exception exception)
+                {
+                    Debug.WriteLine(exception);
+                }
             }
-        }
 
         public void OnCloseWindow(int userId)
-        {
-            try
             {
-                this.repository.CancelAllMessageRequests(userId);
+                try
+                {
+                    this.repository.CancelAllMessageRequests(userId);
+                }
+                catch (Exception exception)
+                {
+                    Debug.WriteLine(exception);
+                }
             }
-            catch (Exception exception)
+
+            private string GetSelectQueryForUsersByName(string username)
             {
-                Debug.WriteLine(exception);
+                return $"SELECT * FROM {Repository.USER_TABLE_NAME} WHERE username LIKE '%{username}%'";
             }
-        }
 
-        private string GetSelectQueryForUsersByName(string username)
-        {
-            return $"SELECT * FROM {Repository.USER_TABLE_NAME} WHERE username LIKE '%{username}%'";
-        }
-
-        private string GetSelectQueryForUsersById(int userId)
-        {
-            return $"SELECT * FROM {Repository.USER_TABLE_NAME} WHERE {Repository.USER_ID_ROW} = {userId}";
+            private string GetSelectQueryForUsersById(int userId)
+            {
+                return $"SELECT * FROM {Repository.USER_TABLE_NAME} WHERE {Repository.USER_ID_ROW} = {userId}";
+            }
         }
     }
-}

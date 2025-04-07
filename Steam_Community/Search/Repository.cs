@@ -4,7 +4,7 @@ using System.Data;
 
 namespace Search
 {
-    public class Repository
+    public class Repository : IRepository
     {
         private DatabaseConnection databaseConnection;
 
