@@ -7,7 +7,7 @@ namespace App1.Database
 {
     public class DatabaseConnection
     {
-        private readonly string _connectionString = "Data Source=DESKTOP-2OA983C;Initial Catalog=Community;Integrated Security=True;TrustServerCertificate=True;";
+        private readonly string _connectionString = "Integrated Security=True;TrustServerCertificate=True;data source=DESKTOP-BI53R5C\\SQLEXPRESS02;initial catalog=Steam;user id=sa";
 
         // Create a new connection each time rather than reusing a single connection
         private SqlConnection CreateConnection()

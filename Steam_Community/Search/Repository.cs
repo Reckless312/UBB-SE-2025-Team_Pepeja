@@ -1,5 +1,4 @@
-﻿using Azure.Core;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 
@@ -9,19 +8,19 @@ namespace Search
     {
         private DatabaseConnection databaseConnection;
 
-        public const String USER_ID_ROW = "id";
-        public const String USER_USERNAME_ROW = "username";
-        public const String USER_IPADDRESS_ROW = "ipAddress";
-        public const String USER_TABLE_NAME = "USERS";
-        public const String MESSAGE_INVITES_TABLE_NAME = "CHAT_INVITES";
-        public const String MESSAGE_INVITES_SENDER_ROW = "sender";
-        public const String MESSAGE_INVITES_RECEIVER_ROW = "receiver";
-        public const String FRIEND_REQUESTS_TABLE_NAME = "FRIEND_REQUESTS";
-        public const String FRIEND_REQUESTS_SENDER_ROW = "sender";
-        public const String FRIEND_REQUESTS_RECEIVER_ROW = "receiver";
-        public const String FRIENDS_TABLE_NAME = "FRIENDS";
-        public const String FRIENDS_USER1_ROW = "user1";
-        public const String FRIENDS_USER2_ROW = "user2";
+        public const string USER_ID_ROW = "id";
+        public const string USER_USERNAME_ROW = "username";
+        public const string USER_IPADDRESS_ROW = "ipAddress";
+        public const string USER_TABLE_NAME = "USERS";
+        public const string MESSAGE_INVITES_TABLE_NAME = "CHAT_INVITES";
+        public const string MESSAGE_INVITES_SENDER_ROW = "sender";
+        public const string MESSAGE_INVITES_RECEIVER_ROW = "receiver";
+        public const string FRIEND_REQUESTS_TABLE_NAME = "FRIEND_REQUESTS";
+        public const string FRIEND_REQUESTS_SENDER_ROW = "sender";
+        public const string FRIEND_REQUESTS_RECEIVER_ROW = "receiver";
+        public const string FRIENDS_TABLE_NAME = "FRIENDS";
+        public const string FRIENDS_USER1_ROW = "user1";
+        public const string FRIENDS_USER2_ROW = "user2";
 
         public Repository()
         {
@@ -41,8 +40,8 @@ namespace Search
                 foreach (DataRow row in dataSet.Tables[userTableIndex].Rows)
                 {
                     int foundId = Convert.ToInt32(row[Repository.USER_ID_ROW]);
-                    String foundUserName = row[Repository.USER_USERNAME_ROW]?.ToString() ?? "NULL";
-                    String foundIpAddress = row[Repository.USER_IPADDRESS_ROW]?.ToString() ?? "NULL";
+                    string foundUserName = row[Repository.USER_USERNAME_ROW]?.ToString() ?? "NULL";
+                    string foundIpAddress = row[Repository.USER_IPADDRESS_ROW]?.ToString() ?? "NULL";
 
                     if (foundIpAddress == "NULL " || foundUserName == "NULL")
                     {
@@ -65,7 +64,7 @@ namespace Search
             return foundUsers;
         }
 
-        public void SendNewMessageRequest(Dictionary<String, object> invite)
+        public void SendNewMessageRequest(Dictionary<string, object> invite)
         {
             try
             {
@@ -77,13 +76,13 @@ namespace Search
             {
                 throw;
             }
-            finally 
-            { 
-                this.databaseConnection.Disconnect(); 
+            finally
+            {
+                this.databaseConnection.Disconnect();
             }
         }
 
-        public void RemoveMessageRequest(Dictionary<String, object> request)
+        public void RemoveMessageRequest(Dictionary<string, object> request)
         {
             try
             {
@@ -101,7 +100,7 @@ namespace Search
             }
         }
 
-        public void UpdateUserIpAddress(String userIpAddress, int userId)
+        public void UpdateUserIpAddress(string userIpAddress, int userId)
         {
             try
             {
@@ -123,7 +122,7 @@ namespace Search
         {
             int foundInvites = 0;
 
-            String selectQuery = $"SELECT * FROM {Repository.MESSAGE_INVITES_TABLE_NAME} WHERE {Repository.MESSAGE_INVITES_SENDER_ROW}={senderUserId} AND {Repository.MESSAGE_INVITES_RECEIVER_ROW}={receiverUserId}";
+            string selectQuery = $"SELECT * FROM {Repository.MESSAGE_INVITES_TABLE_NAME} WHERE {Repository.MESSAGE_INVITES_SENDER_ROW}={senderUserId} AND {Repository.MESSAGE_INVITES_RECEIVER_ROW}={receiverUserId}";
 
             try
             {
@@ -170,7 +169,7 @@ namespace Search
         {
             List<int> foundInvites = new List<int>();
 
-            String selectQuery = $"SELECT * FROM {Repository.MESSAGE_INVITES_TABLE_NAME} WHERE {Repository.MESSAGE_INVITES_RECEIVER_ROW} = {receiverId}";
+            string selectQuery = $"SELECT * FROM {Repository.MESSAGE_INVITES_TABLE_NAME} WHERE {Repository.MESSAGE_INVITES_RECEIVER_ROW} = {receiverId}";
 
             try
             {
@@ -202,7 +201,7 @@ namespace Search
             {
                 this.databaseConnection.Connect();
 
-                Dictionary<String, object> newRequest = new Dictionary<String, object>();
+                Dictionary<string, object> newRequest = new Dictionary<string, object>();
                 newRequest.Add(FRIEND_REQUESTS_SENDER_ROW, senderUserId);
                 newRequest.Add(FRIEND_REQUESTS_RECEIVER_ROW, receiverUserId);
 
@@ -224,7 +223,7 @@ namespace Search
             {
                 this.databaseConnection.Connect();
 
-                String deleteQuery = $"DELETE FROM {FRIEND_REQUESTS_TABLE_NAME} WHERE {FRIEND_REQUESTS_SENDER_ROW}={senderUserId} AND {FRIEND_REQUESTS_RECEIVER_ROW}={receiverUserId}";
+                string deleteQuery = $"DELETE FROM {FRIEND_REQUESTS_TABLE_NAME} WHERE {FRIEND_REQUESTS_SENDER_ROW}={senderUserId} AND {FRIEND_REQUESTS_RECEIVER_ROW}={receiverUserId}";
                 this.databaseConnection.ExecuteNonQuery(deleteQuery);
             }
             catch (Exception)
@@ -243,7 +242,7 @@ namespace Search
             {
                 this.databaseConnection.Connect();
 
-                String selectQuery = $"SELECT * FROM {FRIEND_REQUESTS_TABLE_NAME} WHERE {FRIEND_REQUESTS_SENDER_ROW}={senderUserId} AND {FRIEND_REQUESTS_RECEIVER_ROW}={receiverUserId}";
+                string selectQuery = $"SELECT * FROM {FRIEND_REQUESTS_TABLE_NAME} WHERE {FRIEND_REQUESTS_SENDER_ROW}={senderUserId} AND {FRIEND_REQUESTS_RECEIVER_ROW}={receiverUserId}";
                 DataSet dataSet = this.databaseConnection.ExecuteQuery(selectQuery, FRIEND_REQUESTS_TABLE_NAME);
 
                 return dataSet.Tables[0].Rows.Count > 0;
@@ -264,7 +263,7 @@ namespace Search
             {
                 this.databaseConnection.Connect();
 
-                String selectQuery = $"SELECT * FROM {FRIENDS_TABLE_NAME} WHERE ({FRIENDS_USER1_ROW}={userId1} AND {FRIENDS_USER2_ROW}={userId2}) OR ({FRIENDS_USER1_ROW}={userId2} AND {FRIENDS_USER2_ROW}={userId1})";
+                string selectQuery = $"SELECT * FROM {FRIENDS_TABLE_NAME} WHERE ({FRIENDS_USER1_ROW}={userId1} AND {FRIENDS_USER2_ROW}={userId2}) OR ({FRIENDS_USER1_ROW}={userId2} AND {FRIENDS_USER2_ROW}={userId1})";
                 DataSet dataSet = this.databaseConnection.ExecuteQuery(selectQuery, FRIENDS_TABLE_NAME);
 
                 return dataSet.Tables[0].Rows.Count > 0;
