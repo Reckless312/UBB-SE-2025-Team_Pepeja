@@ -4,7 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using DirectMessages;
+using Steam_Community.DirectMessages.Models;
 
 namespace Search
 {
@@ -32,7 +32,7 @@ namespace Search
             this.InitializeComponent();
             
             // Hardcoded, assumed we should know about the current user
-            this.currentUser = new User(SearchControl.HARDCODED_USER_ID, SearchControl.HARDCODED_USER_NAME, DirectMessages.Service.GET_IP_REPLACER);
+            this.currentUser = new User(SearchControl.HARDCODED_USER_ID, SearchControl.HARDCODED_USER_NAME, ChatConstants.GET_IP_REPLACER);
             this.displayedUsers = new ObservableCollection<User>();
             this.chatInvitesFromUsers = new ObservableCollection<User>();
             this.friendRequestsFromUsers = new ObservableCollection<User>();
@@ -107,7 +107,7 @@ namespace Search
                     ChatRoomOpened?.Invoke(this, new ChatRoomOpenedEventArgs
                     {
                         Username = this.currentUser.UserName,
-                        IpAddress = DirectMessages.Service.HOST_IP_FINDER
+                        IpAddress = ChatConstants.HOST_IP_FINDER
                     });
                     this.isHosting = true;
                     break;
