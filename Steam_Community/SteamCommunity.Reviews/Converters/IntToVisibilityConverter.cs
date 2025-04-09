@@ -8,12 +8,17 @@ namespace SteamCommunity.Reviews.Converters
     {
         public object Convert(object value, Type targetType, object parameter, string language)
         {
-            if (value is int val && val > 0)
+            if (value is int numericValue && numericValue > 0)
+            {
                 return Visibility.Visible;
+            }
+
             return Visibility.Collapsed;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, string language)
-            => throw new NotImplementedException();
+        {
+            throw new NotImplementedException("Conversion from visibility to integer is not supported.");
+        }
     }
 }
