@@ -14,16 +14,22 @@
 
             public const int MAXIMUM_NUMBER_OF_DISPLAYED_USERS = 10;
             public const int MESSAGE_REQUEST_FOUND = 0;
-            public const int MESSAGE_REQUEST_NOT_FOUND = 1;
+            public const int MESSAGE_REQUEST_NOT_FOUND =1;
             public const int ERROR_CODE = -1;
             public const int HARDCODED_USER_ID = 1;
 
-            public Service()
-            {
-                this.repository = new Repository();
-            }
 
-            public List<User> GetFirst10UsersMatchedSorted(string username)
+        public Service()
+        {
+            this.repository = new Repository();
+        }
+        public Service(IRepository repository)
+        {
+            this.repository = repository;
+        }
+
+
+        public List<User> GetFirst10UsersMatchedSorted(string username)
             {
                 try
                 {
@@ -72,8 +78,8 @@
 
                     Dictionary<string, object> invite = new Dictionary<string, object>();
 
-                    invite.Add(Repository.MESSAGE_INVITES_SENDER_ROW, senderUserId);
-                    invite.Add(Repository.MESSAGE_INVITES_RECEIVER_ROW, receiverUserId);
+                    invite[Repository.MESSAGE_INVITES_SENDER_ROW] = senderUserId;
+                    invite[Repository.MESSAGE_INVITES_RECEIVER_ROW] = receiverUserId;
 
                     switch (alreadyInvited)
                     {
