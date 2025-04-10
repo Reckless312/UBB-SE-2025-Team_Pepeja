@@ -9,7 +9,7 @@ namespace News
         public event RoutedEventHandler? CommentPosted;
         private readonly Service m_service = Service.Instance;
         
-        private bool m_isEditMode = false;
+        private bool _editMode = false;
 
         public int PostId { get; set; }
 
@@ -21,11 +21,11 @@ namespace News
             this.Loaded += CommentInputControl_Loaded;
         }
 
-        public void SetEditMode(bool isEdit)
+        public void SetEditMode(bool mode)
         {
-            m_isEditMode = isEdit;
+            _editMode = mode;
             
-            if (m_isEditMode)
+            if (_editMode)
             {
                 PostCommentButton.Content = "Save";
             }
@@ -37,7 +37,7 @@ namespace News
         
         public void ResetControl()
         {
-            m_isEditMode = false;
+            _editMode = false;
             RawEditor.Text = "";
             PostCommentButton.Content = "Post Comment";
         }
@@ -80,7 +80,7 @@ namespace News
             
             bool success = false;
             
-            if (m_isEditMode)
+            if (_editMode)
             {
                 success = m_service.UpdateComment(CommentId, m_service.FormatAsPost(RawEditor.Text));
             }
@@ -94,7 +94,7 @@ namespace News
                 CommentPosted?.Invoke(this, new RoutedEventArgs());
 
                 RawEditor.Text = "";
-                m_isEditMode = false;
+                _editMode = false;
                 PostCommentButton.Content = "Post Comment";
                 RawButton_Click(this, new RoutedEventArgs());
             }

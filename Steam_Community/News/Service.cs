@@ -9,33 +9,47 @@ using System.Text.RegularExpressions;
 
 namespace News
 {
-    public class Service
+    public class Service : IService
     {
-        private static Service? m_instance;
+        private static Service? _instance;
 
         public static Service Instance
         {
             get
             {
-                if (m_instance == null)
-                    m_instance = new Service();
-                return m_instance;
+                if (_instance == null)
+                    _instance = new Service(new NewsDatabase());
+                return _instance;
             }
         }
 
         public const int PAGE_SIZE = 9;
-        private readonly SqlConnection m_connection;
+        private readonly INewsDatabase _db;
         public readonly User ActiveUser = Users.Instance.GetUserById(1)!;
 
-        private Service()
+        private Service(INewsDatabase db)
         {
-            m_connection = new SqlConnection("Integrated Security=True;TrustServerCertificate=True;data source=DESKTOP-BI53R5C\\SQLEXPRESS02;initial catalog=Steam;user id=sa");
+            _db = db;
         }
 
+        public static Service Initialize(INewsDatabase db)
+        {
+            if (_instance != null)
+                throw new InvalidOperationException("Service is already initialized.");
+
+            _instance = new Service(db);
+            return _instance;
+        } 
+
+        // Format text to be posted
+        // Returns the text embedded into a predefined html code
         public string FormatAsPost(string text)
         {
+            // Recognize html
             SanitizeHtml(ref text);
             ConvertSpecialTagsToHtml(ref text);
+
+            // Format the text
             string parsedText = @"<html><head>
                         <style>
                             body { 
@@ -78,13 +92,14 @@ namespace News
 
         public bool LikePost(int postId)
         {
+            using var connection = _db.GetConnection();
             try
             {
-                m_connection.Open();
-                var command1 = new SqlCommand($"UPDATE NewsPosts SET nrLikes = nrLikes + 1 WHERE id = {postId}", m_connection);
-                var command2 = new SqlCommand($"INSERT INTO Ratings VALUES({postId}, {ActiveUser.id}, 1)", m_connection);
+                _db.Connect(connection);
+                var updateNumberOfLikes = new SqlCommand($"UPDATE NewsPosts SET nrLikes = nrLikes + 1 WHERE id = {postId}", connection);
+                var rememberUserRating = new SqlCommand($"INSERT INTO Ratings VALUES({postId}, {ActiveUser.id}, 1)", connection);
 
-                int rowsAffected = command1.ExecuteNonQuery() + command2.ExecuteNonQuery();
+                int rowsAffected = updateNumberOfLikes.ExecuteNonQuery() + rememberUserRating.ExecuteNonQuery();
                 return rowsAffected == 2;
             }
             catch (Exception ex)
@@ -94,18 +109,19 @@ namespace News
             }
             finally
             {
-                m_connection.Close();
+                _db.Disconnect(connection);
             }
         }
         public bool DislikePost(int postId)
         {
+            using var connection = _db.GetConnection();
             try
             {
-                m_connection.Open();
-                var command1 = new SqlCommand($"UPDATE NewsPosts SET nrDislikes = nrDislikes + 1 WHERE id = {postId}", m_connection);
-                var command2 = new SqlCommand($"INSERT INTO Ratings VALUES({postId}, {ActiveUser.id}, 0)", m_connection);
+                _db.Connect(connection);
+                var updateNumberOfDislikes = new SqlCommand($"UPDATE NewsPosts SET nrDislikes = nrDislikes + 1 WHERE id = {postId}", connection);
+                var rememberUserRating = new SqlCommand($"INSERT INTO Ratings VALUES({postId}, {ActiveUser.id}, 0)", connection);
 
-                int rowsAffected = command1.ExecuteNonQuery() + command2.ExecuteNonQuery();
+                int rowsAffected = updateNumberOfDislikes.ExecuteNonQuery() + rememberUserRating.ExecuteNonQuery();
                 return rowsAffected == 2;
             }
             catch (Exception ex)
@@ -115,18 +131,19 @@ namespace News
             }
             finally
             {
-                m_connection.Close();
+                _db.Disconnect(connection);
             }
         }
 
         public bool RemoveRatingFromPost(int postId)
         {
+            using var connection = _db.GetConnection();
             try
             {
-                m_connection.Open();
-                var command = new SqlCommand($"DELETE FROM Ratings WHERE postId={postId} AND authorId={ActiveUser.id}", m_connection);
+                _db.Connect(connection);
+                var removeUserRating = new SqlCommand($"DELETE FROM Ratings WHERE postId={postId} AND authorId={ActiveUser.id}", connection);
 
-                int rowsAffected = command.ExecuteNonQuery();
+                int rowsAffected = removeUserRating.ExecuteNonQuery();
                 return rowsAffected > 0;
             }
             catch (Exception ex)
@@ -136,20 +153,21 @@ namespace News
             }
             finally
             {
-                m_connection.Close();
+                _db.Disconnect(connection);
             }
         }
 
         public bool SaveComment(int postId, string commentContent)
         {
+            using var connection = _db.GetConnection();
             try
             {
-                m_connection.Open();
+                _db.Connect(connection);
 
-                var command = new SqlCommand($"INSERT INTO NewsComments VALUES({ActiveUser.id}, {postId}, @content, '{DateTime.Now}')", m_connection);
-                command.Parameters.AddWithValue("@content", commentContent);
+                var saveComment = new SqlCommand($"INSERT INTO NewsComments VALUES({ActiveUser.id}, {postId}, @content, '{DateTime.Now}')", connection);
+                saveComment.Parameters.AddWithValue("@content", commentContent);
 
-                int rowsAffected = command.ExecuteNonQuery();
+                int rowsAffected = saveComment.ExecuteNonQuery();
                 return rowsAffected > 0;
             }
             catch (Exception ex)
@@ -159,19 +177,20 @@ namespace News
             }
             finally
             {
-                m_connection.Close();
+                _db.Disconnect(connection);
             }
         }
 
         public bool UpdateComment(int commentId, string commentBody)
         {
+            using var connection = _db.GetConnection();
             try
             {
-                m_connection.Open();
-                var command = new SqlCommand($"UPDATE NewsComments SET content=@content WHERE id={commentId}", m_connection);
-                command.Parameters.AddWithValue("@content", commentBody);
+                _db.Connect(connection);
+                var updateComment = new SqlCommand($"UPDATE NewsComments SET content=@content WHERE id={commentId}", connection);
+                updateComment.Parameters.AddWithValue("@content", commentBody);
 
-                int rowsAffected = command.ExecuteNonQuery();
+                int rowsAffected = updateComment.ExecuteNonQuery();
                 return rowsAffected > 0;
             }
             catch (Exception ex)
@@ -181,17 +200,18 @@ namespace News
             }
             finally
             {
-                m_connection.Close();
+                _db.Disconnect(connection);
             }
         }
 
         public bool DeleteCommentFromDatabase(int commentId)
         {
+            using var connection = _db.GetConnection();
             try
             {
-                m_connection.Open();
-                var command = new SqlCommand($"DELETE FROM NewsComments WHERE id={commentId}", m_connection);
-                int rowsAffected = command.ExecuteNonQuery();
+                _db.Connect(connection);
+                var deleteComment = new SqlCommand($"DELETE FROM NewsComments WHERE id={commentId}", connection);
+                int rowsAffected = deleteComment.ExecuteNonQuery();
                 return rowsAffected > 0;
             }
             catch (Exception ex)
@@ -201,27 +221,27 @@ namespace News
             }
             finally
             {
-                m_connection.Close();
+                _db.Disconnect(connection);
             }
         }
 
         public List<Comment> LoadNextComments(int postId, int pageNumber)
         {
-            List<Comment> result = new();
-            SqlDataReader? reader = null;
-
+            using var connection = _db.GetConnection();
+            List<Comment> comments = new List<Comment>();
+            SqlDataReader reader = null;
             try
             {
-                m_connection.Open();
+                _db.Connect(connection);
                 int offset = (pageNumber - 1) * PAGE_SIZE;
-                var command = new SqlCommand($"""
+                var getComments = new SqlCommand($"""
                 SELECT * FROM NewsComments WHERE postId={postId}
-                """, m_connection);
+                """, connection);
 
-                reader = command.ExecuteReader();
+                reader = getComments.ExecuteReader();
                 while (reader.Read())
                 {
-                    result.Add(new()
+                    comments.Add(new()
                     {
                         Id = (int)reader["id"],
                         PostId = (int)reader["postId"],
@@ -230,28 +250,29 @@ namespace News
                         CommentDate = (DateTime)reader["uploadDate"]
                     });
                 }
-                return result;
+                return comments;
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Error loading comments: {ex.Message}");
-                return result;
+                return comments;
             }
             finally
             {
                 reader?.Close();
-                m_connection.Close();
+                _db.Disconnect(connection);
             }
         }
 
         public bool SavePostToDatabase(string postBody)
         {
+            using var connection = _db.GetConnection();
             try
             {
-                m_connection.Open();
-                var command = new SqlCommand($"INSERT INTO NewsPosts VALUES({ActiveUser.id}, @body, '{DateTime.Now}', 0, 0, 0)", m_connection);
-                command.Parameters.AddWithValue("@body", postBody);
-                int rowsAffected = command.ExecuteNonQuery();
+                _db.Connect(connection);
+                var savePost = new SqlCommand($"INSERT INTO NewsPosts VALUES({ActiveUser.id}, @body, '{DateTime.Now}', 0, 0, 0)", connection);
+                savePost.Parameters.AddWithValue("@body", postBody);
+                int rowsAffected = savePost.ExecuteNonQuery();
                 return rowsAffected > 0;
             }
             catch (Exception ex)
@@ -261,18 +282,19 @@ namespace News
             }
             finally
             {
-                m_connection.Close();
+                _db.Disconnect(connection);
             }
         }
 
         public bool UpdatePost(int postId, string postBody)
         {
+            using var connection = _db.GetConnection();
             try
             {
-                m_connection.Open();
-                var command = new SqlCommand($"UPDATE NewsPosts SET content=@content WHERE id={postId}", m_connection);
-                command.Parameters.AddWithValue("@content", postBody);
-                int rowsAffected = command.ExecuteNonQuery();
+                _db.Connect(connection);
+                var updatePost = new SqlCommand($"UPDATE NewsPosts SET content=@content WHERE id={postId}", connection);
+                updatePost.Parameters.AddWithValue("@content", postBody);
+                int rowsAffected = updatePost.ExecuteNonQuery();
                 return rowsAffected > 0;
             }
             catch (Exception ex)
@@ -282,17 +304,18 @@ namespace News
             }
             finally
             {
-                m_connection.Close();
+                _db.Disconnect(connection);
             }
         }
 
-        public bool DeletePostFromDatabase(int postId) 
+        public bool DeletePostFromDatabase(int postId)
         {
+            using var connection = _db.GetConnection();
             try
             {
-                m_connection.Open();
-                var command = new SqlCommand($"DELETE FROM NewsPosts WHERE id={postId}", m_connection);
-                command.ExecuteNonQuery();
+                _db.Connect(connection);
+                var deletePost = new SqlCommand($"DELETE FROM NewsPosts WHERE id={postId}", connection);
+                deletePost.ExecuteNonQuery();
             }
             catch (Exception ex)
             {
@@ -301,21 +324,22 @@ namespace News
             }
             finally
             {
-                m_connection.Close();
+                _db.Disconnect(connection);
             }
             return true;
         }
 
         public List<Post> LoadNextPosts(string query, int pageNumber)
         {
-            List<Post> result = new();
+            using var connection = _db.GetConnection();
+            List<Post> posts = new();
             SqlDataReader? reader = null;
             try
             {
-                m_connection.Open();
+                _db.Connect(connection);
 
                 int offset = (pageNumber - 1) * PAGE_SIZE;
-                var command = new SqlCommand($"""
+                var loadPosts = new SqlCommand($"""
                 SELECT 
                     id,
                     authorId,
@@ -331,10 +355,10 @@ namespace News
                     FROM NewsPosts WHERE content LIKE @query
                 ) AS _
                 WHERE RowNum > {offset} AND RowNum <= {offset + PAGE_SIZE}
-                """, m_connection);
-                command.Parameters.AddWithValue("@query", query == "" ? "%" : $"%{query}%");
+                """, connection);
+                loadPosts.Parameters.AddWithValue("@query", query == "" ? "%" : $"%{query}%");
 
-                reader = command.ExecuteReader();
+                reader = loadPosts.ExecuteReader();
                 while (reader.Read())
                 {
                     Post post = new()
@@ -347,25 +371,25 @@ namespace News
                         NrDislikes = (int)reader["nrDislikes"],
                         NrComments = (int)reader["nrComments"]
                     };
-                    result.Add(post);
+                    posts.Add(post);
                 }
                 reader.Close();
-                foreach (var post in result)
+                foreach (var post in posts)
                 {
-                    command.CommandText = $"SELECT ratingType FROM Ratings WHERE postId={post.Id} AND authorId={ActiveUser.id}";
-                    post.ActiveUserRating = (bool?)command.ExecuteScalar();
+                    loadPosts.CommandText = $"SELECT ratingType FROM Ratings WHERE postId={post.Id} AND authorId={ActiveUser.id}";
+                    post.ActiveUserRating = (bool?)loadPosts.ExecuteScalar();
                 }
-                return result;
+                return posts;
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Error loading posts: {ex.Message}");
-                return result;
+                return posts;
             }
             finally
             {
                 reader?.Close();
-                m_connection.Close();
+                _db.Disconnect(connection);
             }
         }
 
@@ -390,7 +414,7 @@ namespace News
                     {
                         htmlCode = htmlCode.Remove(match.Index, match.Value.Length);
                     }
-                    else 
+                    else
                     {
                         indicesOfUnclosedSpans.Pop();
                     }

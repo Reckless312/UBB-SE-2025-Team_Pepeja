@@ -17,7 +17,7 @@ namespace News
         {
             this.InitializeComponent();
           
-            News_CreatePostButton.Visibility = m_service.ActiveUser.bIsDeveloper ? Visibility.Visible : Visibility.Collapsed;
+            News_CreatePostButton.Visibility = m_service.ActiveUser.isDeveloper ? Visibility.Visible : Visibility.Collapsed;
             
             LoadPosts();
 

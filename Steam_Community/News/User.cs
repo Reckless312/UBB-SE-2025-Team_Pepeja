@@ -15,19 +15,22 @@ namespace News
         public int id;
         public string username;
         public byte[] profilePicture;
-        public bool bIsDeveloper;
+        public bool isDeveloper;
+        const string profilePicturePath = "C:\\Users\\Mark\\Downloads\\UBB-SE-2025-Team_Pepeja-main\\Steam_Community\\";
 
-        public User(int id, string username, bool bIsDeveloper)
+        // Create User object
+        public User(int id, string username, bool isDeveloper)
         {
-            LoadProfilePicture();
+            LoadProfilePicture(profilePicturePath);
             this.id = id;
             this.username = username;
-            this.bIsDeveloper = bIsDeveloper;
+            this.isDeveloper = isDeveloper;
         }
 
-        private async void LoadProfilePicture()
+        // Load Profile Picture for User
+        private void LoadProfilePicture(string profilePicturePath)
         {
-            string exePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            string exePath = Path.GetDirectoryName(profilePicturePath);
             string imagePath = Path.Combine(exePath, "Assets", "default_avatar.png");
             profilePicture = File.ReadAllBytes(imagePath);
         }
