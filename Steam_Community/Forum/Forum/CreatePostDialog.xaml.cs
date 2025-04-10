@@ -8,7 +8,7 @@ namespace Forum
     public sealed partial class CreatePostDialog : ContentDialog
     {
         // Hard-coded current user ID for demo
-        private readonly uint _currentUserId = ForumService.Instance.GetCurrentUserId();
+        private readonly uint _currentUserId = ForumService.GetForumServiceInstance().GetCurrentUserId();
         private User _currentUser;
         
         // Result indicating if a post was created
@@ -63,7 +63,7 @@ namespace Forum
                 
                 // Create the post
                 string currentDate = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-                ForumService.Instance.CreatePost(title, body, currentDate, gameId);
+                ForumService.GetForumServiceInstance().CreatePost(title, body, currentDate, gameId);
                 
                 // Indicate that a post was created
                 PostCreated = true;
