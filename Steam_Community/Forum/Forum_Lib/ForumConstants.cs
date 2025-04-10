@@ -14,4 +14,8 @@ namespace Forum_Lib
         Year,
         AllTime
     }
+    public static class ForumConstants
+    {
+        public const string DatabaseAddress = "DESKTOP - 45FVE4D\\SQLEXPRESS";
+    }
 }

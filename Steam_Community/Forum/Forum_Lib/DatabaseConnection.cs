@@ -10,7 +10,7 @@ namespace Forum_Lib
 {
     public class DatabaseConnection : IDatabaseConnection
     {
-        const string CONNECTION_STRING = "Data Source=DESKTOP-45FVE4D\\SQLEXPRESS;Initial Catalog=Community;Integrated Security=true;";
+        const string CONNECTION_STRING = "Data Source=" + ForumConstants.DatabaseAddress + ";Initial Catalog=Community;Integrated Security=true;";
         public string ConnectionString;
         public string GetConnectionString()
         {
