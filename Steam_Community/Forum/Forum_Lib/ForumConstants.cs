@@ -16,6 +16,6 @@ namespace Forum_Lib
     }
     public static class ForumConstants
     {
-        public const string DatabaseAddress = "DESKTOP - 45FVE4D\\SQLEXPRESS";
+        public const string DatabaseAddress = "DESKTOP-45FVE4D\\SQLEXPRESS";
     }
 }
