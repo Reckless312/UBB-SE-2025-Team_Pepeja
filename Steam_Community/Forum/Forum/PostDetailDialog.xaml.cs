@@ -11,7 +11,7 @@ namespace Forum
     public sealed partial class PostDetailDialog : ContentDialog
     {
         // Hard-coded current user ID for demo
-        private readonly uint _currentUserId = ForumService.Instance.GetCurrentUserId(); // Using JaneSmith as the current user
+        private readonly uint _currentUserId = ForumService.GetForumServiceInstance().GetCurrentUserId(); // Using JaneSmith as the current user
         
         // The forum post to display
         private ForumPost _post;
@@ -61,7 +61,7 @@ namespace Forum
             try
             {
                 // Get comments for this post
-                List<ForumComment> postComments = ForumService.Instance.GetComments(_post.Id);
+                List<ForumComment> postComments = ForumService.GetForumServiceInstance().GetComments(_post.Id);
                 
                 // Clear existing comments
                 CommentsPanel.Children.Clear();
@@ -111,7 +111,7 @@ namespace Forum
             try
             {
                 // Delete the comment
-                ForumService.Instance.DeleteComment(commentId);
+                ForumService.GetForumServiceInstance().DeleteComment(commentId);
                 
                 // Reload comments
                 LoadComments();
@@ -137,7 +137,7 @@ namespace Forum
             try
             {
                 // Call the service with a positive vote value (1)
-                ForumService.Instance.VoteOnPost(_post.Id, 1);
+                ForumService.GetForumServiceInstance().VoteOnPost(_post.Id, 1);
                 
                 // Update score display
                 _post.Score += 1;
@@ -158,7 +158,7 @@ namespace Forum
             try
             {
                 // Call the service with a negative vote value (-1)
-                ForumService.Instance.VoteOnPost(_post.Id, -1);
+                ForumService.GetForumServiceInstance().VoteOnPost(_post.Id, -1);
                 
                 // Update score display
                 _post.Score -= 1;
@@ -231,7 +231,7 @@ namespace Forum
             try
             {
                 // Delete the post
-                ForumService.Instance.DeletePost(_post.Id);
+                ForumService.GetForumServiceInstance().DeletePost(_post.Id);
                 
                 // Notify that the post was deleted
                 PostDeleted?.Invoke(this, EventArgs.Empty);

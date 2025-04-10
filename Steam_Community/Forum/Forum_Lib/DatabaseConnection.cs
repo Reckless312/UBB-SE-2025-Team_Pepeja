@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
@@ -8,11 +8,19 @@ using System.Threading.Tasks;
 
 namespace Forum_Lib
 {
-    internal class DatabaseConnection
+    public class DatabaseConnection : IDatabaseConnection
     {
-        const string CONNECTION_STRING = "Data Source=DESKTOP-2OA983C;Initial Catalog=Community;Integrated Security=true;";
-        public string ConnectionString { get; }
-        public SqlConnection Connection { get; }
+        const string CONNECTION_STRING = "Data Source=" + ForumConstants.DatabaseAddress + ";Initial Catalog=Community;Integrated Security=true;";
+        public string ConnectionString;
+        public string GetConnectionString()
+        {
+            return ConnectionString;
+        }
+        public SqlConnection Connection;
+        public SqlConnection GetConnection()
+        {
+            return Connection;
+        }
 
         public DatabaseConnection()
         {

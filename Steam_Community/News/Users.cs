@@ -7,31 +7,26 @@ using System.Threading.Tasks;
 
 namespace News
 {
-    public class Users
+    public class Users : IUsers
     {
-        private static Users? m_instance;
-        private static List<User> m_users = new();
-        public static Users Instance
-        {
-            get
-            {
-                if (m_instance == null)
-                    m_instance = new Users();
-
-                return m_instance;
-            }
-        }
+        private static readonly Users _instance = new Users();
+        private readonly List<User> _users = new List<User>();
+        public static Users Instance { get { return _instance; } }
 
         private Users()
         {
             //             ID  Username IsDeveloper
-            m_users.Add(new(1, "JaneSmith", true));
-            m_users.Add(new(2, "Iraphahell", false));
-            m_users.Add(new(3, "XSlayder", false));
-            m_users.Add(new(4, "Tristopher", true));
-            m_users.Add(new(5, "Gumball", false));
+            _users.Add(new(1, "JaneSmith", true));
+            _users.Add(new(2, "Iraphahell", false));
+            _users.Add(new(3, "XSlayder", false));
+            _users.Add(new(4, "Tristopher", true));
+            _users.Add(new(5, "Gumball", false));
         }
 
-        public User? GetUserById(int id) => m_users.Find(user => user.id == id);
+        // Returns the User object that has the provided id
+        public User? GetUserById(int id)
+        {
+            return _users.Find(user => user.id == id);
+        }
     }
 }

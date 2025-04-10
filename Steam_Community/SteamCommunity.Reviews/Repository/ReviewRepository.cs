@@ -8,7 +8,7 @@ using System.Data;
 
 namespace SteamCommunity.Reviews.Repository
 {
-    public class ReviewRepository
+    public class ReviewRepository : IReviewRepository
     {
         private readonly DatabaseConnection _reviewDatabaseConnection;
 

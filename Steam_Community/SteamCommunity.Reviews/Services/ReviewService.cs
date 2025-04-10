@@ -6,13 +6,19 @@ using SteamCommunity.Reviews.Repository;
 
 namespace SteamCommunity.Reviews.Services
 {
-    public class ReviewService
+    public class ReviewService : IReviewService
     {
-        private readonly ReviewRepository _reviewRepository;
+        private readonly IReviewRepository _reviewRepository;
 
         public ReviewService()
         {
             _reviewRepository = new ReviewRepository();
+        }
+
+        // Used in unit tests (mocked)
+        public ReviewService(IReviewRepository reviewRepository)
+        {
+            _reviewRepository = reviewRepository;
         }
 
         public bool SubmitReview(Review reviewToSubmit)

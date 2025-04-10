@@ -15,9 +15,25 @@
         private string ipAddress;
         private FriendshipStatus friendshipStatus;
 
-        public int Id { get { return id; } }
-        public string UserName { get { return userName; } }
-        public string IpAddress { get { return ipAddress; } set { this.ipAddress = value; } }
+        public int Id
+        {
+            get { return id; }
+        }
+        public string UserName
+        {
+            get { return userName; }
+        }
+        public string IpAddress
+        {
+            get
+            {
+                return ipAddress;
+            }
+            set
+            {
+                this.ipAddress = value;
+            }
+        }
 
         public FriendshipStatus FriendshipStatus
         {

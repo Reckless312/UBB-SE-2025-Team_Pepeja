@@ -7,8 +7,8 @@ namespace SteamCommunity.Reviews.Converters
     {
         public object Convert(object value, Type targetType, object parameter, string language)
         {
-            if (value is int hours && hours > 0)
-                return $"Played {hours} hour{(hours == 1 ? "" : "s")}";
+            if (value is int totalHoursPlayed && totalHoursPlayed > 0)
+                return $"Played {totalHoursPlayed} hour{(totalHoursPlayed == 1 ? "" : "s")}";
             return null;
         }
 

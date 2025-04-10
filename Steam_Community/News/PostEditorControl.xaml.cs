@@ -13,7 +13,7 @@ namespace News
         public event RoutedEventHandler? PostUploaded;
         private Service m_service = Service.Instance;
         private Post? m_postBeingEdited = null;
-        private bool m_bIsEditMode = false;
+        private bool m_editMode = false;
 
         public PostEditorControl()
         {
@@ -44,7 +44,7 @@ namespace News
 
         public void SetPostToEdit(Post post)
         {
-            m_bIsEditMode = true;
+            m_editMode = true;
             m_postBeingEdited = post;
 
             string htmlContent = post.Content;
@@ -58,7 +58,7 @@ namespace News
 
         public void ResetEditor()
         {
-            m_bIsEditMode = false;
+            m_editMode = false;
             m_postBeingEdited = null;
             RawHtmlEditor.Text = "";
         }
@@ -66,7 +66,7 @@ namespace News
         private void UploadButton_Click(object sender, RoutedEventArgs e)
         {
 
-            if (m_bIsEditMode)
+            if (m_editMode)
             {
                 if (RawHtmlEditor.Text == "")
                 {

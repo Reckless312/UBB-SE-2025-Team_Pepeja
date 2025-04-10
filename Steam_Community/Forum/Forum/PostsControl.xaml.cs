@@ -53,7 +53,7 @@ namespace Forum
                 _posts.Clear();
                 
                 // Get posts from repository
-                List<ForumPost> forumPosts = ForumService.Instance.GetTopPosts(filter);
+                List<ForumPost> forumPosts = ForumService.GetForumServiceInstance().GetTopPosts(filter);
                 
                 // Update the UI on the UI thread
                 this.DispatcherQueue.TryEnqueue(() => {
@@ -104,7 +104,7 @@ namespace Forum
                 }
                 
                 // Get posts from repository
-                List<ForumPost> forumPosts = ForumService.Instance.GetPagedPosts(pageNumber, pageSize, positiveScoreOnly, gameId, filter);
+                List<ForumPost> forumPosts = ForumService.GetForumServiceInstance().GetPagedPosts(pageNumber, pageSize, positiveScoreOnly, gameId, filter);
                 
                 // Update the UI on the UI thread
                 this.DispatcherQueue.TryEnqueue(() => {
@@ -162,7 +162,7 @@ namespace Forum
                 else
                 {
                     // Get next page of posts
-                    morePosts = ForumService.Instance.GetPagedPosts(_currentPage, _pageSize, _positiveScoreOnly, _gameId, _filter);
+                    morePosts = ForumService.GetForumServiceInstance().GetPagedPosts(_currentPage, _pageSize, _positiveScoreOnly, _gameId, _filter);
                     
                     // If we got fewer posts than the page size, there are no more posts to load
                     if (morePosts.Count < _pageSize)
@@ -215,7 +215,7 @@ namespace Forum
             if (sender is Button button && button.Tag is uint postId)
             {
                 // Call the service with a positive vote value (1)
-                ForumService.Instance.VoteOnPost(postId, 1);
+                ForumService.GetForumServiceInstance().VoteOnPost(postId, 1);
                 
                 // Refresh the specific post in the list to show updated score
                 RefreshPost(postId);
@@ -228,7 +228,7 @@ namespace Forum
             if (sender is Button button && button.Tag is uint postId)
             {
                 // Call the service with a negative vote value (-1)
-                ForumService.Instance.VoteOnPost(postId, -1);
+                ForumService.GetForumServiceInstance().VoteOnPost(postId, -1);
                 
                 // Refresh the specific post in the list to show updated score
                 RefreshPost(postId);
@@ -244,7 +244,7 @@ namespace Forum
                 {
                     // Skip the confirmation dialog for now due to XamlRoot issues
                     // Just delete the post directly
-                    ForumService.Instance.DeletePost(postId);
+                    ForumService.GetForumServiceInstance().DeletePost(postId);
                     
                     // Remove the post from the UI
                     RemovePostFromUI(postId);
@@ -279,11 +279,11 @@ namespace Forum
                         
                         if (_isTopPostsMode)
                         {
-                            posts = ForumService.Instance.GetTopPosts(_timeSpanFilter);
+                            posts = ForumService.GetForumServiceInstance().GetTopPosts(_timeSpanFilter);
                         }
                         else
                         {
-                            posts = ForumService.Instance.GetPagedPosts(_currentPage, _pageSize, _positiveScoreOnly, _gameId, _filter);
+                            posts = ForumService.GetForumServiceInstance().GetPagedPosts(_currentPage, _pageSize, _positiveScoreOnly, _gameId, _filter);
                         }
                         
                         // Find the post with matching ID to get updated score

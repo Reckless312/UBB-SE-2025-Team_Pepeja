@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package DirectMessages;
+package Steam_Community.DirectMessages.Models;
 
 message Message{
 	string messageContent = 1;

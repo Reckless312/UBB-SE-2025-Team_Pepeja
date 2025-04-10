@@ -1,13 +1,14 @@
-﻿using Microsoft.Data.SqlClient;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data;
 using System.Text;
+using Microsoft.Data.SqlClient;
 
 namespace Search
 {
     public class DatabaseConnection
     {
-        const string CONNECTION_STRING = "Data Source=DESKTOP-2OA983C;" + "Initial Catalog=Community;Integrated Security=true;TrustServerCertificate=True";
+        const string CONNECTION_STRING = "Data Source=ROBERT\\SQLEXPRESS;Initial Catalog=Community;Integrated Security=True;TrustServerCertificate=True;";
+
         public string ConnectionString { get; }
         public SqlConnection Connection { get; }
 
@@ -62,7 +63,6 @@ namespace Search
             }
 
             command.ExecuteNonQuery();
-
         }
 
         public void ExecuteDelete(string tableName, string columnName, object value)
@@ -76,7 +76,7 @@ namespace Search
             command.ExecuteNonQuery();
         }
 
-        public void ExecuteDeleteWithAnd (string tableName, Dictionary<string, object> parameters)
+        public void ExecuteDeleteWithAnd(string tableName, Dictionary<string, object> parameters)
         {
             StringBuilder query = new StringBuilder();
 

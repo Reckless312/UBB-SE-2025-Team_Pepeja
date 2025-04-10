@@ -53,7 +53,7 @@ namespace News
             image.SetSource(new MemoryStream(user.profilePicture).AsRandomAccessStream());
             ProfilePicture.ImageSource = image;
 
-            bool isDeveloper = m_service.ActiveUser.bIsDeveloper;
+            bool isDeveloper = m_service.ActiveUser.isDeveloper;
             EditButton.Visibility = isDeveloper ? Visibility.Visible : Visibility.Collapsed;
             DeleteButton.Visibility = isDeveloper ? Visibility.Visible : Visibility.Collapsed;
 

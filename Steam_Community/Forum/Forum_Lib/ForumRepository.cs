@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -10,14 +11,16 @@ using Windows.Web.AtomPub;
 
 namespace Forum_Lib
 {
-    internal class ForumRepository
+    public class ForumRepository : IForumRepository
     {
-        private DatabaseConnection _dbConnection;
+        private IDatabaseConnection _dbConnection;
 
-        private static ForumRepository _instance = new ForumRepository(new DatabaseConnection());
-
-        public static ForumRepository Instance { get { return _instance; } }
-        private ForumRepository(DatabaseConnection dbConnection)
+        public static IForumRepository ForumRepositoryInstance = new ForumRepository(new DatabaseConnection());
+        public static IForumRepository GetRepoInstance()
+        {
+            return ForumRepositoryInstance;
+        }
+        private ForumRepository(IDatabaseConnection dbConnection)
         {
             _dbConnection = dbConnection;
         }
