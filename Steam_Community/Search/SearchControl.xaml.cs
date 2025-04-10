@@ -33,9 +33,9 @@ namespace Search
             // Hardcoded, assumed we should know about the current user
 
             this.currentUser = new User(SearchControl.HARDCODED_USER_ID, SearchControl.HARDCODED_USER_NAME, ChatConstants.GET_IP_REPLACER);
-            this.displayedUsers = new ObservableCollection<User>();
-            this.chatInvitesFromUsers = new ObservableCollection<User>();
-            this.friendRequestsFromUsers = new ObservableCollection<User>();
+            this.DisplayedUsers = new ObservableCollection<User>();
+            this.ChatInvitesFromUsers = new ObservableCollection<User>();
+            this.FriendRequestsFromUsers = new ObservableCollection<User>();
             
             this.service = new Service();
 
