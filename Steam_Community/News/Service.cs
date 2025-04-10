@@ -29,7 +29,7 @@ namespace News
 
         private Service()
         {
-            m_connection = new SqlConnection("Data Source=DESKTOP-2OA983C;Initial Catalog=Community;Integrated Security=true;");
+            m_connection = new SqlConnection("Integrated Security=True;TrustServerCertificate=True;data source=DESKTOP-BI53R5C\\SQLEXPRESS02;initial catalog=Steam;user id=sa");
         }
 
         public string FormatAsPost(string text)

@@ -125,7 +125,7 @@
                                 <ScrollViewer MaxHeight="200">
                                     <!-- Chat invite items will be displayed here -->
                                     <StackPanel>
-                                        <ItemsControl ItemsSource="{x:Bind chatInvitesFromUsers, Mode=OneWay}">
+                                        <ItemsControl ItemsSource="{x:Bind ChatInvitesFromUsers, Mode=OneWay}">
                                             <ItemsControl.ItemTemplate>
                                                 <DataTemplate x:DataType="local:User">
                                                     <Border Background="#60000000" 
@@ -190,7 +190,7 @@
                                         VerticalAlignment="Center"
                                         Margin="0,20,0,0"
                                         Visibility="Collapsed"/>
-                            <ItemsControl ItemsSource="{x:Bind displayedUsers, Mode=OneWay}">
+                            <ItemsControl ItemsSource="{x:Bind DisplayedUsers, Mode=OneWay}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate x:DataType="local:User">
                                         <Border Background="#60000000" 
