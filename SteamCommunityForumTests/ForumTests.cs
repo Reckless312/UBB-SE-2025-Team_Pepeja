@@ -71,18 +71,5 @@ namespace SteamCommunityForumTests
             //Assert
             Assert.IsTrue(forumService1.Equals(forumService2));
         }
-
-        //tests with mocking
-        public void GetForumServiceInstanceAlwaysReturnsTheSameInstance()
-        {
-            //Arrange
-            
-
-            //Act
-
-
-            //Assert
-            Assert.IsTrue(forumService1.Equals(forumService2));
-        }
     }
 }
