@@ -7,7 +7,9 @@ namespace Search
 {
     public class DatabaseConnection
     {
+
         const string CONNECTION_STRING = "Data Source=ROBERT\\SQLEXPRESS;Initial Catalog=Community;Integrated Security=True;TrustServerCertificate=True;";
+        
         public string ConnectionString { get; }
         public SqlConnection Connection { get; }
 

@@ -3,7 +3,7 @@ using System;
 
 namespace SteamCommunity.Reviews.Database
 {
-    public class DatabaseConnection
+    public class DatabaseConnection : IDatabaseConnection
     {
         private readonly string connectionString;
 
