@@ -3,6 +3,7 @@ using Moq;
 using System.Collections.Generic;
 using Search;
 
+
 namespace SteamCommunityTests
 {
     [TestClass]
