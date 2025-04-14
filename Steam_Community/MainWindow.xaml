@@ -20,12 +20,16 @@
                 <TabViewItem Header="News" IsClosable="False">
                     <news:NewsControl/>
                 </TabViewItem>
+            
                 <TabViewItem Header="Forum" IsClosable="False">
                     <forum:ForumControl/>
                 </TabViewItem>
+                
+                <!---
                 <TabViewItem Header="Reviews" IsClosable="False">
                     <reviews:ReviewView/>
                 </TabViewItem>
+                -->
                 <TabViewItem Header="Friend Requests" IsClosable="False">
                     <friend_requests:ProfileControl/>
                 </TabViewItem>

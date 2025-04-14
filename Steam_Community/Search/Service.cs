@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using Steam_Community.DirectMessages.Models;
 
 namespace Search
 {
@@ -47,7 +48,7 @@ namespace Search
         {
             try
             {
-                String newIpAddress = DirectMessages.Service.GetIpAddressOfCurrentUser();
+                String newIpAddress = Steam_Community.DirectMessages.Services.ChatService.GetLocalIpAddress();
 
                 this.repository.UpdateUserIpAddress(newIpAddress, userId);
 
@@ -55,7 +56,7 @@ namespace Search
             }
             catch (Exception)
             {
-                return DirectMessages.Service.GET_IP_REPLACER;
+                return Steam_Community.DirectMessages.Models.ChatConstants.GET_IP_REPLACER;
             }
         }
 
