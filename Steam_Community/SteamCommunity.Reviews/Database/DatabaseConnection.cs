@@ -9,7 +9,7 @@ namespace SteamCommunity.Reviews.Database
 
         public DatabaseConnection()
         {
-            connectionString = "Data Source=DESKTOP-2OA983C;Initial Catalog=Community;Integrated Security=true;";
+            connectionString = "Integrated Security=True;TrustServerCertificate=True;data source=DESKTOP-BI53R5C\\SQLEXPRESS02;initial catalog=Steam;user id=sa";
         }
 
         public SqlConnection GetConnection()
