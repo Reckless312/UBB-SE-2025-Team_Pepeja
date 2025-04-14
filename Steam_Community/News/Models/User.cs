@@ -25,11 +25,23 @@ namespace News
             this.bIsDeveloper = bIsDeveloper;
         }
 
+        /// <summary>
+        /// Load the profile picture of the user
+        /// </summary>
         private async void LoadProfilePicture()
         {
-            string exePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            string imagePath = Path.Combine(exePath, "Assets", "default_avatar.png");
-            profilePicture = File.ReadAllBytes(imagePath);
+        #if DEBUG
+            try
+            {
+                string exePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+                string imagePath = Path.Combine(exePath, "Assets", "default_avatar.png");
+                profilePicture = File.ReadAllBytes(imagePath);
+            }
+            catch
+            {
+                profilePicture = new byte[0];
+            }
+        #endif
         }
     }
 }

@@ -12,7 +12,7 @@ namespace News
     public sealed partial class PostPreviewControl : UserControl
     {
         public event RoutedEventHandler? PostClicked;
-        private Users m_users = Users.Instance;
+        private Users users = Users.Instance;
 
         public Post PostData { get; private set; }
 
@@ -25,7 +25,7 @@ namespace News
 
         public void SetPostData(Post post)
         {
-            User? user = m_users.GetUserById(post.AuthorId);
+            User? user = users.GetUserById(post.AuthorId);
             PostData = post;
             Username.Text = user.username;
             UploadDate.Text = post.UploadDate.ToString("MMM d, yyyy");

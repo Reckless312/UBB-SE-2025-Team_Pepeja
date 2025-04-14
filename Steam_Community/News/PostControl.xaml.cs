@@ -13,18 +13,25 @@ namespace News
 {
     public sealed partial class PostControl : UserControl
     {
+        private const int VALUE_ONE = 1;
+        private Color BACKGROUND_COLOR_1 = Color.FromArgb(255, 255, 194, 217);
+        private Color BACKGROUND_COLOR_2 = Color.FromArgb(150, 100, 7, 41);
+
         public event RoutedEventHandler? PanelClosed;
         public event RoutedEventHandler? PostDeleted;
         public event EventHandler<Post>? PostEditRequested;
 
         public Post PostData { get; private set; }
 
-        private Users m_users = Users.Instance;
-        private Service m_service = Service.Instance;
+        private Users users = Users.Instance;
+        private NewsService service;
 
         public PostControl()
         {
             this.InitializeComponent();
+
+            service = new NewsService();
+
             this.Loaded += PostControl_Loaded;
         }
 
@@ -41,7 +48,7 @@ namespace News
 
         public void SetPostData(Post post)
         {
-            User? user = m_users.GetUserById(post.AuthorId);
+            User? user = users.GetUserById(post.AuthorId);
             PostData = post;
             Username.Text = user.username;
             UploadDate.Text = post.UploadDate.ToString("MMM d, yyyy");
@@ -53,7 +60,7 @@ namespace News
             image.SetSource(new MemoryStream(user.profilePicture).AsRandomAccessStream());
             ProfilePicture.ImageSource = image;
 
-            bool isDeveloper = m_service.ActiveUser.bIsDeveloper;
+            bool isDeveloper = service.activeUser.bIsDeveloper;
             EditButton.Visibility = isDeveloper ? Visibility.Visible : Visibility.Collapsed;
             DeleteButton.Visibility = isDeveloper ? Visibility.Visible : Visibility.Collapsed;
 
@@ -77,11 +84,13 @@ namespace News
         private void LoadComments()
         {
             if (PostData == null)
+            {
                 return;
+            }
 
             CommentsPanel.Children.Clear();
 
-            List<Comment> comments = m_service.LoadNextComments(PostData.Id, 1);
+            List<Comment> comments = service.LoadNextComments(PostData.Id);
 
             foreach (var comment in comments)
             {
@@ -96,7 +105,7 @@ namespace News
         private void CommentControl_CommentDeleted(object sender, RoutedEventArgs e)
         {
             LoadComments();
-            PostData.NrComments -= 1;
+            PostData.NrComments -= VALUE_ONE;
             CommentsCount.Text = PostData.NrComments.ToString();
         }
 
@@ -107,7 +116,7 @@ namespace News
 
         private void DeleteButton_Click(object sender, RoutedEventArgs e)
         {
-            bool success = m_service.DeletePostFromDatabase(PostData.Id);
+            bool success = service.DeletePost(PostData.Id);
             if (success)
             {
                 PostDeleted?.Invoke(this, e);
@@ -120,31 +129,31 @@ namespace News
             switch (PostData.ActiveUserRating)
             {
                 case PostRatingType.LIKE:
-                    m_service.RemoveRatingFromPost(PostData.Id);
-                    PostData.NrLikes -= 1;
+                    service.RemoveRatingFromPost(PostData.Id);
+                    PostData.NrLikes -= VALUE_ONE;
                     LikesCount.Text = PostData.NrLikes.ToString();
                     PostData.ActiveUserRating = null;
-                    LikeButton.Background = new SolidColorBrush(Color.FromArgb(255, 255, 194, 217));
+                    LikeButton.Background = new SolidColorBrush(BACKGROUND_COLOR_1);
                     break;
 
                 case PostRatingType.DISLIKE:
-                    m_service.RemoveRatingFromPost(PostData.Id);
-                    m_service.LikePost(PostData.Id);
-                    PostData.NrLikes += 1;
-                    PostData.NrDislikes -= 1;
+                    service.RemoveRatingFromPost(PostData.Id);
+                    service.LikePost(PostData.Id);
+                    PostData.NrLikes += VALUE_ONE;
+                    PostData.NrDislikes -= VALUE_ONE;
                     PostData.ActiveUserRating = PostRatingType.LIKE;
                     LikesCount.Text = PostData.NrLikes.ToString();
                     DislikesCount.Text = PostData.NrDislikes.ToString();
-                    LikeButton.Background = new SolidColorBrush(Color.FromArgb(150, 100, 7, 41));
-                    DislikeButton.Background = new SolidColorBrush(Color.FromArgb(255, 255, 194, 217));
+                    LikeButton.Background = new SolidColorBrush(BACKGROUND_COLOR_2);
+                    DislikeButton.Background = new SolidColorBrush(BACKGROUND_COLOR_1);
                     break;
 
                 default:
-                    m_service.LikePost(PostData.Id);
-                    PostData.NrLikes += 1;
+                    service.LikePost(PostData.Id);
+                    PostData.NrLikes += VALUE_ONE;
                     LikesCount.Text = PostData.NrLikes.ToString();
                     PostData.ActiveUserRating = PostRatingType.LIKE;
-                    LikeButton.Background = new SolidColorBrush(Color.FromArgb(150, 100, 7, 41));
+                    LikeButton.Background = new SolidColorBrush(BACKGROUND_COLOR_2);
                     break;
             }
         }
@@ -154,31 +163,31 @@ namespace News
             switch (PostData.ActiveUserRating)
             {
                 case PostRatingType.LIKE:
-                    m_service.RemoveRatingFromPost(PostData.Id);
-                    m_service.DislikePost(PostData.Id);
-                    PostData.NrLikes -= 1;
-                    PostData.NrDislikes += 1;
+                    service.RemoveRatingFromPost(PostData.Id);
+                    service.DislikePost(PostData.Id);
+                    PostData.NrLikes -= VALUE_ONE;
+                    PostData.NrDislikes += VALUE_ONE;
                     PostData.ActiveUserRating = PostRatingType.DISLIKE;
                     LikesCount.Text = PostData.NrLikes.ToString();
                     DislikesCount.Text = PostData.NrDislikes.ToString();
-                    LikeButton.Background = new SolidColorBrush(Color.FromArgb(255, 255, 194, 217));
-                    DislikeButton.Background = new SolidColorBrush(Color.FromArgb(150, 100, 7, 41));
+                    LikeButton.Background = new SolidColorBrush(BACKGROUND_COLOR_1);
+                    DislikeButton.Background = new SolidColorBrush(BACKGROUND_COLOR_2);
                     break;
 
                 case PostRatingType.DISLIKE:
-                    m_service.RemoveRatingFromPost(PostData.Id);
-                    PostData.NrDislikes -= 1;
+                    service.RemoveRatingFromPost(PostData.Id);
+                    PostData.NrDislikes -= VALUE_ONE;
                     DislikesCount.Text = PostData.NrDislikes.ToString();
                     PostData.ActiveUserRating = null;
-                    DislikeButton.Background = new SolidColorBrush(Color.FromArgb(255, 255, 194, 217));
+                    DislikeButton.Background = new SolidColorBrush(BACKGROUND_COLOR_1);
                     break;
 
                 default:
-                    m_service.DislikePost(PostData.Id);
-                    PostData.NrDislikes += 1;
+                    service.DislikePost(PostData.Id);
+                    PostData.NrDislikes += VALUE_ONE;
                     DislikesCount.Text = PostData.NrDislikes.ToString();
                     PostData.ActiveUserRating = PostRatingType.DISLIKE;
-                    DislikeButton.Background = new SolidColorBrush(Color.FromArgb(150, 100, 7, 41));
+                    DislikeButton.Background = new SolidColorBrush(BACKGROUND_COLOR_2);
                     break;
             }
         }

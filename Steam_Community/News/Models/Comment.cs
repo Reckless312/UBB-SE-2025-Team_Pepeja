@@ -4,7 +4,7 @@ namespace News
 {
     public class Comment
     {
-        public int Id { get; set; }
+        public int CommentId { get; set; }
         public int PostId { get; set; }
         public int AuthorId { get; set; }
         public string Content { get; set; }
