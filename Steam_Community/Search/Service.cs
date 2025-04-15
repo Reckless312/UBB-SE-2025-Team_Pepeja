@@ -9,9 +9,9 @@ using Steam_Community.DirectMessages.Models;
 
 namespace Search
 {
-    public class Service
+    public class Service : IService
     {
-        private Repository repository;
+        private IRepository repository;
 
         public const int MAXIMUM_NUMBER_OF_DISPLAYED_USERS = 10;
         public const int MESSAGE_REQUEST_FOUND = 0;
@@ -19,16 +19,22 @@ namespace Search
         public const int ERROR_CODE = -1;
         public const int HARDCODED_USER_ID = 1;
 
+
         public Service()
         {
             this.repository = new Repository();
         }
+        public Service(IRepository repository)
+        {
+            this.repository = repository;
+        }
+
 
         public List<User> GetFirst10UsersMatchedSorted(string username)
         {
             try
             {
-                String selectQuery = this.GetSelectQueryForUsersByName(username);
+                string selectQuery = this.GetSelectQueryForUsersByName(username);
                 List<User> foundUsers = this.repository.GetUsers(selectQuery);
                 foundUsers = this.SortAscending(foundUsers);
                 foreach (User user in foundUsers)
@@ -44,10 +50,11 @@ namespace Search
             }
         }
 
-        public String UpdateCurrentUserIpAddress(int userId)
+        public string UpdateCurrentUserIpAddress(int userId)
         {
             try
             {
+
                 String newIpAddress = Steam_Community.DirectMessages.Services.ChatService.GetLocalIpAddress();
 
                 this.repository.UpdateUserIpAddress(newIpAddress, userId);
@@ -71,10 +78,10 @@ namespace Search
             {
                 bool alreadyInvited = this.repository.CheckMessageInviteRequestExistance(senderUserId, receiverUserId);
 
-                Dictionary<String, object> invite = new Dictionary<String, object>();
+                Dictionary<string, object> invite = new Dictionary<string, object>();
 
-                invite.Add(Repository.MESSAGE_INVITES_SENDER_ROW, senderUserId);
-                invite.Add(Repository.MESSAGE_INVITES_RECEIVER_ROW, receiverUserId);
+                invite[Repository.MESSAGE_INVITES_SENDER_ROW] = senderUserId;
+                invite[Repository.MESSAGE_INVITES_RECEIVER_ROW] = receiverUserId;
 
                 switch (alreadyInvited)
                 {
@@ -85,7 +92,6 @@ namespace Search
                         this.repository.SendNewMessageRequest(invite);
                         return Service.MESSAGE_REQUEST_NOT_FOUND;
                 }
-
             }
             catch (Exception exception)
             {
@@ -101,9 +107,9 @@ namespace Search
                 List<User> foundUsers = new List<User>();
                 List<int> foundIds = this.repository.GetInvites(receiverId);
 
-                foreach(int id in foundIds)
+                foreach (int id in foundIds)
                 {
-                    String selectQuery = this.GetSelectQueryForUsersById(id);
+                    string selectQuery = this.GetSelectQueryForUsersById(id);
                     List<User> foundUser = this.repository.GetUsers(selectQuery);
                     foundUsers.AddRange(foundUser);
                 }
@@ -121,13 +127,12 @@ namespace Search
         {
             try
             {
-                Dictionary<String, object> invite = new Dictionary<String, object>();
+                Dictionary<string, object> invite = new Dictionary<string, object>();
 
                 invite.Add(Repository.MESSAGE_INVITES_SENDER_ROW, senderUserId);
                 invite.Add(Repository.MESSAGE_INVITES_RECEIVER_ROW, receiverUserId);
 
                 this.repository.RemoveMessageRequest(invite);
-
             }
             catch (Exception exception)
             {
@@ -137,13 +142,13 @@ namespace Search
 
         public List<User> SortAscending(List<User> usersList)
         {
-            usersList.Sort((User firstUser, User secondUser) => String.Compare(firstUser.UserName, secondUser.UserName));
+            usersList.Sort((User firstUser, User secondUser) => string.Compare(firstUser.UserName, secondUser.UserName));
             return usersList;
         }
 
         public List<User> SortDescending(List<User> usersList)
         {
-            usersList.Sort((User firstUser, User secondUser) => String.Compare(secondUser.UserName, firstUser.UserName));
+            usersList.Sort((User firstUser, User secondUser) => string.Compare(secondUser.UserName, firstUser.UserName));
             return usersList;
         }
 
@@ -185,6 +190,8 @@ namespace Search
             }
         }
 
+
+
         public void SendFriendRequest(int senderUserId, int receiverUserId)
         {
             try
@@ -209,6 +216,28 @@ namespace Search
             }
         }
 
+        public void ToggleFriendRequest(FriendshipStatus friendshipStatus, int senderUserId, int receiverUserId)
+        {
+            try
+            {
+                switch (friendshipStatus)
+                {
+                    case FriendshipStatus.RequestSent:
+                        this.CancelFriendRequest(senderUserId, receiverUserId);
+                        break;
+                    case FriendshipStatus.RequestReceived:
+                        this.SendFriendRequest(senderUserId, receiverUserId);
+                        break;
+                    default:
+                        break;
+                }
+            }
+            catch (Exception exception)
+            {
+                Debug.WriteLine(exception);
+            }
+        }
+
         public void OnCloseWindow(int userId)
         {
             try
@@ -221,12 +250,12 @@ namespace Search
             }
         }
 
-        private String GetSelectQueryForUsersByName(string username)
+        private string GetSelectQueryForUsersByName(string username)
         {
             return $"SELECT * FROM {Repository.USER_TABLE_NAME} WHERE username LIKE '%{username}%'";
         }
 
-        private String GetSelectQueryForUsersById(int userId)
+        private string GetSelectQueryForUsersById(int userId)
         {
             return $"SELECT * FROM {Repository.USER_TABLE_NAME} WHERE {Repository.USER_ID_ROW} = {userId}";
         }
