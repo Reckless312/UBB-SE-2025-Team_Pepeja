@@ -6,7 +6,7 @@ namespace Forum
     public class CommentDisplay
     {
         // Currently logged-in user ID for comparison
-        private static readonly uint CurrentUserId = ForumService.Instance.GetCurrentUserId();
+        private static readonly uint CurrentUserId = ForumService.GetForumServiceInstance().GetCurrentUserId();
         
         // Original comment data
         public ForumComment Comment { get; private set; }

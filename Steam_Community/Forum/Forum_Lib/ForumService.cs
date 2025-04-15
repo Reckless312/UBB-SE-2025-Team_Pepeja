@@ -6,15 +6,17 @@ using System.Threading.Tasks;
 
 namespace Forum_Lib
 {
-    public class ForumService
+    public class ForumService : IForumService
     {
-        private ForumRepository _repository;
-        
-        private static ForumService _instance = new ForumService(ForumRepository.Instance);
+        private IForumRepository _repository;
 
-        public static ForumService Instance { get { return _instance; } }
+        public static IForumService ForumServiceInstance = new ForumService(ForumRepository.GetRepoInstance());
+        public static IForumService GetForumServiceInstance()
+        {
+            return ForumServiceInstance;
+        }
 
-        private ForumService(ForumRepository repository)
+        private ForumService(IForumRepository repository)
         {
             _repository = repository;
         }
@@ -68,14 +70,5 @@ namespace Forum_Lib
         {
             _repository.CreatePost(title, body, GetCurrentUserId(), date, gameId);
         }
-    }
-
-    public enum TimeSpanFilter
-    {
-        Day,
-        Week,
-        Month,
-        Year,
-        AllTime
     }
 }
