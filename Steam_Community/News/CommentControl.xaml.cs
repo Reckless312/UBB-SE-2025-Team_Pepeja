@@ -11,20 +11,23 @@ namespace News
         public event RoutedEventHandler? CommentDeleted;
         public event RoutedEventHandler? CommentUpdated;
         
-        private Service m_service = Service.Instance;
+        private NewsService service;
         public Comment CommentData { get; private set; }
-        private Users m_users = Users.Instance;
+
+        private Users users = Users.Instance;
         
         public CommentControl()
         {
             this.InitializeComponent();
+
+            service = new NewsService();
             EditCommentInput.CommentPosted += EditCommentInput_CommentPosted;
         }
 
         public void SetCommentData(Comment comment)
         {
             CommentData = comment;
-            User? user = m_users.GetUserById(CommentData.AuthorId);
+            User? user = users.GetUserById(CommentData.AuthorId);
         
             UsernameText.Text = user.username;
             CommentDateText.Text = CommentData.CommentDate.ToString("MMM d, yyyy");
@@ -35,7 +38,7 @@ namespace News
 
             LoadCommentContent(comment.Content);
 
-            if (user.id == m_service.ActiveUser.id)
+            if (user.id == service.activeUser.id)
             {
                 EditButton.Visibility = Visibility.Visible;
                 DeleteButton.Visibility = Visibility.Visible;
@@ -72,7 +75,7 @@ namespace News
             DeleteButton.Visibility = Visibility.Collapsed;
             
             EditCommentInput.PostId = CommentData.PostId;
-            EditCommentInput.CommentId = CommentData.Id;
+            EditCommentInput.CommentId = CommentData.CommentId;
             EditCommentInput.SetEditMode(true);
             
             TextBox rawEditor = (TextBox)EditCommentInput.FindName("RawEditor");
@@ -96,7 +99,7 @@ namespace News
             TextBox rawEditor = (TextBox)EditCommentInput.FindName("RawEditor");
             if (rawEditor != null)
             {
-                CommentData.Content = m_service.FormatAsPost(rawEditor.Text);
+                CommentData.Content = service.FormatAsPost(rawEditor.Text);
             }
             
             EditCommentInput.ResetControl();
@@ -108,7 +111,7 @@ namespace News
 
         private void DeleteButton_Click(object sender, RoutedEventArgs e)
         {
-            bool success = m_service.DeleteCommentFromDatabase(CommentData.Id);
+            bool success = service.DeleteComment(CommentData.CommentId);
             if (success)
             {
                 CommentDeleted?.Invoke(this, new RoutedEventArgs());
