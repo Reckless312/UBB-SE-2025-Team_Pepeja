@@ -7,17 +7,24 @@ namespace News
 {
     public sealed partial class NewsControl : UserControl
     {
-        private List<Post> m_currentPosts = new List<Post>();
-        private int m_currentPage = 0;
-        private Service m_service = Service.Instance;
-        private bool m_IsLoadingPosts = false;
-        private string m_searchQuery = "";
+        private const string EMPTY_STRING = "";
+        private const int INITIAL_VALUE_ZERO = 0;
+        private const int DIVISOR = 3;
+        private const Single FLOAT_DIVISOR = 3f;
+
+        private List<Post> currentPosts = new List<Post>();
+        private int currentPage = INITIAL_VALUE_ZERO;
+        private NewsService service;
+        private bool isLoadingPosts = false;
+        private string m_searchedText = EMPTY_STRING;
 
         public NewsControl()
         {
             this.InitializeComponent();
+
+            service = new NewsService();
           
-            News_CreatePostButton.Visibility = m_service.ActiveUser.bIsDeveloper ? Visibility.Visible : Visibility.Collapsed;
+            News_CreatePostButton.Visibility = service.activeUser.bIsDeveloper ? Visibility.Visible : Visibility.Collapsed;
             
             LoadPosts();
 
@@ -35,15 +42,13 @@ namespace News
 
         private void PostControl_PostDeleted(object sender, RoutedEventArgs e)
         {
-            LoadPosts(true);
-            m_searchQuery = "";
+            LoadPosts(true, m_searchedText);
         }
 
         private void PostEditorPanel_PostUploaded(object sender, RoutedEventArgs e)
         {
             News_EditorOverlayContainer.Visibility = Visibility.Collapsed;
-            LoadPosts(true);
-            m_searchQuery = "";
+            LoadPosts(true, m_searchedText);
         }
 
         private void PostDetailPanel_PanelClosed(object sender, RoutedEventArgs e)
@@ -59,11 +64,11 @@ namespace News
 
         private void PostsScroller_ViewChanged(object sender, ScrollViewerViewChangedEventArgs e)
         {
-            if (!m_IsLoadingPosts && News_PostsScroller.VerticalOffset >= News_PostsScroller.ScrollableHeight - 50)
+            if (!isLoadingPosts && News_PostsScroller.VerticalOffset >= News_PostsScroller.ScrollableHeight - 50)
             {
-                m_IsLoadingPosts = true;
-                LoadPosts(false, m_searchQuery);
-                m_IsLoadingPosts = false;
+                isLoadingPosts = true;
+                LoadPosts(false, m_searchedText);
+                isLoadingPosts = false;
             }
         }
 
@@ -85,46 +90,48 @@ namespace News
         {
             if (e.Key == Windows.System.VirtualKey.Enter)
             {
-                m_searchQuery = News_SearchBox.Text.Trim();
+                m_searchedText = News_SearchBox.Text.Trim();
                 
-                LoadPosts(true, m_searchQuery);
+                LoadPosts(true, m_searchedText);
             }
         }
 
-        private void LoadPosts(bool resetGrid = false, string searchQuery = "")
+        private void LoadPosts(bool resetGrid = false, string searchedText = EMPTY_STRING)
         {
             if (resetGrid)
             {
                 News_PostsGrid.Children.Clear();
-                m_currentPosts.Clear();
-                m_currentPage = 0;
+                currentPosts.Clear();
+                currentPage = INITIAL_VALUE_ZERO;
             }
 
-            ++m_currentPage;
-            List<Post> posts = m_service.LoadNextPosts(searchQuery, m_currentPage);
-            m_currentPosts.AddRange(posts);
+            ++currentPage;
+            List<Post> posts = service.LoadNextPosts(currentPage, searchedText);
+            currentPosts.AddRange(posts);
 
             
-            int requiredRows = (int)Math.Ceiling(m_currentPosts.Count / 3f);
+            int requiredRows = (int)Math.Ceiling(currentPosts.Count / FLOAT_DIVISOR);
             while (News_PostsGrid.RowDefinitions.Count < requiredRows)
             {
                 News_PostsGrid.RowDefinitions.Add(new() { Height = GridLength.Auto });
             }
 
-            int startIndex = (m_currentPage - 1) * Service.PAGE_SIZE;
-            for (int i = startIndex; i < m_currentPosts.Count; ++i)
+            int startIndex = (currentPage - 1) * NewsService.PAGE_SIZE;
+            for (int i = startIndex; i < currentPosts.Count; ++i)
             {
-                int row = i / 3;
-                int column = i % 3;
+                int row = i / DIVISOR;
+                int column = i % DIVISOR;
 
                 var postPreview = new PostPreviewControl();
-                postPreview.SetPostData(m_currentPosts[i]);
+                postPreview.SetPostData(currentPosts[i]);
                 postPreview.PostClicked += PostPreview_PostClicked;
 
                 Grid.SetRow(postPreview, row);
                 Grid.SetColumn(postPreview, column);
                 News_PostsGrid.Children.Add(postPreview);
             }
+
+            m_searchedText = EMPTY_STRING;
         }
     }
 } 

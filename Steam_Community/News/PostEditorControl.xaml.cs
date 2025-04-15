@@ -10,14 +10,19 @@ namespace News
 {
     public sealed partial class PostEditorControl : UserControl
     {
+        private const string EMPTY_STRING = "";
+
         public event RoutedEventHandler? PostUploaded;
-        private Service m_service = Service.Instance;
+        private NewsService service;
         private Post? m_postBeingEdited = null;
-        private bool m_bIsEditMode = false;
+        private bool isEditMode = false;
 
         public PostEditorControl()
         {
             this.InitializeComponent();
+
+            service = new NewsService();
+
             this.Loaded += PostEditorControl_Loaded;
         }
 
@@ -39,12 +44,12 @@ namespace News
             }
             HtmlPreview.Visibility = Visibility.Visible;
             RawHtmlEditor.Visibility = Visibility.Collapsed;
-            HtmlPreview.CoreWebView2.NavigateToString(m_service.FormatAsPost(RawHtmlEditor.Text));
+            HtmlPreview.CoreWebView2.NavigateToString(service.FormatAsPost(RawHtmlEditor.Text));
         }
 
         public void SetPostToEdit(Post post)
         {
-            m_bIsEditMode = true;
+            isEditMode = true;
             m_postBeingEdited = post;
 
             string htmlContent = post.Content;
@@ -58,34 +63,32 @@ namespace News
 
         public void ResetEditor()
         {
-            m_bIsEditMode = false;
+            isEditMode = false;
             m_postBeingEdited = null;
-            RawHtmlEditor.Text = "";
+            RawHtmlEditor.Text = EMPTY_STRING;
         }
 
         private void UploadButton_Click(object sender, RoutedEventArgs e)
         {
-
-            if (m_bIsEditMode)
+            if (isEditMode)
             {
                 if (RawHtmlEditor.Text == "")
                 {
                     return;
                 }
-                string html = m_service.FormatAsPost(RawHtmlEditor.Text);
-                m_service.UpdatePost(m_postBeingEdited.Id, html);
+                string html = service.FormatAsPost(RawHtmlEditor.Text);
+                service.UpdatePost(m_postBeingEdited.Id, html);
             }
             else
             {
                 if (RawHtmlEditor.Text != "")
                 {
-                    string html = m_service.FormatAsPost(RawHtmlEditor.Text);
-                    m_service.SavePostToDatabase(html);
+                    string html = service.FormatAsPost(RawHtmlEditor.Text);
+                    service.SavePost(html);
                 }
             }
-
             ResetEditor();
-            RawHtmlEditor.Text = "";
+            RawHtmlEditor.Text = EMPTY_STRING;
             PostUploaded?.Invoke(this, new RoutedEventArgs());
         }
 
@@ -99,11 +102,11 @@ namespace News
             {
                 System.Diagnostics.Debug.WriteLine($"WebView2 initialization error: {ex.Message}");
             }
-            Username.Text = m_service.ActiveUser.username;
+            Username.Text = service.activeUser.username;
             CurrentDate.Text = DateTime.Now.ToString("MMM d, yyyy");
 
             var image = new BitmapImage();
-            image.SetSource(new MemoryStream(m_service.ActiveUser.profilePicture).AsRandomAccessStream());
+            image.SetSource(new MemoryStream(service.activeUser.profilePicture).AsRandomAccessStream());
             ProfilePicture.ImageSource = image;
         }
     }

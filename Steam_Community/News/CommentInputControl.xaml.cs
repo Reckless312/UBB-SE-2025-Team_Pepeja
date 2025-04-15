@@ -7,9 +7,11 @@ namespace News
     public sealed partial class CommentInputControl : UserControl
     {
         public event RoutedEventHandler? CommentPosted;
-        private readonly Service m_service = Service.Instance;
+        private readonly NewsService service;
         
-        private bool m_isEditMode = false;
+        private bool isEditMode = false;
+        private const string EMPTY_STRING = "";
+        private const string POST_COMMENT_STRING = "Post Comment";
 
         public int PostId { get; set; }
 
@@ -18,28 +20,22 @@ namespace News
         public CommentInputControl()
         {
             this.InitializeComponent();
+            service = new NewsService();
             this.Loaded += CommentInputControl_Loaded;
         }
 
         public void SetEditMode(bool isEdit)
         {
-            m_isEditMode = isEdit;
-            
-            if (m_isEditMode)
-            {
-                PostCommentButton.Content = "Save";
-            }
-            else
-            {
-                PostCommentButton.Content = "Post Comment";
-            }
+            isEditMode = isEdit;
+
+            PostCommentButton.Content = service.SetStringOnEditMode(isEditMode);
         }
         
         public void ResetControl()
         {
-            m_isEditMode = false;
-            RawEditor.Text = "";
-            PostCommentButton.Content = "Post Comment";
+            isEditMode = false;
+            RawEditor.Text = EMPTY_STRING;
+            PostCommentButton.Content = POST_COMMENT_STRING;
         }
 
         private async void CommentInputControl_Loaded(object sender, RoutedEventArgs e)
@@ -67,35 +63,26 @@ namespace News
 
             if (HtmlPreview.CoreWebView2 != null)
             {
-                HtmlPreview.CoreWebView2.NavigateToString(m_service.FormatAsPost(RawEditor.Text));
+                HtmlPreview.CoreWebView2.NavigateToString(service.FormatAsPost(RawEditor.Text));
             }
         }
 
         private void PostCommentButton_Click(object sender, RoutedEventArgs e)
         {
-            if (RawEditor.Text == "")
+            if (RawEditor.Text == EMPTY_STRING)
             {
                 return;
             }
-            
-            bool success = false;
-            
-            if (m_isEditMode)
-            {
-                success = m_service.UpdateComment(CommentId, m_service.FormatAsPost(RawEditor.Text));
-            }
-            else
-            {
-                success = m_service.SaveComment(PostId, m_service.FormatAsPost(RawEditor.Text));
-            }
+
+            bool success = service.SetCommentMethodOnEditMode(isEditMode, CommentId, PostId, RawEditor.Text);
 
             if (success)
             {
                 CommentPosted?.Invoke(this, new RoutedEventArgs());
 
-                RawEditor.Text = "";
-                m_isEditMode = false;
-                PostCommentButton.Content = "Post Comment";
+                RawEditor.Text = EMPTY_STRING;
+                isEditMode = false;
+                PostCommentButton.Content = POST_COMMENT_STRING;
                 RawButton_Click(this, new RoutedEventArgs());
             }
             else
