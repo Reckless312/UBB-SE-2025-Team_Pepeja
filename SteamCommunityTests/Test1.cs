@@ -1,4 +1,4 @@
-﻿namespace SteamCommunityTests
+namespace SteamCommunityTests
 {
     [TestClass]
     public sealed class Test1
