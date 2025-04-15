@@ -8,7 +8,7 @@ namespace Forum
     public sealed partial class AddCommentDialog : ContentDialog
     {
         // Current user ID from service
-        private readonly uint _currentUserId = ForumService.Instance.GetCurrentUserId();
+        private readonly uint _currentUserId = ForumService.GetForumServiceInstance().GetCurrentUserId();
         private User _currentUser;
         
         // The post ID this comment will be added to
@@ -54,7 +54,7 @@ namespace Forum
                 
                 // Create the comment
                 string currentDate = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-                Forum_Lib.ForumService.Instance.CreateComment(commentBody, PostId, currentDate);
+                Forum_Lib.ForumService.GetForumServiceInstance().CreateComment(commentBody, PostId, currentDate);
                 
                 // Log success
                 System.Diagnostics.Debug.WriteLine($"Comment created successfully for post {PostId}");

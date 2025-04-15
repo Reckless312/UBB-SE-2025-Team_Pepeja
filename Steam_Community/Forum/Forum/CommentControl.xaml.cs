@@ -9,7 +9,7 @@ namespace Forum
     public sealed partial class CommentControl : UserControl
     {
         // The currently logged-in user ID
-        private static readonly uint _currentUserId = ForumService.Instance.GetCurrentUserId();
+        private static readonly uint _currentUserId = ForumService.GetForumServiceInstance().GetCurrentUserId();
         
         // The comment being displayed
         private CommentDisplay _comment;
@@ -63,7 +63,7 @@ namespace Forum
             try
             {
                 // Call the service to upvote the comment
-                ForumService.Instance.VoteOnComment(_comment.Id, 1);
+                ForumService.GetForumServiceInstance().VoteOnComment(_comment.Id, 1);
                 
                 // Update the score locally
                 _comment.Comment.Score += 1;
@@ -85,7 +85,7 @@ namespace Forum
             try
             {
                 // Call the service to downvote the comment
-                ForumService.Instance.VoteOnComment(_comment.Id, -1);
+                ForumService.GetForumServiceInstance().VoteOnComment(_comment.Id, -1);
                 
                 // Update the score locally
                 _comment.Comment.Score -= 1;
