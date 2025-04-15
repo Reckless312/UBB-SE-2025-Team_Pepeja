@@ -3,13 +3,13 @@ using System;
 
 namespace SteamCommunity.Reviews.Database
 {
-    public class DatabaseConnection
+    public class DatabaseConnection : IDatabaseConnection
     {
         private readonly string connectionString;
 
         public DatabaseConnection()
         {
-            connectionString = "Data Source=DESKTOP-2OA983C;Initial Catalog=Community;Integrated Security=true;";
+            connectionString = "Data Source=Raul\\SQLEXPRESS01;Initial Catalog=Community;Integrated Security=true;";
         }
 
         public SqlConnection GetConnection()
