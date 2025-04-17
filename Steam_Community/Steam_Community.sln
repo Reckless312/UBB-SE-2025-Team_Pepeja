@@ -4,7 +4,7 @@ VisualStudioVersion = 17.13.35825.156
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Steam_Community", "Steam_Community.csproj", "{3B01C3DB-EA02-4E57-BDAA-9162E327A102}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SteamCommunityTests", "..\SteamCommunityTests\SteamCommunityTests.csproj", "{7746D19E-E521-400D-BB4D-767373AB6BA1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SteamCommunityTests", "..\SteamCommunityTests\SteamCommunityTests.csproj", "{D843C3B3-2B4E-47E4-B861-C44C830ADED5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -34,18 +34,24 @@ Global
 		{3B01C3DB-EA02-4E57-BDAA-9162E327A102}.Release|x86.ActiveCfg = Release|x86
 		{3B01C3DB-EA02-4E57-BDAA-9162E327A102}.Release|x86.Build.0 = Release|x86
 		{3B01C3DB-EA02-4E57-BDAA-9162E327A102}.Release|x86.Deploy.0 = Release|x86
-		{7746D19E-E521-400D-BB4D-767373AB6BA1}.Debug|ARM64.ActiveCfg = Debug|Any CPU
-		{7746D19E-E521-400D-BB4D-767373AB6BA1}.Debug|ARM64.Build.0 = Debug|Any CPU
-		{7746D19E-E521-400D-BB4D-767373AB6BA1}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{7746D19E-E521-400D-BB4D-767373AB6BA1}.Debug|x64.Build.0 = Debug|Any CPU
-		{7746D19E-E521-400D-BB4D-767373AB6BA1}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{7746D19E-E521-400D-BB4D-767373AB6BA1}.Debug|x86.Build.0 = Debug|Any CPU
-		{7746D19E-E521-400D-BB4D-767373AB6BA1}.Release|ARM64.ActiveCfg = Release|Any CPU
-		{7746D19E-E521-400D-BB4D-767373AB6BA1}.Release|ARM64.Build.0 = Release|Any CPU
-		{7746D19E-E521-400D-BB4D-767373AB6BA1}.Release|x64.ActiveCfg = Release|Any CPU
-		{7746D19E-E521-400D-BB4D-767373AB6BA1}.Release|x64.Build.0 = Release|Any CPU
-		{7746D19E-E521-400D-BB4D-767373AB6BA1}.Release|x86.ActiveCfg = Release|Any CPU
-		{7746D19E-E521-400D-BB4D-767373AB6BA1}.Release|x86.Build.0 = Release|Any CPU
+		{D843C3B3-2B4E-47E4-B861-C44C830ADED5}.Debug|ARM64.ActiveCfg = Debug|ARM64
+		{D843C3B3-2B4E-47E4-B861-C44C830ADED5}.Debug|ARM64.Build.0 = Debug|ARM64
+		{D843C3B3-2B4E-47E4-B861-C44C830ADED5}.Debug|ARM64.Deploy.0 = Debug|ARM64
+		{D843C3B3-2B4E-47E4-B861-C44C830ADED5}.Debug|x64.ActiveCfg = Debug|x64
+		{D843C3B3-2B4E-47E4-B861-C44C830ADED5}.Debug|x64.Build.0 = Debug|x64
+		{D843C3B3-2B4E-47E4-B861-C44C830ADED5}.Debug|x64.Deploy.0 = Debug|x64
+		{D843C3B3-2B4E-47E4-B861-C44C830ADED5}.Debug|x86.ActiveCfg = Debug|x86
+		{D843C3B3-2B4E-47E4-B861-C44C830ADED5}.Debug|x86.Build.0 = Debug|x86
+		{D843C3B3-2B4E-47E4-B861-C44C830ADED5}.Debug|x86.Deploy.0 = Debug|x86
+		{D843C3B3-2B4E-47E4-B861-C44C830ADED5}.Release|ARM64.ActiveCfg = Release|ARM64
+		{D843C3B3-2B4E-47E4-B861-C44C830ADED5}.Release|ARM64.Build.0 = Release|ARM64
+		{D843C3B3-2B4E-47E4-B861-C44C830ADED5}.Release|ARM64.Deploy.0 = Release|ARM64
+		{D843C3B3-2B4E-47E4-B861-C44C830ADED5}.Release|x64.ActiveCfg = Release|x64
+		{D843C3B3-2B4E-47E4-B861-C44C830ADED5}.Release|x64.Build.0 = Release|x64
+		{D843C3B3-2B4E-47E4-B861-C44C830ADED5}.Release|x64.Deploy.0 = Release|x64
+		{D843C3B3-2B4E-47E4-B861-C44C830ADED5}.Release|x86.ActiveCfg = Release|x86
+		{D843C3B3-2B4E-47E4-B861-C44C830ADED5}.Release|x86.Build.0 = Release|x86
+		{D843C3B3-2B4E-47E4-B861-C44C830ADED5}.Release|x86.Deploy.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

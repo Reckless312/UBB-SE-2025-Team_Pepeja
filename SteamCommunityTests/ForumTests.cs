@@ -1,5 +1,13 @@
 ﻿using Forum_Lib;
 
+//MUST HAVE THESE INCLUDES IN EACH TEST FILE
+using Microsoft.UI.Xaml.Controls;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.VisualStudio.TestTools.UnitTesting.AppContainer;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
 namespace SteamCommunityForumTests
 {
     [TestClass]

@@ -13,6 +13,15 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
+
+//MUST HAVE THESE INCLUDES IN EACH TEST FILE
+using Microsoft.UI.Xaml.Controls;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.VisualStudio.TestTools.UnitTesting.AppContainer;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
 namespace Steam_Community.Tests
 {
     [TestClass]
